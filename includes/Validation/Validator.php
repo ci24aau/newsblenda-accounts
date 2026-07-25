@@ -297,12 +297,14 @@ class Validator
         array $data
     ): void {
 
+        $post_id = isset($data['post_id'])
+            ? (int) $data['post_id']
+            : 0;
+
         if (
-
-            empty($_FILES['featured_image']) ||
-
-            empty($_FILES['featured_image']['name'])
-
+            (empty($_FILES['featured_image']) ||
+            empty($_FILES['featured_image']['name'])) &&
+            ($post_id < 1 || ! has_post_thumbnail($post_id))
         ) {
 
             $this->errors[] = __(
@@ -312,6 +314,13 @@ class Validator
 
             return;
 
+        }
+
+        if (
+            empty($_FILES['featured_image']) ||
+            empty($_FILES['featured_image']['name'])
+        ) {
+            return;
         }
 
         $allowed = [
@@ -413,7 +422,9 @@ class Validator
             'post'
         );
 
-        if ($existing instanceof \WP_Post) {
+        $current_post_id = isset($data['post_id']) ? (int) $data['post_id'] : 0;
+
+        if ($existing instanceof \WP_Post && $existing->ID !== $current_post_id) {
 
             $this->warnings[] = __(
                 'A similar article title already exists.',

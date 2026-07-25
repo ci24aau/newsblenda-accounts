@@ -446,3 +446,534 @@
 	}
 
 }
+/* =========================================
+   Phase 3: Workflow & Dashboard Layout
+   ========================================= */
+
+/* Sidebar layout */
+.nba-dashboard-wrap {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 0;
+    min-height: 60vh;
+    background: #f6f7f8;
+}
+
+.nba-sidebar {
+    background: #1e2a3a;
+    padding: 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+.nba-sidebar-header {
+    padding: 24px 20px 16px;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.nba-sidebar-header .nba-logo {
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    text-decoration: none;
+}
+
+.nba-sidebar-nav {
+    list-style: none;
+    margin: 0;
+    padding: 12px 0;
+}
+
+.nba-sidebar-nav li {
+    margin: 0;
+}
+
+.nba-sidebar-nav a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px;
+    color: rgba(255,255,255,.7);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: .15s;
+    border-left: 3px solid transparent;
+}
+
+.nba-sidebar-nav a:hover {
+    background: rgba(255,255,255,.07);
+    color: #fff;
+}
+
+.nba-sidebar-nav a.active {
+    background: rgba(255,255,255,.1);
+    color: #fff;
+    border-left-color: #4f86f7;
+}
+
+.nba-sidebar-nav .nba-badge-count {
+    margin-left: auto;
+    background: #e74c3c;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 999px;
+    line-height: 1.4;
+}
+
+.nba-sidebar-section {
+    padding: 6px 20px;
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255,255,255,.35);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    margin-top: 8px;
+}
+
+.nba-sidebar-divider {
+    border: none;
+    border-top: 1px solid rgba(255,255,255,.08);
+    margin: 8px 0;
+}
+
+/* Main content area */
+.nba-dashboard-main {
+    padding: 30px 32px;
+    min-width: 0;
+    overflow-y: auto;
+}
+
+/* Dashboard header */
+.nba-dash-header {
+    margin-bottom: 28px;
+}
+
+.nba-dash-header h1 {
+    font-size: 24px;
+    font-weight: 700;
+    margin: 0 0 6px;
+    color: #1e2a3a;
+}
+
+.nba-dash-header p {
+    color: #666;
+    margin: 0;
+    font-size: 14px;
+}
+
+/* Stat cards */
+.nba-stat-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+}
+
+.nba-stat-card {
+    background: #fff;
+    border: 1px solid #e8eaec;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.04);
+}
+
+.nba-stat-card .nba-stat-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    margin-bottom: 8px;
+}
+
+.nba-stat-card .nba-stat-value {
+    font-size: 30px;
+    font-weight: 700;
+    color: #1e2a3a;
+    line-height: 1;
+}
+
+.nba-stat-card .nba-stat-icon {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+/* Section headers */
+.nba-section {
+    margin-bottom: 28px;
+}
+
+.nba-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+}
+
+.nba-section-header h2 {
+    font-size: 17px;
+    font-weight: 600;
+    margin: 0;
+    color: #1e2a3a;
+}
+
+/* Review page layout */
+.nba-review-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px 20px 40px;
+}
+
+.nba-review-layout,
+.nba-two-column {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 24px;
+    align-items: start;
+    margin-top: 24px;
+}
+
+.nba-two-column {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.nba-review-content {
+    background: #fff;
+    border: 1px solid #e8eaec;
+    border-radius: 10px;
+    padding: 32px;
+    line-height: 1.7;
+}
+
+.nba-review-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.nba-review-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.nba-review-actions .button {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+}
+
+.nba-inline-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.nba-btn-danger {
+    background: #dc3545 !important;
+    color: #fff !important;
+    border-color: #dc3545 !important;
+}
+
+.nba-btn-danger:hover {
+    background: #c82333 !important;
+}
+
+/* Review meta bar */
+.nba-review-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    margin-top: 10px;
+    font-size: 13px;
+    color: #666;
+}
+
+/* Workflow log */
+.nba-workflow-log {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: 13px;
+}
+
+.nba-workflow-log li {
+    padding: 8px 0;
+    border-bottom: 1px solid #f1f1f1;
+    line-height: 1.4;
+}
+
+.nba-workflow-log li:last-child {
+    border-bottom: none;
+}
+
+.nba-workflow-log .log-action {
+    font-weight: 600;
+    color: #1e2a3a;
+}
+
+.nba-workflow-log .log-meta {
+    color: #888;
+    font-size: 12px;
+}
+
+/* Modals */
+.nba-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.5);
+    z-index: 99999;
+    align-items: center;
+    justify-content: center;
+}
+
+.nba-modal-overlay.active {
+    display: flex;
+}
+
+.nba-modal {
+    background: #fff;
+    border-radius: 12px;
+    padding: 28px;
+    width: 100%;
+    max-width: 500px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.2);
+    position: relative;
+}
+
+.nba-modal h2 {
+    font-size: 18px;
+    margin: 0 0 18px;
+}
+
+.nba-modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #999;
+    line-height: 1;
+    padding: 4px;
+}
+
+.nba-modal-close:hover {
+    color: #333;
+}
+
+.nba-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.nba-modal label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.nba-modal select,
+.nba-modal textarea,
+.nba-modal input[type="text"],
+.nba-modal input[type="datetime-local"] {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    margin-bottom: 14px;
+}
+
+.nba-modal textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+/* Feedback/revision display */
+.nba-feedback-block {
+    background: #fff8e1;
+    border: 1px solid #ffe082;
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 10px;
+    font-size: 14px;
+}
+
+.nba-feedback-block .nba-feedback-label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #e65100;
+    margin-bottom: 8px;
+}
+
+/* Status badges */
+.nba-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+}
+.nba-badge-pending    { background:#fff3cd; color:#664d03; }
+.nba-badge-submitted  { background:#cff4fc; color:#055160; }
+.nba-badge-revision   { background:#cfe2ff; color:#084298; }
+.nba-badge-rejected   { background:#f8d7da; color:#842029; }
+.nba-badge-published  { background:#d1e7dd; color:#0f5132; }
+.nba-badge-approved   { background:#d1e7dd; color:#0f5132; }
+.nba-badge-scheduled  { background:#e2d9f3; color:#4a2d82; }
+.nba-badge-draft      { background:#e2e3e5; color:#41464b; }
+.nba-badge-warning    { background:#fff3cd; color:#664d03; }
+.nba-badge-info       { background:#cff4fc; color:#055160; }
+.nba-badge-success    { background:#d1e7dd; color:#0f5132; }
+
+/* Autosave indicator */
+.nba-autosave-status {
+    display: inline-block;
+    font-size: 12px;
+    color: #888;
+    margin-left: 12px;
+}
+
+.nba-autosave-status.saving {
+    color: #f57c00;
+}
+
+.nba-autosave-status.saved {
+    color: #2e7d32;
+}
+
+.nba-autosave-status.error {
+    color: #c62828;
+}
+
+/* Word counter */
+.nba-word-counter {
+    font-size: 12px;
+    color: #888;
+    text-align: right;
+    margin-top: 6px;
+}
+
+.nba-word-counter.under-min {
+    color: #e53935;
+}
+
+.nba-word-counter.over-max {
+    color: #e53935;
+}
+
+/* Submission checklist */
+.nba-submission-checklist {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.nba-submission-checklist li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    font-size: 14px;
+    border-bottom: 1px solid #f5f5f5;
+}
+
+.nba-submission-checklist li:last-child {
+    border-bottom: none;
+}
+
+.nba-check-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+}
+
+.nba-check-icon.pass {
+    background: #d1e7dd;
+    color: #0f5132;
+}
+
+.nba-check-icon.fail {
+    background: #f8d7da;
+    color: #842029;
+}
+
+/* Responsive dashboard */
+@media (max-width: 1024px) {
+    .nba-dashboard-wrap {
+        grid-template-columns: 1fr;
+    }
+    .nba-sidebar {
+        position: static;
+        height: auto;
+    }
+    .nba-review-layout,
+    .nba-two-column {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .nba-dashboard-main {
+        padding: 20px 16px;
+    }
+    .nba-stat-cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Toast notifications */
+.nba-toast {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    padding: 14px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #fff;
+    box-shadow: 0 6px 20px rgba(0,0,0,.2);
+    z-index: 999999;
+    transform: translateY(10px);
+    opacity: 0;
+    transition: .25s ease;
+}
+.nba-toast.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+.nba-toast-success { background: #198754; }
+.nba-toast-error   { background: #dc3545; }
+.nba-toast-info    { background: #0d6efd; }
+.nba-toast-warning { background: #ffc107; color: #333; }
+
+/* Character counter */
+.nba-char-counter {
+    display: block;
+    font-size: 12px;
+    color: #888;
+    text-align: right;
+    margin-top: 4px;
+}
+.nba-char-counter.nba-over-limit {
+    color: #dc3545;
+    font-weight: 600;
+}

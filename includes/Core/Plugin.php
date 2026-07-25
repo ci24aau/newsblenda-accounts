@@ -153,6 +153,7 @@ class Plugin
         */
 
         new \Newsblenda\Accounts\Dashboard\Dashboard();
+        new \Newsblenda\Accounts\Dashboard\EditorDashboard();
 
         /*
         |--------------------------------------------------------------------------
@@ -209,6 +210,15 @@ class Plugin
         */
 
         new \Newsblenda\Accounts\Validation\Validator();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Workflow
+        |--------------------------------------------------------------------------
+        */
+
+        new \Newsblenda\Accounts\Workflow\Workflow();
+        new \Newsblenda\Accounts\Workflow\WorkflowAjax();
 
         if (class_exists(\Newsblenda\Accounts\Submission\Submission::class)) {
             new \Newsblenda\Accounts\Submission\Submission();
@@ -375,17 +385,28 @@ class Plugin
             true
         );
 
+        wp_enqueue_script(
+            'nb-accounts-dashboard',
+            NB_ACCOUNTS_URL . 'assets/js/dashboard.js',
+            ['jquery', 'nb-accounts-frontend'],
+            NB_ACCOUNTS_VERSION,
+            true
+        );
+
         wp_localize_script(
             'nb-accounts-frontend',
             'NBAccounts',
             [
-                'ajax_url' => admin_url('admin-ajax.php'),
-                'home_url' => home_url(),
-                'rest_url' => esc_url_raw(
+                'ajax_url'       => admin_url('admin-ajax.php'),
+                'home_url'       => home_url(),
+                'rest_url'       => esc_url_raw(
                     rest_url()
                 ),
-                'nonce' => wp_create_nonce(
+                'nonce'          => wp_create_nonce(
                     'nb_accounts'
+                ),
+                'workflow_nonce' => wp_create_nonce(
+                    'nb_workflow_nonce'
                 ),
                 'logged_in' => is_user_logged_in(),
                 'i18n'      => [
@@ -397,6 +418,7 @@ class Plugin
                     'strengthVStrong'  => __('Very Strong', 'newsblenda-accounts'),
                     'passwordsMatch'   => __('Passwords match', 'newsblenda-accounts'),
                     'passwordsNoMatch' => __('Passwords do not match', 'newsblenda-accounts'),
+                    'processing'       => __('Processing...', 'newsblenda-accounts'),
                 ],
             ]
         );
