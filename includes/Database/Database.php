@@ -167,7 +167,7 @@ class Database
 
                 id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
 
-                user_id BIGINT UNSIGNED NULL,
+                user_id BIGINT UNSIGNED NOT NULL,
 
                 email VARCHAR(190) NOT NULL,
 

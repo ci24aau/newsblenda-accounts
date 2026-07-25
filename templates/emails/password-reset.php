@@ -14,7 +14,9 @@ $site_name = wp_specialchars_decode(
 $user_name = $user_name ?? __('Author', 'newsblenda-accounts');
 
 $reset_url = $reset_url ?? home_url('/reset-password/');
-$expiry_hours = isset($expiry_hours) ? (int) $expiry_hours : 24;
+$expiry_hours = isset($expiry_hours)
+	? (int) $expiry_hours
+	: (int) (DAY_IN_SECONDS / HOUR_IN_SECONDS);
 
 $login_url = home_url('/login/');
 

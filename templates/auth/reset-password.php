@@ -71,6 +71,7 @@ $status_messages = [
 ];
 
 $token_valid = ($status === 'valid');
+$status_icon = $token_valid ? '🔒' : '⚠️';
 ?>
 
 <div class="nba-auth-wrapper nba-reset-password">
@@ -78,7 +79,7 @@ $token_valid = ($status === 'valid');
 	<div class="nba-auth-card">
 
 		<div class="nba-auth-icon">
-			<span style="font-size:64px;"><?php echo $token_valid ? '🔒' : '⚠️'; ?></span>
+			<span style="font-size:64px;"><?php echo esc_html($status_icon); ?></span>
 		</div>
 
 		<h1>

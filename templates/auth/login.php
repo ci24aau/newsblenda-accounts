@@ -25,6 +25,7 @@ $prefill_username = isset($_GET['login_user'])
 $reset_status = isset($_GET['reset'])
 	? sanitize_key(wp_unslash($_GET['reset']))
 	: '';
+$allowed_reset_statuses = ['success'];
 
 $login_messages = [
 	'nonce' => __('Security check failed. Please try again.', 'newsblenda-accounts'),
@@ -79,7 +80,7 @@ $login_messages = [
 
 		<?php endif; ?>
 
-		<?php if ($reset_status === 'success') : ?>
+		<?php if (in_array($reset_status, $allowed_reset_statuses, true)) : ?>
 			<div class="nba-message nba-message-success">
 				<?php esc_html_e('Your password has been reset. Please sign in with your new password.', 'newsblenda-accounts'); ?>
 			</div>

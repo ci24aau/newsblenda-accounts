@@ -4,6 +4,7 @@
 
 (function ($) {
 	'use strict';
+	// Brief delay so users can see the success state before redirect.
 	const REDIRECT_DELAY_MS = 700;
 
 	const NBAccounts = {

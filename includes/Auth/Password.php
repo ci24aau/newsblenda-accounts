@@ -10,6 +10,9 @@ defined('ABSPATH') || exit;
 
 class Password
 {
+    /**
+     * Reset token lifetime (24 hours by default).
+     */
     private const TOKEN_WINDOW = DAY_IN_SECONDS;
     private const REQUEST_HOURLY_MAX = 5;
     private const SUBMIT_HOURLY_MAX = 10;
@@ -373,6 +376,10 @@ class Password
         }
 
         if ($token === '') {
+            do_action(
+                'nb_accounts_password_reset_token_generation_failed',
+                $user_id
+            );
             return '';
         }
 
@@ -704,26 +711,12 @@ class Password
      */
     private function client_ip(): string
     {
-        $headers = [
-            'HTTP_X_FORWARDED_FOR',
-            'HTTP_X_REAL_IP',
-            'REMOTE_ADDR',
-        ];
+        $ip = sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'] ?? ''));
 
-        foreach ($headers as $header) {
-            $raw = sanitize_text_field(wp_unslash($_SERVER[$header] ?? ''));
-            if ($raw === '') {
-                continue;
-            }
-
-            $parts = array_map('trim', explode(',', $raw));
-            $candidate = $parts[0] ?? '';
-
-            if (filter_var($candidate, FILTER_VALIDATE_IP)) {
-                return $candidate;
-            }
+        if (! filter_var($ip, FILTER_VALIDATE_IP)) {
+            return '';
         }
 
-        return '';
+        return $ip;
     }
 }
