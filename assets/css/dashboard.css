@@ -7,14 +7,29 @@
 	margin:30px auto;
 }
 
+.nba-submit-page{
+	max-width:1000px;
+	margin:30px auto;
+	padding:0 16px 30px;
+}
+
+.nba-submit-page .nba-card{
+	margin-bottom:20px;
+}
+
+.nba-page-header{
+	max-width:1000px;
+	margin:0 auto 20px;
+}
+
 .nba-dashboard-header{
 	margin-bottom:30px;
 }
 
 .nba-dashboard-header h1,
 .nba-dashboard-header h2{
-	margin:0 0 10px;
-	font-size:30px;
+	margin:0 0 14px;
+	font-size:32px;
 	line-height:1.3;
 }
 
@@ -81,6 +96,51 @@
 	text-align:center;
 }
 
+.nba-editor-toolbar{
+	display:flex;
+	flex-wrap:wrap;
+	justify-content:space-between;
+	align-items:flex-end;
+	gap:14px;
+	margin-bottom:20px;
+}
+
+.nba-editor-search-form{
+	display:grid;
+	gap:10px;
+	flex:1 1 420px;
+}
+
+.nba-editor-links{
+	display:flex;
+	flex-wrap:wrap;
+	gap:8px;
+}
+
+.nba-editor-list{
+	list-style:none;
+	margin:0;
+	padding:0;
+}
+
+.nba-editor-list li{
+	display:flex;
+	justify-content:space-between;
+	gap:10px;
+	padding:10px 0;
+	border-bottom:1px solid #ececec;
+}
+
+.nba-editor-list li:last-child{
+	border-bottom:0;
+}
+
+.nba-editor-actions{
+	display:flex;
+	flex-wrap:wrap;
+	gap:6px;
+}
+
 .nba-table{
 	width:100%;
 	border-collapse:collapse;
@@ -126,6 +186,15 @@
 		grid-template-columns:1fr;
 	}
 
+	.nba-dashboard-header h1,
+	.nba-dashboard-header h2{
+		font-size:24px;
+	}
+
+	.nba-page-header h1{
+		font-size:24px;
+	}
+
 	.nba-action-buttons{
 		flex-direction:column;
 	}
@@ -138,6 +207,14 @@
 		display:block;
 		overflow-x:auto;
 		white-space:nowrap;
+	}
+
+	.nba-editor-toolbar{
+		align-items:stretch;
+	}
+
+	.nba-editor-links .button{
+		width:100%;
 	}
 
 }
@@ -361,6 +438,11 @@
 
 	.nba-dashboard-sidebar{
 		margin-bottom:20px;
+	}
+
+	.nba-dashboard-header h1,
+	.nba-dashboard-header h2{
+		font-size:28px;
 	}
 
 }

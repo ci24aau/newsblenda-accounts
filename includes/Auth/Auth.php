@@ -105,6 +105,21 @@ class Auth
 
             exit;
         }
+
+        if ($route === 'editor-dashboard' && ! self::is_editor() && ! self::is_admin()) {
+            wp_safe_redirect(home_url('/dashboard/'));
+            exit;
+        }
+
+        if ($route === 'dashboard' && self::is_editor() && ! self::is_admin()) {
+            wp_safe_redirect(home_url('/editor-dashboard/'));
+            exit;
+        }
+
+        if (in_array($route, ['earnings', 'submit'], true) && self::is_editor() && ! self::is_admin()) {
+            wp_safe_redirect(home_url('/editor-dashboard/'));
+            exit;
+        }
     }
 
     /**
@@ -121,6 +136,10 @@ class Auth
         }
 
         if (current_user_can('manage_options')) {
+            return;
+        }
+
+        if (current_user_can('nb_editor')) {
             return;
         }
 

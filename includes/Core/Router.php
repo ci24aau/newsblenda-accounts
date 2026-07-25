@@ -157,10 +157,10 @@ class Router
             $token = sanitize_text_field(wp_unslash($_GET['token']));
 
             if ($user_id > 0 && $token !== '') {
-                $registered = new \Newsblenda\Accounts\Auth\Register();
-                $verified = $registered->verify_email($user_id, $token);
-
-                $status = $verified ? 'success' : 'invalid';
+                $status = \Newsblenda\Accounts\Auth\Register::verify_email_status(
+                    $user_id,
+                    $token
+                );
                 wp_safe_redirect(add_query_arg('status', $status, home_url('/verify-email/')));
                 exit;
             }

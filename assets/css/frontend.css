@@ -42,7 +42,9 @@ body { background: var(--nba-bg); color: var(--nba-text); }
 .nba-auth-card h1,
 .nba-dashboard h1,
 .nba-profile-page h1,
-.nba-notifications h2 { font-size: clamp(1.8rem, 2.3vw, 2.4rem); margin: 0 0 10px; }
+.nba-notifications h2 { font-size: clamp(1.5rem, 3vw, 2rem); margin: 0 0 16px; line-height: 1.25; }
+
+.nba-page-header h1 { font-size: clamp(1.5rem, 3vw, 2rem); margin: 0 0 16px; line-height: 1.25; }
 
 .nba-auth-card p,
 .nba-dashboard p,
@@ -86,7 +88,24 @@ button:hover, .button:hover, .button-primary:hover { background: var(--nba-prima
 .nba-message-error { background: rgba(220, 38, 38, 0.1); color: var(--nba-error); border-color: rgba(220, 38, 38, 0.18); }
 .nba-message-info { background: rgba(37, 99, 235, 0.1); color: var(--nba-primary); border-color: rgba(37, 99, 235, 0.16); }
 
+.nba-error-list { margin: 0; padding-left: 20px; }
+.nba-error-list li { margin: 0 0 6px; }
+
+.nba-invalid { border-color: var(--nba-error) !important; box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12) !important; }
+.nba-field-error { display: block; margin-top: 6px; color: var(--nba-error); font-size: .9rem; }
+
+.nba-submit-button { position: relative; }
+.nba-submit-spinner { display: none; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.35); border-top-color: #fff; border-radius: 50%; animation: nba-spin .7s linear infinite; }
+.nba-loading .nba-submit-spinner { display: inline-block; }
+.nba-loading .nba-submit-button-label { opacity: .8; }
+.nba-submit-button:disabled { opacity: .75; cursor: not-allowed; }
+
+.nba-resend-verification-card { margin-top: 20px; padding: 18px; border-radius: 16px; }
+.nba-resend-verification-form { display: grid; gap: 12px; }
+
 .nba-password-strength { margin-top: 6px; font-size: 0.92rem; font-weight: 600; }
+.nba-password-requirements { margin: 0 0 16px 18px; color: var(--nba-muted); }
+.nba-password-requirements li { margin-bottom: 4px; }
 .nba-password-strength.weak { color: var(--nba-error); }
 .nba-password-strength.medium { color: var(--nba-warning); }
 .nba-password-strength.strong, .nba-password-strength.very-strong { color: var(--nba-success); }
@@ -104,4 +123,19 @@ button:hover, .button:hover, .button-primary:hover { background: var(--nba-prima
 
 @keyframes nba-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-@media (max-width: 768px) { .nba-auth-card, .nba-card, .nba-dashboard-header, .nba-dashboard-actions, .nba-profile-form { padding: 20px; } .nba-dashboard-header { flex-direction: column; align-items: flex-start; } .nba-dashboard-columns { grid-template-columns: 1fr; } .nba-action-buttons { grid-template-columns: 1fr; } }
+@media (max-width: 1024px) {
+	.nba-auth-card h1,
+	.nba-dashboard h1,
+	.nba-page-header h1 { font-size: 1.75rem; }
+}
+
+@media (max-width: 768px) {
+	.nba-auth-wrapper, .nba-dashboard, .nba-profile-page, .nba-notifications, .nba-earnings-page { margin: 20px auto; padding: 0 14px 20px; }
+	.nba-auth-card, .nba-card, .nba-dashboard-header, .nba-dashboard-actions, .nba-profile-form { padding: 18px; border-radius: 18px; }
+	.nba-dashboard-header { flex-direction: column; align-items: flex-start; }
+	.nba-dashboard-columns { grid-template-columns: 1fr; }
+	.nba-action-buttons { grid-template-columns: 1fr; }
+	.nba-auth-card h1,
+	.nba-dashboard h1,
+	.nba-page-header h1 { font-size: 1.5rem; margin-bottom: 12px; }
+}

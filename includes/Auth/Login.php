@@ -33,11 +33,12 @@ class Login
 
         if (
             !isset($_POST['_wpnonce'])
-            || !wp_verify_nonce($_POST['_wpnonce'], 'nbe_nonce')
+            || !wp_verify_nonce(
+                sanitize_text_field(wp_unslash($_POST['_wpnonce'])),
+                'nbe_nonce'
+            )
         ) {
-            wp_die(
-                esc_html__('Security check failed.', 'newsblenda-accounts')
-            );
+            $this->error('nonce');
         }
 
         $this->authenticate();
@@ -157,9 +158,18 @@ private function log_login(int $user_id): void
      */
     private function authenticate(): void
     {
-        $username = sanitize_user(
+        $identifier = sanitize_text_field(
             wp_unslash($_POST['nbe_username'] ?? $_POST['username'] ?? '')
         );
+
+        $user_by_identifier = get_user_by('login', $identifier);
+        if (! $user_by_identifier && is_email($identifier)) {
+            $user_by_identifier = get_user_by('email', $identifier);
+        }
+
+        $username = $user_by_identifier instanceof \WP_User
+            ? $user_by_identifier->user_login
+            : $identifier;
 
         $password = (string) ($_POST['nbe_password'] ?? $_POST['password'] ?? '');
 
@@ -168,9 +178,7 @@ private function log_login(int $user_id): void
         
         if ($this->is_locked_out($username)) {
 
-    $this->error(
-        'Too many failed login attempts. Please try again later.'
-    );
+    $this->error('locked', $identifier);
     
     }
 
@@ -180,7 +188,8 @@ private function log_login(int $user_id): void
         ) {
 
             $this->error(
-                'Please enter your username and password.'
+                'required',
+                $identifier
             );
 
         }
@@ -212,7 +221,8 @@ private function log_login(int $user_id): void
         $this->record_failed_attempt($username);
 
         $this->error(
-        'Invalid username or password.'
+        'invalid',
+        $identifier
         );
 
         }
@@ -241,7 +251,8 @@ private function log_login(int $user_id): void
                 wp_logout();
 
                 $this->error(
-                    'Please verify your email address before logging in.'
+                    'unverified',
+                    $identifier
                 );
 
             }
@@ -261,7 +272,8 @@ private function log_login(int $user_id): void
             wp_logout();
 
             $this->error(
-                'Your author account is awaiting approval.'
+                'pending',
+                $identifier
             );
 
         }
@@ -271,7 +283,8 @@ private function log_login(int $user_id): void
             wp_logout();
 
             $this->error(
-                'Your account has been restricted.'
+                'restricted',
+                $identifier
             );
 
         }
@@ -281,7 +294,8 @@ private function log_login(int $user_id): void
             wp_logout();
 
             $this->error(
-                'Your account has been suspended.'
+                'suspended',
+                $identifier
             );
 
         }
@@ -329,7 +343,7 @@ private function log_login(int $user_id): void
         return home_url('/editor-dashboard/');
         }
 
-        if (in_array('nbe_author', $user->roles, true)) {
+        if ($this->has_author_dashboard_role($user)) {
         return home_url('/dashboard/');
         }
 
@@ -354,22 +368,36 @@ private function log_login(int $user_id): void
     
     
     /**
-     * Display login error.
+     * Redirect with login error code.
      */
-    private function error(string $message): void
+    private function error(
+        string $code,
+        string $username = ''
+    ): void
     {
-        wp_die(
+        $query = [
+            'login_error' => sanitize_key($code),
+        ];
 
-            esc_html($message),
+        if ($username !== '') {
+            $query['login_user'] = $username;
+        }
 
-            esc_html__('Login Failed', 'newsblenda-accounts'),
-
-            [
-
-                'response' => 403
-
-            ]
-
+        Helpers::redirect(
+            add_query_arg(
+                $query,
+                home_url('/login/')
+            )
         );
+    }
+
+    /**
+     * User has a dashboard author role.
+     */
+    private function has_author_dashboard_role(\WP_User $user): bool
+    {
+        $roles = ['nb_author', 'nb_author_pending', 'nb_author_restricted'];
+
+        return ! empty(array_intersect($roles, (array) $user->roles));
     }
 }
