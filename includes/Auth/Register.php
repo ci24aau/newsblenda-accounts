@@ -11,10 +11,12 @@ defined('ABSPATH') || exit;
 
 class Register
 {
-    private const VERIFICATION_WINDOW = DAY_IN_SECONDS;
+    private const VERIFICATION_WINDOW = 2 * DAY_IN_SECONDS;
     private const REG_STATE_PREFIX = 'nb_register_state_';
     private const REG_STATE_TTL = 15 * MINUTE_IN_SECONDS;
     private const RESEND_MIN_INTERVAL = MINUTE_IN_SECONDS;
+    private const RESEND_HOURLY_MAX   = 5;
+    private const HONEYPOT_FIELD      = 'nb_website';
 
     /**
      * Mailer.
@@ -84,6 +86,15 @@ class Register
     {
         $values = $this->request_values();
         $errors = [];
+
+        /*
+        |--------------------------------------------------------------------------
+        | Honeypot — silently reject bots that fill the hidden field.
+        |--------------------------------------------------------------------------
+        */
+        if (! empty($_POST[self::HONEYPOT_FIELD])) {
+            $this->redirect_with_form_state($values, []);
+        }
 
         $username = sanitize_user(
             wp_unslash($_POST['nbe_username'] ?? $_POST['username'] ?? '')
@@ -723,6 +734,20 @@ class Register
             );
         }
 
+        // Enforce hourly cap: max 5 resend attempts per hour per email address.
+        $rate_key     = 'nb_resend_rate_' . wp_hash(strtolower($user->user_email));
+        $hourly_count = (int) get_transient($rate_key);
+        if ($hourly_count >= self::RESEND_HOURLY_MAX) {
+            Helpers::redirect(
+                add_query_arg(
+                    'status',
+                    'resend-throttled',
+                    home_url('/verify-email/')
+                )
+            );
+        }
+        set_transient($rate_key, $hourly_count + 1, HOUR_IN_SECONDS);
+
         $token = $this->issue_verification_token($user->ID);
         $sent = $token !== '' && $this->send_verification_email(
             $user->ID,
@@ -859,7 +884,7 @@ class Register
     }
 
     /**
-     * Send verification message.
+     * Send verification message using the HTML email template.
      */
     private function send_verification_email(
         int $user_id,
@@ -868,28 +893,45 @@ class Register
         string $token
     ): bool {
         $verification_url = self::verification_url($user_id, $token);
-        $subject = __('Verify your email address', 'newsblenda-accounts');
+        $subject          = __('Verify your email address', 'newsblenda-accounts');
 
-        $message  = '<p>' . sprintf(
-            esc_html__('Hello %s,', 'newsblenda-accounts'),
-            esc_html($username)
-        ) . '</p>';
-        $message .= '<p>' . esc_html__(
-            'Thank you for registering your Newsblenda account. Please verify your email within 24 hours to activate your account.',
-            'newsblenda-accounts'
-        ) . '</p>';
-        $message .= '<p><a href="' . esc_url($verification_url) . '" style="display:inline-block;padding:12px 20px;background:#2563eb;color:#ffffff;text-decoration:none;border-radius:6px;">' .
-            esc_html__('Verify Email Address', 'newsblenda-accounts') .
-            '</a></p>';
-        $message .= '<p>' . esc_html__(
-            'If the button does not work, copy and paste this URL into your browser:',
-            'newsblenda-accounts'
-        ) . '<br><a href="' . esc_url($verification_url) . '">' . esc_html($verification_url) . '</a></p>';
+        $template = NB_ACCOUNTS_PATH . 'templates/emails/verify-email.php';
 
-        return Mailer::send(
-            $email,
-            $subject,
-            $message
-        );
+        if (file_exists($template)) {
+            ob_start();
+            $user_name = $username;
+            include $template;
+            $message = (string) ob_get_clean();
+        } else {
+            // Fallback inline HTML when the email template file is missing.
+            // Mailer::send() internally fires the 'nb_accounts_email_sent' action.
+            $expiry_hours = (int) (self::VERIFICATION_WINDOW / HOUR_IN_SECONDS);
+            $message  = '<p>' . sprintf(
+                esc_html__('Hello %s,', 'newsblenda-accounts'),
+                esc_html($username)
+            ) . '</p>';
+            $message .= '<p>' . sprintf(
+                esc_html__(
+                    'Thank you for registering your Newsblenda account. Please verify your email within %d hours to activate your account.',
+                    'newsblenda-accounts'
+                ),
+                $expiry_hours
+            ) . '</p>';
+            $message .= '<p><a href="' . esc_url($verification_url) . '" style="display:inline-block;padding:12px 20px;background:#2563eb;color:#ffffff;text-decoration:none;border-radius:6px;">' .
+                esc_html__('Verify Email Address', 'newsblenda-accounts') .
+                '</a></p>';
+            $message .= '<p>' . esc_html__(
+                'If the button does not work, copy and paste this URL into your browser:',
+                'newsblenda-accounts'
+            ) . '<br><a href="' . esc_url($verification_url) . '">' . esc_html($verification_url) . '</a></p>';
+            return Mailer::send($email, $subject, $message);
+        }
+
+        $headers = ['Content-Type: text/html; charset=UTF-8'];
+        $sent    = wp_mail($email, $subject, $message, $headers);
+
+        do_action('nb_accounts_email_sent', $email, $subject, $sent);
+
+        return $sent;
     }
 }

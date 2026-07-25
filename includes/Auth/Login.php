@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Newsblenda\Accounts\Auth;
 
 use Newsblenda\Accounts\Helpers\Helpers;
@@ -32,8 +34,8 @@ class Login
         }
 
         if (
-            !isset($_POST['_wpnonce'])
-            || !wp_verify_nonce(
+            ! isset($_POST['_wpnonce']) ||
+            ! wp_verify_nonce(
                 sanitize_text_field(wp_unslash($_POST['_wpnonce'])),
                 'nbe_nonce'
             )
@@ -43,115 +45,93 @@ class Login
 
         $this->authenticate();
     }
-    
-    
+
     /**
- * Check whether the user is temporarily locked out.
- */
-private function is_locked_out(string $username): bool
-{
-    $user = get_user_by('login', $username);
+     * Check whether the user is temporarily locked out.
+     */
+    private function is_locked_out(string $username): bool
+    {
+        $user = get_user_by('login', $username);
 
-    if (! $user) {
-        return false;
-    }
+        if (! $user) {
+            return false;
+        }
 
-    $expires = (int) get_user_meta(
-        $user->ID,
-        'nb_lockout_expires',
-        true
-    );
-
-    return $expires > time();
-}
-
-/**
- * Record failed login attempt.
- */
-private function record_failed_attempt(string $username): void
-{
-    $user = get_user_by('login', $username);
-
-    if (! $user) {
-        return;
-    }
-
-    $attempts = (int) get_user_meta(
-        $user->ID,
-        'nb_login_attempts',
-        true
-    );
-
-    $attempts++;
-
-    update_user_meta(
-        $user->ID,
-        'nb_login_attempts',
-        $attempts
-    );
-
-    $max = (int) Helpers::option(
-        'max_login_attempts',
-        5
-    );
-
-    if ($attempts >= $max) {
-
-        $minutes = (int) Helpers::option(
-            'lockout_minutes',
-            30
+        $expires = (int) get_user_meta(
+            $user->ID,
+            'nb_lockout_expires',
+            true
         );
+
+        return $expires > time();
+    }
+
+    /**
+     * Record failed login attempt.
+     */
+    private function record_failed_attempt(string $username): void
+    {
+        $user = get_user_by('login', $username);
+
+        if (! $user) {
+            return;
+        }
+
+        $attempts = (int) get_user_meta(
+            $user->ID,
+            'nb_login_attempts',
+            true
+        );
+
+        $attempts++;
 
         update_user_meta(
             $user->ID,
-            'nb_lockout_expires',
-            time() + ($minutes * MINUTE_IN_SECONDS)
+            'nb_login_attempts',
+            $attempts
         );
 
+        $max = (int) Helpers::option('max_login_attempts', 5);
+
+        if ($attempts >= $max) {
+            $minutes = (int) Helpers::option('lockout_minutes', 30);
+
+            update_user_meta(
+                $user->ID,
+                'nb_lockout_expires',
+                time() + ($minutes * MINUTE_IN_SECONDS)
+            );
+        }
     }
-}
 
-/**
- * Clear login lockout.
- */
-private function clear_lockout(int $user_id): void
-{
-    update_user_meta(
-        $user_id,
-        'nb_login_attempts',
-        0
-    );
+    /**
+     * Clear login lockout.
+     */
+    private function clear_lockout(int $user_id): void
+    {
+        update_user_meta($user_id, 'nb_login_attempts', 0);
+        delete_user_meta($user_id, 'nb_lockout_expires');
+    }
 
-    delete_user_meta(
-        $user_id,
-        'nb_lockout_expires'
-    );
-}
+    /**
+     * Log successful login.
+     */
+    private function log_login(int $user_id): void
+    {
+        update_user_meta(
+            $user_id,
+            'nb_last_login',
+            current_time('mysql')
+        );
 
-/**
- * Log successful login.
- */
-private function log_login(int $user_id): void
-{
-    update_user_meta(
-        $user_id,
-        'nb_last_login',
-        current_time('mysql')
-    );
-
-    update_user_meta(
-        $user_id,
-        'nb_last_login_ip',
-        sanitize_text_field(
-            wp_unslash(
-                $_SERVER['REMOTE_ADDR'] ?? ''
+        update_user_meta(
+            $user_id,
+            'nb_last_login_ip',
+            sanitize_text_field(
+                wp_unslash($_SERVER['REMOTE_ADDR'] ?? '')
             )
-        )
-    );
-}
-
-
-    
+        );
+    }
 
     /**
      * Authenticate user.
@@ -172,26 +152,14 @@ private function log_login(int $user_id): void
             : $identifier;
 
         $password = (string) ($_POST['nbe_password'] ?? $_POST['password'] ?? '');
-
         $remember = ! empty($_POST['nbe_remember']) || ! empty($_POST['remember']);
-        
-        
+
         if ($this->is_locked_out($username)) {
+            $this->error('locked', $identifier);
+        }
 
-    $this->error('locked', $identifier);
-    
-    }
-
-        if (
-            empty($username)
-            || empty($password)
-        ) {
-
-            $this->error(
-                'required',
-                $identifier
-            );
-
+        if (empty($username) || empty($password)) {
+            $this->error('required', $identifier);
         }
 
         /*
@@ -201,30 +169,17 @@ private function log_login(int $user_id): void
         */
 
         $user = wp_signon(
-
             [
-
                 'user_login'    => $username,
-
                 'user_password' => $password,
-
-                'remember'      => $remember
-
+                'remember'      => $remember,
             ],
-
             is_ssl()
-
         );
 
         if (is_wp_error($user)) {
-
-        $this->record_failed_attempt($username);
-
-        $this->error(
-        'invalid',
-        $identifier
-        );
-
+            $this->record_failed_attempt($username);
+            $this->error('invalid', $identifier);
         }
 
         /*
@@ -233,30 +188,11 @@ private function log_login(int $user_id): void
         |--------------------------------------------------------------------------
         */
 
-        if (
-
-            Helpers::option(
-                'require_email_verification',
-                1
-            )
-
-        ) {
-
-            if (
-
-                !Helpers::email_verified($user->ID)
-
-            ) {
-
+        if (Helpers::option('require_email_verification', 1)) {
+            if (! Helpers::email_verified($user->ID)) {
                 wp_logout();
-
-                $this->error(
-                    'unverified',
-                    $identifier
-                );
-
+                $this->error('unverified', $identifier);
             }
-
         }
 
         /*
@@ -268,56 +204,29 @@ private function log_login(int $user_id): void
         $status = Helpers::account_status($user->ID);
 
         if ($status === 'pending_approval') {
-
             wp_logout();
-
-            $this->error(
-                'pending',
-                $identifier
-            );
-
+            $this->error('pending', $identifier);
         }
 
         if ($status === 'restricted') {
-
             wp_logout();
-
-            $this->error(
-                'restricted',
-                $identifier
-            );
-
+            $this->error('restricted', $identifier);
         }
 
         if ($status === 'suspended') {
-
             wp_logout();
-
-            $this->error(
-                'suspended',
-                $identifier
-            );
-
+            $this->error('suspended', $identifier);
         }
 
         /*
         |--------------------------------------------------------------------------
-        | Update Last Login
+        | Update Last Login & Redirect
         |--------------------------------------------------------------------------
         */
-
 
         $this->log_login($user->ID);
-
         $this->clear_lockout($user->ID);
-
         $this->after_login($user);
-
-        /*
-        |--------------------------------------------------------------------------
-        | Redirect
-        |--------------------------------------------------------------------------
-        */
 
         $redirect = apply_filters(
             'nb_accounts_login_redirect',
@@ -326,54 +235,41 @@ private function log_login(int $user_id): void
         );
 
         Helpers::redirect($redirect);
-
     }
-    
 
-        /**
-        * Determine redirect URL after login.
-        */
-        private function redirect_url(\WP_User $user): string
-        {
+    /**
+     * Determine redirect URL after login.
+     */
+    private function redirect_url(\WP_User $user): string
+    {
         if (in_array('administrator', $user->roles, true)) {
-        return admin_url();
+            return admin_url();
         }
 
         if (in_array('nb_editor', $user->roles, true)) {
-        return home_url('/editor-dashboard/');
+            return home_url('/editor-dashboard/');
         }
 
         if ($this->has_author_dashboard_role($user)) {
-        return home_url('/dashboard/');
+            return home_url('/dashboard/');
         }
 
         return home_url('/');
-        }
+    }
 
-        /**
-        * Fire login actions.
-        */
-        private function after_login(\WP_User $user): void
-        {
-        do_action(
-        'nb_accounts_after_login',
-        $user
-        );
+    /**
+     * Fire post-login actions.
+     */
+    private function after_login(\WP_User $user): void
+    {
+        do_action('nb_accounts_after_login', $user);
+        do_action('nb_accounts_user_logged_in', $user->ID);
+    }
 
-        do_action(
-        'nb_accounts_user_logged_in',
-        $user->ID
-        );
-        }
-    
-    
     /**
      * Redirect with login error code.
      */
-    private function error(
-        string $code,
-        string $username = ''
-    ): void
+    private function error(string $code, string $username = ''): void
     {
         $query = [
             'login_error' => sanitize_key($code),
@@ -384,10 +280,7 @@ private function log_login(int $user_id): void
         }
 
         Helpers::redirect(
-            add_query_arg(
-                $query,
-                home_url('/login/')
-            )
+            add_query_arg($query, home_url('/login/'))
         );
     }
 
