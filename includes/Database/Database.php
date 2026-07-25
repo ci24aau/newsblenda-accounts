@@ -11,13 +11,16 @@ class Database
     /**
      * Database version.
      */
-    public const VERSION = '1.0.0';
+    public const VERSION = '1.1.0';
 
     /**
      * Constructor.
      */
     public function __construct()
     {
+        if (self::needs_upgrade() || ! self::exists('password_reset_tokens')) {
+            self::install();
+        }
     }
 
     /**
@@ -137,6 +140,44 @@ class Database
                 UNIQUE KEY token (token),
 
                 KEY user_id (user_id)
+
+            ) {$charset};"
+
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Password Reset Tokens
+        |--------------------------------------------------------------------------
+        */
+
+        $password_tokens = $wpdb->prefix . 'nb_password_reset_tokens';
+
+        $wpdb->query(
+
+            "CREATE TABLE {$password_tokens} (
+
+                id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+
+                user_id BIGINT UNSIGNED NULL,
+
+                email VARCHAR(190) NOT NULL,
+
+                token_hash VARCHAR(255) NOT NULL,
+
+                expires_at DATETIME NOT NULL,
+
+                consumed_at DATETIME NULL,
+
+                created_at DATETIME NOT NULL,
+
+                PRIMARY KEY (id),
+
+                KEY user_id (user_id),
+
+                KEY email (email),
+
+                KEY expires_at (expires_at)
 
             ) {$charset};"
 
@@ -355,6 +396,8 @@ class Database
 
             'email_tokens',
 
+            'password_reset_tokens',
+
             'login_log',
 
             'earnings',
@@ -388,6 +431,8 @@ class Database
             self::table('activity'),
 
             self::table('email_tokens'),
+
+            self::table('password_reset_tokens'),
 
             self::table('login_log'),
 

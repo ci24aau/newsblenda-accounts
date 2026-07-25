@@ -14,6 +14,8 @@
 			this.confirmPassword();
 			this.confirmActions();
 			this.autoDismiss();
+			this.forgotPasswordAjax();
+			this.resetPasswordAjax();
 			this.disableDoubleSubmit();
 			this.loadingButtons();
 			this.smoothScroll();
@@ -23,6 +25,100 @@
 			this.tooltips();
 			this.registerNotices();
 
+		},
+
+		forgotPasswordAjax: function () {
+			$(document).on('submit', '.nba-forgot-password-form[data-nba-ajax="1"]', function (e) {
+				const config = window.NBAccounts || {};
+				if (!config.ajax_url) {
+					return;
+				}
+
+				e.preventDefault();
+
+				const form = $(this);
+				const response = form.find('.nba-form-response');
+				const submit = form.find('button[type="submit"]');
+				const payload = form.serializeArray();
+
+				payload.push({ name: 'action', value: 'nb_accounts_forgot_password' });
+				payload.push({ name: 'nonce', value: config.nonce || '' });
+
+				response.removeClass('nba-message nba-message-error nba-message-success nba-message-info').empty();
+				form.addClass('nba-loading');
+				submit.prop('disabled', true);
+
+				$.post(config.ajax_url, $.param(payload))
+					.done(function (res) {
+						const message = (res && res.data && res.data.message)
+							? res.data.message
+							: 'If an account exists with that email address, a password reset link has been sent.';
+
+						response.addClass('nba-message nba-message-success').text(message);
+					})
+					.fail(function (xhr) {
+						let message = 'Unable to process your request. Please try again.';
+						if (xhr && xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.message) {
+							message = xhr.responseJSON.data.message;
+						}
+						response.addClass('nba-message nba-message-error').text(message);
+					})
+					.always(function () {
+						form.removeClass('nba-loading');
+						submit.prop('disabled', false);
+						form.removeData('nb-submitting');
+					});
+			});
+		},
+
+		resetPasswordAjax: function () {
+			$(document).on('submit', '.nba-reset-password-form[data-nba-ajax="1"]', function (e) {
+				const config = window.NBAccounts || {};
+				if (!config.ajax_url) {
+					return;
+				}
+
+				e.preventDefault();
+
+				const form = $(this);
+				const response = form.find('.nba-form-response');
+				const submit = form.find('button[type="submit"]');
+				const payload = form.serializeArray();
+
+				payload.push({ name: 'action', value: 'nb_accounts_reset_password' });
+				payload.push({ name: 'nonce', value: config.nonce || '' });
+
+				response.removeClass('nba-message nba-message-error nba-message-success nba-message-info').empty();
+				form.addClass('nba-loading');
+				submit.prop('disabled', true);
+
+				$.post(config.ajax_url, $.param(payload))
+					.done(function (res) {
+						const message = (res && res.data && res.data.message)
+							? res.data.message
+							: 'Your password has been reset successfully.';
+
+						response.addClass('nba-message nba-message-success').text(message);
+
+						if (res && res.data && res.data.redirect) {
+							window.setTimeout(function () {
+								window.location.href = res.data.redirect;
+							}, 700);
+						}
+					})
+					.fail(function (xhr) {
+						let message = 'Unable to reset password. Please request a new link.';
+						if (xhr && xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.message) {
+							message = xhr.responseJSON.data.message;
+						}
+						response.addClass('nba-message nba-message-error').text(message);
+					})
+					.always(function () {
+						form.removeClass('nba-loading');
+						submit.prop('disabled', false);
+						form.removeData('nb-submitting');
+					});
+			});
 		},
 
 		passwordToggle: function () {
@@ -41,7 +137,8 @@
 					}
 
 					const isPassword = input.attr('type') === 'password';
-					const i18n       = (typeof NBAccounts !== 'undefined' && NBAccounts.i18n) ? NBAccounts.i18n : {};
+					const config     = window.NBAccounts || {};
+					const i18n       = config.i18n || {};
 
 					input.attr('type', isPassword ? 'text' : 'password');
 
@@ -68,7 +165,8 @@
 
 					const password = $(this).val();
 					const meter    = $(this).closest('p, .nba-form-group').find('.nba-password-strength');
-					const i18n     = (typeof NBAccounts !== 'undefined' && NBAccounts.i18n) ? NBAccounts.i18n : {};
+					const config   = window.NBAccounts || {};
+					const i18n     = config.i18n || {};
 
 					if (!meter.length) {
 						return;
@@ -114,7 +212,8 @@
 					const confirm  = $(this).val();
 					const password = $('input[name="nbe_password"]').val();
 					const status   = $(this).closest('p, .nba-form-group').find('.nba-password-match');
-					const i18n     = (typeof NBAccounts !== 'undefined' && NBAccounts.i18n) ? NBAccounts.i18n : {};
+					const config   = window.NBAccounts || {};
+					const i18n     = config.i18n || {};
 
 					if (!status.length) {
 						return;

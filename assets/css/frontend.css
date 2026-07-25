@@ -117,6 +117,8 @@ button:hover, .button:hover, .button-primary:hover { background: var(--nba-prima
 .nba-password-strength.weak { color: var(--nba-error); }
 .nba-password-strength.medium { color: var(--nba-warning); }
 .nba-password-strength.strong, .nba-password-strength.very-strong { color: var(--nba-success); }
+.nba-honeypot { position: absolute !important; left: -9999px !important; width: 1px !important; height: 1px !important; opacity: 0 !important; }
+.nba-form-response { margin-top: 12px; }
 
 .nba-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
 .nba-table th, .nba-table td { padding: 12px; border-bottom: 1px solid var(--nba-border); text-align: left; }

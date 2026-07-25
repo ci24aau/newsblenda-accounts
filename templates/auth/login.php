@@ -22,6 +22,10 @@ $prefill_username = isset($_GET['login_user'])
 	? sanitize_text_field(wp_unslash($_GET['login_user']))
 	: '';
 
+$reset_status = isset($_GET['reset'])
+	? sanitize_key(wp_unslash($_GET['reset']))
+	: '';
+
 $login_messages = [
 	'nonce' => __('Security check failed. Please try again.', 'newsblenda-accounts'),
 	'required' => __('Please enter your username and password.', 'newsblenda-accounts'),
@@ -73,6 +77,12 @@ $login_messages = [
 
 			</div>
 
+		<?php endif; ?>
+
+		<?php if ($reset_status === 'success') : ?>
+			<div class="nba-message nba-message-success">
+				<?php esc_html_e('Your password has been reset. Please sign in with your new password.', 'newsblenda-accounts'); ?>
+			</div>
 		<?php endif; ?>
 
 		<?php if ($login_error !== '' && isset($login_messages[$login_error])) : ?>
