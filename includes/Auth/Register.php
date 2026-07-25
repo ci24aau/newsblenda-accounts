@@ -423,6 +423,9 @@ class Register
 
     /**
      * Password strength validation.
+     *
+     * Requires at least 8 characters, one uppercase, one lowercase,
+     * one number and one special character.
      */
     private function password_is_strong(
         string $password
@@ -806,6 +809,10 @@ class Register
         try {
             $token = bin2hex(random_bytes(32));
         } catch (\Exception $exception) {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                error_log('Newsblenda Accounts: random_bytes failed for verification token: ' . $exception->getMessage()); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+            }
+
             if (function_exists('openssl_random_pseudo_bytes')) {
                 $bytes = openssl_random_pseudo_bytes(32, $strong);
                 if ($bytes !== false && $strong) {
@@ -838,7 +845,7 @@ class Register
             time()
         );
 
-        // Cleanup legacy token storage.
+        // Clean up legacy token storage.
         delete_user_meta($user_id, 'nb_email_verification_token');
 
         return $token;

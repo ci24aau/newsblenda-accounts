@@ -80,6 +80,11 @@ $authors = get_users(
 		'order'    => 'DESC',
 	]
 );
+
+$post_counts = wp_count_posts('post');
+$pending_count = isset($post_counts->pending)
+	? (int) $post_counts->pending
+	: 0;
 ?>
 
 <div class="nba-editor-dashboard">
@@ -96,7 +101,7 @@ $authors = get_users(
 		</div>
 		<div class="nba-card">
 			<h3><?php esc_html_e('Awaiting Approval', 'newsblenda-accounts'); ?></h3>
-			<div class="nba-card-number"><?php echo esc_html((string) wp_count_posts('post')->pending); ?></div>
+			<div class="nba-card-number"><?php echo esc_html((string) $pending_count); ?></div>
 		</div>
 		<div class="nba-card">
 			<h3><?php esc_html_e('Revision Requests', 'newsblenda-accounts'); ?></h3>

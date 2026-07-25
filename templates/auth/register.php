@@ -236,6 +236,7 @@ $general_errors = array_values(array_unique($general_errors));
 					required
 					autocomplete="new-password"
 					class="<?php echo esc_attr(trim($field_class('nbe_password'))); ?>"
+					aria-describedby="nba-password-requirements"
 				>
 				<?php if ($field_error('nbe_password') !== '') : ?>
 					<span class="nba-field-error"><?php echo esc_html($field_error('nbe_password')); ?></span>
@@ -273,7 +274,7 @@ $general_errors = array_values(array_unique($general_errors));
 				); ?>
 
 			</p>
-			<ul class="nba-password-requirements">
+			<ul id="nba-password-requirements" class="nba-password-requirements" aria-label="<?php esc_attr_e('Password requirements', 'newsblenda-accounts'); ?>">
 				<li><?php esc_html_e('at least 8 characters', 'newsblenda-accounts'); ?></li>
 				<li><?php esc_html_e('an uppercase letter', 'newsblenda-accounts'); ?></li>
 				<li><?php esc_html_e('a lowercase letter', 'newsblenda-accounts'); ?></li>

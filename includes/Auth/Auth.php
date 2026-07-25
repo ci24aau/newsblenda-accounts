@@ -143,11 +143,6 @@ class Auth
             return;
         }
 
-        if (self::is_editor()) {
-            wp_safe_redirect(home_url('/editor-dashboard/'));
-            exit;
-        }
-
         wp_safe_redirect(home_url('/dashboard/'));
         exit;
     }
