@@ -278,7 +278,7 @@ class Password
             ];
         }
 
-        $submit_rate_key = 'nb_password_reset_submit_' . wp_hash($user_id . '|' . $token . '|' . $this->client_ip());
+        $submit_rate_key = 'nb_password_reset_submit_' . wp_hash($user_id . '|' . $this->client_ip());
         $submit_count = (int) get_transient($submit_rate_key);
 
         if ($submit_count >= self::SUBMIT_HOURLY_MAX) {
@@ -359,6 +359,11 @@ class Password
         try {
             $token = bin2hex(random_bytes(32));
         } catch (\Exception $exception) {
+            do_action(
+                'nb_accounts_password_reset_token_fallback',
+                $user_id,
+                $exception->getMessage()
+            );
             if (function_exists('openssl_random_pseudo_bytes')) {
                 $bytes = openssl_random_pseudo_bytes(32, $strong);
                 if ($bytes !== false && $strong) {
@@ -564,8 +569,9 @@ class Password
                 FROM {$table}
                 WHERE user_id = %d
                 ORDER BY created_at DESC
-                LIMIT " . self::TOKEN_LOOKUP_LIMIT,
-                $user_id
+                LIMIT %d",
+                $user_id,
+                self::TOKEN_LOOKUP_LIMIT
             ),
             ARRAY_A
         );
@@ -698,6 +704,26 @@ class Password
      */
     private function client_ip(): string
     {
-        return sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'] ?? ''));
+        $headers = [
+            'HTTP_X_FORWARDED_FOR',
+            'HTTP_X_REAL_IP',
+            'REMOTE_ADDR',
+        ];
+
+        foreach ($headers as $header) {
+            $raw = sanitize_text_field(wp_unslash($_SERVER[$header] ?? ''));
+            if ($raw === '') {
+                continue;
+            }
+
+            $parts = array_map('trim', explode(',', $raw));
+            $candidate = $parts[0] ?? '';
+
+            if (filter_var($candidate, FILTER_VALIDATE_IP)) {
+                return $candidate;
+            }
+        }
+
+        return '';
     }
 }

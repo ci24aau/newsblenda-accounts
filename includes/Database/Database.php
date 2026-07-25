@@ -18,6 +18,14 @@ class Database
      */
     public function __construct()
     {
+        add_action('admin_init', [$this, 'maybe_upgrade']);
+    }
+
+    /**
+     * Run database upgrades for administrators.
+     */
+    public function maybe_upgrade(): void
+    {
         if (self::needs_upgrade()) {
             self::install();
         }

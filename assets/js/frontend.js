@@ -4,6 +4,7 @@
 
 (function ($) {
 	'use strict';
+	const REDIRECT_DELAY_MS = 700;
 
 	const NBAccounts = {
 
@@ -103,7 +104,7 @@
 						if (res && res.data && res.data.redirect) {
 							window.setTimeout(function () {
 								window.location.href = res.data.redirect;
-							}, 700);
+							}, REDIRECT_DELAY_MS);
 						}
 					})
 					.fail(function (xhr) {
