@@ -12,6 +12,54 @@ $status = isset($_GET['status'])
 
 $login = home_url('/login/');
 $home  = home_url('/');
+
+$notices = [
+	'registered' => [
+		'type' => 'success',
+		'message' => __('Registration successful. Please check your email to verify your account.', 'newsblenda-accounts'),
+	],
+	'success' => [
+		'type' => 'success',
+		'message' => __('Your email address has been verified successfully.', 'newsblenda-accounts'),
+	],
+	'already-verified' => [
+		'type' => 'info',
+		'message' => __('Your email is already verified. You can sign in now.', 'newsblenda-accounts'),
+	],
+	'expired' => [
+		'type' => 'error',
+		'message' => __('This verification link has expired. Please request a new verification email.', 'newsblenda-accounts'),
+	],
+	'invalid' => [
+		'type' => 'error',
+		'message' => __('The verification link is invalid. Please request a new verification email.', 'newsblenda-accounts'),
+	],
+	'resent' => [
+		'type' => 'success',
+		'message' => __('If an unverified account exists for that email, a new verification link has been sent.', 'newsblenda-accounts'),
+	],
+	'resend-failed' => [
+		'type' => 'error',
+		'message' => __("We couldn't send your verification email. Please try again.", 'newsblenda-accounts'),
+	],
+	'resend-throttled' => [
+		'type' => 'info',
+		'message' => __('Please wait a minute before requesting another verification email.', 'newsblenda-accounts'),
+	],
+	'resend-invalid-email' => [
+		'type' => 'error',
+		'message' => __('Please enter a valid email address to resend verification.', 'newsblenda-accounts'),
+	],
+	'resend-invalid-nonce' => [
+		'type' => 'error',
+		'message' => __('Security validation failed. Please refresh the page and try again.', 'newsblenda-accounts'),
+	],
+];
+
+$notice = $notices[$status] ?? [
+	'type' => 'info',
+	'message' => __("We've sent a verification email to the address you registered with.", 'newsblenda-accounts'),
+];
 ?>
 
 <div class="nba-auth-wrapper nba-verify-email">
@@ -20,11 +68,11 @@ $home  = home_url('/');
 
 		<div class="nba-auth-icon">
 
-			<?php if ($status === 'success') : ?>
+			<?php if (in_array($status, ['success', 'registered', 'resent', 'already-verified'], true)) : ?>
 
 				<span style="font-size:64px;">✅</span>
 
-			<?php elseif ($status === 'invalid') : ?>
+			<?php elseif (in_array($status, ['invalid', 'expired', 'resend-failed', 'resend-invalid-email', 'resend-invalid-nonce'], true)) : ?>
 
 				<span style="font-size:64px;">❌</span>
 
@@ -45,20 +93,20 @@ $home  = home_url('/');
 
 		</h1>
 
-		<?php if ($status === 'success') : ?>
+		<div class="nba-message nba-message-<?php echo esc_attr($notice['type']); ?>">
+			<p><?php echo esc_html($notice['message']); ?></p>
+		</div>
 
-			<div class="nba-message nba-message-success">
+		<?php if ($status === 'success' || $status === 'already-verified') : ?>
 
-				<p>
+			<p>
 
-					<?php esc_html_e(
-						'Your email address has been verified successfully.',
-						'newsblenda-accounts'
-					); ?>
+				<?php esc_html_e(
+					'You can now continue to sign in and access your account.',
+					'newsblenda-accounts'
+				); ?>
 
-				</p>
-
-			</div>
+			</p>
 
 			<p>
 
@@ -69,64 +117,32 @@ $home  = home_url('/');
 
 			</p>
 
-		<?php elseif ($status === 'invalid') : ?>
-
-			<div class="nba-message nba-message-error">
-
-				<p>
-
-					<?php esc_html_e(
-						'The verification link is invalid, expired or has already been used.',
-						'newsblenda-accounts'
-					); ?>
-
-				</p>
-
-			</div>
-
-			<p>
-
-				<?php esc_html_e(
-					'If you still cannot verify your account, request a new verification email or contact the Newsblenda administrator.',
-					'newsblenda-accounts'
-				); ?>
-
-			</p>
-
-		<?php else : ?>
-
-			<div class="nba-message nba-message-info">
-
-				<p>
-
-					<?php esc_html_e(
-						"We've sent a verification email to the address you registered with.",
-						'newsblenda-accounts'
-					); ?>
-
-				</p>
-
-			</div>
-
-			<p>
-
-				<?php esc_html_e(
-					'Open the email and click the verification link to activate your account.',
-					'newsblenda-accounts'
-				); ?>
-
-			</p>
-
-			<p>
-
-				<?php esc_html_e(
-					'If you cannot find the message, please check your Spam, Junk or Promotions folder.',
-					'newsblenda-accounts'
-				); ?>
-
-			</p>
-
 		<?php endif; ?>
+
+		<p>
+			<?php esc_html_e(
+				'If you cannot find the message, please check your Spam, Junk or Promotions folder.',
+				'newsblenda-accounts'
+			); ?>
+		</p>
+
+		<div class="nba-card nba-resend-verification-card">
+			<h3><?php esc_html_e('Resend Verification Email', 'newsblenda-accounts'); ?></h3>
+			<form method="post" class="nba-resend-verification-form" data-nb-lock-submit="1">
+				<?php wp_nonce_field('nb_resend_verification'); ?>
+				<input type="hidden" name="nbe_resend_verification_submit" value="1">
+				<p>
+					<label for="nbe_resend_email"><?php esc_html_e('Email Address', 'newsblenda-accounts'); ?></label>
+					<input id="nbe_resend_email" type="email" name="nbe_resend_email" required autocomplete="email">
+				</p>
+				<p>
+					<button type="submit" class="button button-primary nba-submit-button">
+						<span class="nba-submit-button-label"><?php esc_html_e('Resend Verification Email', 'newsblenda-accounts'); ?></span>
+						<span class="nba-submit-spinner" aria-hidden="true"></span>
+					</button>
+				</p>
+			</form>
+		</div>
 
 		<hr>
 

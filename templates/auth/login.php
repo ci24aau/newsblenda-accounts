@@ -8,10 +8,30 @@ if (! defined('ABSPATH')) {
 
 $forgot  = home_url('/forgot-password/');
 $register = home_url('/register/');
+$verify = home_url('/verify-email/');
 
 $redirect = isset($_GET['redirect_to'])
 	? esc_url(wp_unslash($_GET['redirect_to']))
 	: home_url('/dashboard/');
+
+$login_error = isset($_GET['login_error'])
+	? sanitize_key(wp_unslash($_GET['login_error']))
+	: '';
+
+$prefill_username = isset($_GET['login_user'])
+	? sanitize_text_field(wp_unslash($_GET['login_user']))
+	: '';
+
+$login_messages = [
+	'nonce' => __('Security check failed. Please try again.', 'newsblenda-accounts'),
+	'required' => __('Please enter your username and password.', 'newsblenda-accounts'),
+	'invalid' => __('Invalid username or password.', 'newsblenda-accounts'),
+	'locked' => __('Too many failed login attempts. Please try again later.', 'newsblenda-accounts'),
+	'unverified' => __('Please verify your email address before logging in.', 'newsblenda-accounts'),
+	'pending' => __('Your author account is awaiting approval.', 'newsblenda-accounts'),
+	'restricted' => __('Your account has been restricted.', 'newsblenda-accounts'),
+	'suspended' => __('Your account has been suspended.', 'newsblenda-accounts'),
+];
 ?>
 
 <div class="nba-auth-wrapper nba-login">
@@ -55,23 +75,28 @@ $redirect = isset($_GET['redirect_to'])
 
 		<?php endif; ?>
 
-		<?php if (isset($_GET['login']) && $_GET['login'] === 'failed') : ?>
+		<?php if ($login_error !== '' && isset($login_messages[$login_error])) : ?>
 
 			<div class="nba-message nba-message-error">
 
-				<?php esc_html_e(
-					'Invalid username or password.',
-					'newsblenda-accounts'
-				); ?>
+				<?php echo esc_html($login_messages[$login_error]); ?>
 
 			</div>
 
+		<?php endif; ?>
+
+		<?php if ($login_error === 'unverified') : ?>
+			<div class="nba-message nba-message-info">
+				<p><?php esc_html_e('Need a new verification email?', 'newsblenda-accounts'); ?></p>
+				<p><a href="<?php echo esc_url($verify); ?>"><?php esc_html_e('Resend verification email', 'newsblenda-accounts'); ?></a></p>
+			</div>
 		<?php endif; ?>
 
 		<form
 			method="post"
 			class="nba-login-form"
 			autocomplete="off"
+			data-nb-lock-submit="1"
 		>
 
 			<?php wp_nonce_field('nbe_nonce'); ?>
@@ -106,6 +131,7 @@ $redirect = isset($_GET['redirect_to'])
 					required
 					autocomplete="username"
 					placeholder="<?php esc_attr_e('Enter your username or email', 'newsblenda-accounts'); ?>"
+					value="<?php echo esc_attr($prefill_username); ?>"
 				>
 
 			</p>
@@ -155,14 +181,15 @@ $redirect = isset($_GET['redirect_to'])
 
 				<button
 					type="submit"
-					class="button button-primary"
+					class="button button-primary nba-submit-button"
 				>
-
+					<span class="nba-submit-button-label">
 					<?php esc_html_e(
 						'Sign In',
 						'newsblenda-accounts'
 					); ?>
-
+					</span>
+					<span class="nba-submit-spinner" aria-hidden="true"></span>
 				</button>
 
 			</p>

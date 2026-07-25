@@ -19,6 +19,7 @@
 			this.toggleSections();
 			this.inputTrim();
 			this.tooltips();
+			this.registerNotices();
 
 		},
 
@@ -83,16 +84,28 @@
 
 			$(document).on(
 				'submit',
-				'form',
+				'form[data-nb-lock-submit="1"]',
 				function () {
+					const form = $(this);
+					if (form.data('nb-submitting')) {
+						return false;
+					}
 
-					$(this)
+					form.data('nb-submitting', true).addClass('nba-loading');
+
+					form
 						.find('button[type="submit"], input[type="submit"]')
 						.prop('disabled', true);
 
 				}
 			);
 
+		},
+
+		registerNotices: function () {
+			$(document).on('submit', '.nba-register-form', function () {
+				$(this).closest('.nba-auth-card').find('.nba-message').remove();
+			});
 		},
 
 		loadingButtons: function () {

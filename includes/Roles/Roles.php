@@ -71,7 +71,34 @@ class Roles
             self::editor_capabilities()
         );
 
+        self::sync_role_capabilities(
+            'nb_editor',
+            self::editor_capabilities()
+        );
+
         self::administrator_capabilities();
+    }
+
+    /**
+     * Sync capabilities for existing role installs.
+     */
+    private static function sync_role_capabilities(
+        string $role_name,
+        array $caps
+    ): void {
+        $role = get_role($role_name);
+
+        if (! $role) {
+            return;
+        }
+
+        foreach ($caps as $cap => $enabled) {
+            if ($enabled) {
+                $role->add_cap($cap);
+            } else {
+                $role->remove_cap($cap);
+            }
+        }
     }
     
         /**
@@ -195,11 +222,11 @@ class Roles
 
             'nb_manage_authors'          => true,
 
-            'nb_manage_accounts'         => true,
+            'nb_manage_accounts'         => false,
 
-            'nb_manage_payouts'          => true,
+            'nb_manage_payouts'          => false,
 
-            'nb_view_earnings'           => true,
+            'nb_view_earnings'           => false,
 
         ];
     }

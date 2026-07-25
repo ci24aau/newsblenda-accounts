@@ -7,6 +7,34 @@ if (! defined('ABSPATH')) {
 }
 
 $login = home_url('/login/');
+$state = \Newsblenda\Accounts\Auth\Register::consume_form_state();
+$values = $state['values'] ?? [];
+$errors = $state['errors'] ?? [];
+
+$value = static function (string $key, string $default = '') use ($values): string {
+	return isset($values[$key]) ? (string) $values[$key] : $default;
+};
+
+$field_error = static function (string $key) use ($errors): string {
+	return isset($errors[$key]) ? (string) $errors[$key] : '';
+};
+
+$field_class = static function (string $key) use ($errors): string {
+	return isset($errors[$key]) ? ' nba-invalid' : '';
+};
+
+$general_errors = [];
+if (isset($errors['_general']) && is_string($errors['_general'])) {
+	$general_errors[] = $errors['_general'];
+}
+
+foreach ($errors as $error_key => $error_message) {
+	if ($error_key !== '_general' && is_string($error_message)) {
+		$general_errors[] = $error_message;
+	}
+}
+
+$general_errors = array_values(array_unique($general_errors));
 ?>
 
 <div class="nba-auth-wrapper nba-register">
@@ -37,23 +65,21 @@ $login = home_url('/login/');
 
 		</p>
 
-		<?php if (isset($_GET['error'])) : ?>
-
+		<?php if (! empty($general_errors)) : ?>
 			<div class="nba-message nba-message-error">
-
-				<?php esc_html_e(
-					'Registration could not be completed. Please check your details and try again.',
-					'newsblenda-accounts'
-				); ?>
-
+				<ul class="nba-error-list">
+					<?php foreach ($general_errors as $error_message) : ?>
+						<li><?php echo esc_html($error_message); ?></li>
+					<?php endforeach; ?>
+				</ul>
 			</div>
-
 		<?php endif; ?>
 
 		<form
 			method="post"
 			class="nba-register-form"
 			autocomplete="off"
+			data-nb-lock-submit="1"
 		>
 
 			<?php wp_nonce_field('nbe_nonce'); ?>
@@ -63,8 +89,16 @@ $login = home_url('/login/');
 				name="nbe_register_submit"
 				value="1"
 			>
+			<input
+				type="hidden"
+				name="account_type"
+				value="<?php echo esc_attr($value('account_type', 'subscriber')); ?>"
+			>
 
 			<h3><?php esc_html_e('Account Information', 'newsblenda-accounts'); ?></h3>
+			<?php if ($field_error('account_type') !== '') : ?>
+				<p class="nba-field-error"><?php echo esc_html($field_error('account_type')); ?></p>
+			<?php endif; ?>
 
 			<p>
 
@@ -80,7 +114,12 @@ $login = home_url('/login/');
 					name="nbe_username"
 					required
 					autocomplete="username"
+					value="<?php echo esc_attr($value('nbe_username')); ?>"
+					class="<?php echo esc_attr(trim($field_class('nbe_username'))); ?>"
 				>
+				<?php if ($field_error('nbe_username') !== '') : ?>
+					<span class="nba-field-error"><?php echo esc_html($field_error('nbe_username')); ?></span>
+				<?php endif; ?>
 
 			</p>
 
@@ -98,7 +137,12 @@ $login = home_url('/login/');
 					name="nbe_email"
 					required
 					autocomplete="email"
+					value="<?php echo esc_attr($value('nbe_email')); ?>"
+					class="<?php echo esc_attr(trim($field_class('nbe_email'))); ?>"
 				>
+				<?php if ($field_error('nbe_email') !== '') : ?>
+					<span class="nba-field-error"><?php echo esc_html($field_error('nbe_email')); ?></span>
+				<?php endif; ?>
 
 			</p>
 
@@ -115,7 +159,12 @@ $login = home_url('/login/');
 					type="text"
 					name="nbe_full_name"
 					required
+					value="<?php echo esc_attr($value('nbe_full_name')); ?>"
+					class="<?php echo esc_attr(trim($field_class('nbe_full_name'))); ?>"
 				>
+				<?php if ($field_error('nbe_full_name') !== '') : ?>
+					<span class="nba-field-error"><?php echo esc_html($field_error('nbe_full_name')); ?></span>
+				<?php endif; ?>
 
 			</p>
 
@@ -131,6 +180,7 @@ $login = home_url('/login/');
 					id="nba_phone"
 					type="text"
 					name="nbe_phone"
+					value="<?php echo esc_attr($value('nbe_phone')); ?>"
 				>
 
 			</p>
@@ -147,6 +197,7 @@ $login = home_url('/login/');
 					id="nba_country"
 					type="text"
 					name="nbe_country"
+					value="<?php echo esc_attr($value('nbe_country')); ?>"
 				>
 
 			</p>
@@ -163,6 +214,7 @@ $login = home_url('/login/');
 					id="nba_niche"
 					type="text"
 					name="nbe_niche"
+					value="<?php echo esc_attr($value('nbe_niche')); ?>"
 				>
 
 			</p>
@@ -183,7 +235,11 @@ $login = home_url('/login/');
 					name="nbe_password"
 					required
 					autocomplete="new-password"
+					class="<?php echo esc_attr(trim($field_class('nbe_password'))); ?>"
 				>
+				<?php if ($field_error('nbe_password') !== '') : ?>
+					<span class="nba-field-error"><?php echo esc_html($field_error('nbe_password')); ?></span>
+				<?php endif; ?>
 
 			</p>
 
@@ -201,18 +257,29 @@ $login = home_url('/login/');
 					name="nbe_confirm_password"
 					required
 					autocomplete="new-password"
+					class="<?php echo esc_attr(trim($field_class('nbe_confirm_password'))); ?>"
 				>
+				<?php if ($field_error('nbe_confirm_password') !== '') : ?>
+					<span class="nba-field-error"><?php echo esc_html($field_error('nbe_confirm_password')); ?></span>
+				<?php endif; ?>
 
 			</p>
 
 			<p class="description">
 
 				<?php esc_html_e(
-					'Your password should contain at least 8 characters including uppercase letters, lowercase letters and numbers.',
+					'Password must contain:',
 					'newsblenda-accounts'
 				); ?>
 
 			</p>
+			<ul class="nba-password-requirements">
+				<li><?php esc_html_e('at least 8 characters', 'newsblenda-accounts'); ?></li>
+				<li><?php esc_html_e('an uppercase letter', 'newsblenda-accounts'); ?></li>
+				<li><?php esc_html_e('a lowercase letter', 'newsblenda-accounts'); ?></li>
+				<li><?php esc_html_e('a number', 'newsblenda-accounts'); ?></li>
+				<li><?php esc_html_e('a special character', 'newsblenda-accounts'); ?></li>
+			</ul>
 
 			<p>
 
@@ -223,6 +290,7 @@ $login = home_url('/login/');
 						name="nbe_terms"
 						value="1"
 						required
+						<?php checked($value('nbe_terms'), '1'); ?>
 					>
 
 					<?php esc_html_e(
@@ -231,6 +299,9 @@ $login = home_url('/login/');
 					); ?>
 
 				</label>
+				<?php if ($field_error('nbe_terms') !== '') : ?>
+					<span class="nba-field-error"><?php echo esc_html($field_error('nbe_terms')); ?></span>
+				<?php endif; ?>
 
 			</p>
 
@@ -238,14 +309,15 @@ $login = home_url('/login/');
 
 				<button
 					type="submit"
-					class="button button-primary"
+					class="button button-primary nba-submit-button"
 				>
-
+					<span class="nba-submit-button-label">
 					<?php esc_html_e(
 						'Create Account',
 						'newsblenda-accounts'
 					); ?>
-
+					</span>
+					<span class="nba-submit-spinner" aria-hidden="true"></span>
 				</button>
 
 			</p>

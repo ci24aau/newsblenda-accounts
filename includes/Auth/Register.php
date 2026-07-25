@@ -11,6 +11,11 @@ defined('ABSPATH') || exit;
 
 class Register
 {
+    private const VERIFICATION_WINDOW = DAY_IN_SECONDS;
+    private const REG_STATE_PREFIX = 'nb_register_state_';
+    private const REG_STATE_TTL = 15 * MINUTE_IN_SECONDS;
+    private const RESEND_MIN_INTERVAL = MINUTE_IN_SECONDS;
+
     /**
      * Mailer.
      */
@@ -35,6 +40,14 @@ class Register
     public function process(): void
     {
         if (
+            ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' &&
+            isset($_POST['nbe_resend_verification_submit'])
+        ) {
+            $this->resend_verification_email();
+            return;
+        }
+
+        if (
             ($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST' ||
             (! isset($_POST['nbe_register_submit']) && empty($_POST['nb_register']))
         ) {
@@ -50,14 +63,15 @@ class Register
                 'nbe_nonce'
             )
         ) {
-
-            wp_die(
-                esc_html__(
-                    'Security check failed.',
-                    'newsblenda-accounts'
-                )
+            $this->redirect_with_form_state(
+                $this->request_values(),
+                [
+                    '_general' => __(
+                        'Security validation failed. Please refresh the page and try again.',
+                        'newsblenda-accounts'
+                    ),
+                ]
             );
-
         }
 
         $this->register_user();
@@ -68,6 +82,9 @@ class Register
      */
     private function register_user(): void
     {
+        $values = $this->request_values();
+        $errors = [];
+
         $username = sanitize_user(
             wp_unslash($_POST['nbe_username'] ?? $_POST['username'] ?? '')
         );
@@ -110,56 +127,77 @@ class Register
             )
         );
 
-        if (
-            empty($username) ||
-            empty($email) ||
-            empty($password)
-        ) {
-
-            $this->error(
-                'Please complete all required fields.'
+        if (empty($username)) {
+            $errors['nbe_username'] = __(
+                'Username is required.',
+                'newsblenda-accounts'
             );
-
         }
 
-        if (! is_email($email)) {
-
-            $this->error(
-                'Please enter a valid email address.'
+        if (empty($email)) {
+            $errors['nbe_email'] = __(
+                'Email address is required.',
+                'newsblenda-accounts'
             );
-
+        } elseif (! is_email($email)) {
+            $errors['nbe_email'] = __(
+                'Please enter a valid email address.',
+                'newsblenda-accounts'
+            );
         }
 
-        if ($password !== $confirm) {
-
-            $this->error(
-                'Passwords do not match.'
+        if (empty($password)) {
+            $errors['nbe_password'] = __(
+                'Password is required.',
+                'newsblenda-accounts'
             );
-
         }
 
-        if (! $this->password_is_strong($password)) {
-
-            $this->error(
-                'Please choose a stronger password.'
+        if (empty($confirm)) {
+            $errors['nbe_confirm_password'] = __(
+                'Please confirm your password.',
+                'newsblenda-accounts'
             );
+        } elseif ($password !== $confirm) {
+            $errors['nbe_confirm_password'] = __(
+                'Passwords do not match.',
+                'newsblenda-accounts'
+            );
+        }
 
+        if (! empty($password) && ! $this->password_is_strong($password)) {
+            $errors['nbe_password'] = __(
+                'Password must contain at least 8 characters, uppercase, lowercase, number, and special character.',
+                'newsblenda-accounts'
+            );
         }
 
         if (username_exists($username)) {
-
-            $this->error(
-                'Username already exists.'
+            $errors['nbe_username'] = __(
+                'Username already exists.',
+                'newsblenda-accounts'
             );
-
         }
 
         if (email_exists($email)) {
-
-            $this->error(
-                'Email address already exists.'
+            $errors['nbe_email'] = __(
+                'Email address already exists.',
+                'newsblenda-accounts'
             );
+        }
 
+        if (! in_array($account, ['author', 'subscriber'], true)) {
+            $errors['account_type'] = __(
+                'Invalid account role selected.',
+                'newsblenda-accounts'
+            );
+        }
+
+        if (empty($_POST['nbe_terms'])) {
+            $errors['nbe_terms'] = __(
+                'You must agree to the terms and guidelines.',
+                'newsblenda-accounts'
+            );
         }
 
         if (
@@ -169,11 +207,10 @@ class Register
                 1
             )
         ) {
-
-            $this->error(
-                'Author registration is currently disabled.'
+            $errors['account_type'] = __(
+                'Author registration is currently disabled.',
+                'newsblenda-accounts'
             );
-
         }
 
         if (
@@ -183,11 +220,14 @@ class Register
                 1
             )
         ) {
-
-            $this->error(
-                'Reader registration is currently disabled.'
+            $errors['account_type'] = __(
+                'Reader registration is currently disabled.',
+                'newsblenda-accounts'
             );
+        }
 
+        if (! empty($errors)) {
+            $this->redirect_with_form_state($values, $errors);
         }
 
         do_action(
@@ -218,11 +258,12 @@ class Register
         );
 
         if (is_wp_error($user_id)) {
-
-            $this->error(
-                $user_id->get_error_message()
+            $this->redirect_with_form_state(
+                $values,
+                [
+                    '_general' => $user_id->get_error_message(),
+                ]
             );
-
         }
         
         
@@ -300,80 +341,42 @@ class Register
         );
 
         if ($verification_required) {
-
             update_user_meta(
                 $user_id,
                 'nb_email_verified',
                 0
             );
-
-            $token = wp_generate_password(
-                32,
-                false,
-                false
-            );
-
-            update_user_meta(
+            $token = $this->issue_verification_token($user_id);
+            $sent = $token !== '' && $this->send_verification_email(
                 $user_id,
-                'nb_email_verification_token',
+                $email,
+                $username,
                 $token
             );
 
-            $verification_url = add_query_arg(
-                [
-                    'user'  => $user_id,
-                    'token' => $token,
-                ],
-                home_url('/verify-email/')
-            );
+            if (! $sent) {
+                if (! function_exists('wp_delete_user')) {
+                    require_once ABSPATH . 'wp-admin/includes/user.php';
+                }
 
-            $subject = __(
-                'Verify your email address',
-                'newsblenda-accounts'
-            );
+                wp_delete_user($user_id);
 
-            $message  = '<p>';
-            $message .= sprintf(
-                esc_html__(
-                    'Hello %s,',
-                    'newsblenda-accounts'
-                ),
-                esc_html($username)
-            );
-            $message .= '</p>';
-
-            $message .= '<p>';
-            $message .= esc_html__(
-                'Thank you for registering your Newsblenda account.',
-                'newsblenda-accounts'
-            );
-            $message .= '</p>';
-
-            $message .= '<p>';
-            $message .= sprintf(
-                '<a href="%s">%s</a>',
-                esc_url($verification_url),
-                esc_html__(
-                    'Verify Email Address',
-                    'newsblenda-accounts'
-                )
-            );
-            $message .= '</p>';
-
-            $this->mailer->send(
-                $email,
-                $subject,
-                $message
-            );
-
+                $this->redirect_with_form_state(
+                    $values,
+                    [
+                        '_general' => __(
+                            "We couldn't send your verification email. Please try again.",
+                            'newsblenda-accounts'
+                        ),
+                    ]
+                );
+            }
         } else {
-
             update_user_meta(
                 $user_id,
                 'nb_email_verified',
                 1
             );
-
         }
 
         /*
@@ -398,18 +401,23 @@ class Register
         |--------------------------------------------------------------------------
         */
 
+        if ($verification_required) {
+            Helpers::redirect(
+                add_query_arg(
+                    [
+                        'status' => 'registered',
+                    ],
+                    home_url('/verify-email/')
+                )
+            );
+        }
+
         Helpers::redirect(
-
             add_query_arg(
-
                 'registered',
-
                 '1',
-
                 home_url('/login/')
-
             )
-
         );
     }
 
@@ -433,6 +441,10 @@ class Register
         }
 
         if (! preg_match('/[0-9]/', $password)) {
+            return false;
+        }
+
+        if (! preg_match('/[^a-zA-Z0-9]/', $password)) {
             return false;
         }
 
@@ -515,18 +527,47 @@ class Register
         int $user_id,
         string $token
     ): bool {
+        return self::verify_email_status($user_id, $token) === 'success';
+    }
 
-        $stored = (string) get_user_meta(
+    /**
+     * Verify an email token and return status.
+     */
+    public static function verify_email_status(
+        int $user_id,
+        string $token
+    ): string {
+        $user = get_userdata($user_id);
+        if (! $user) {
+            return 'invalid';
+        }
+
+        if (self::email_verified($user_id)) {
+            return 'already-verified';
+        }
+
+        $hash = (string) get_user_meta(
             $user_id,
-            'nb_email_verification_token',
+            'nb_email_verification_token_hash',
+            true
+        );
+        $expires = (int) get_user_meta(
+            $user_id,
+            'nb_email_verification_expires',
             true
         );
 
-        if (
-            empty($stored) ||
-            ! hash_equals($stored, $token)
-        ) {
-            return false;
+        if ($hash === '' || $expires <= 0) {
+            return 'invalid';
+        }
+
+        if (time() > $expires) {
+            self::clear_verification_token($user_id);
+            return 'expired';
+        }
+
+        if (! wp_check_password($token, $hash)) {
+            return 'invalid';
         }
 
         update_user_meta(
@@ -534,18 +575,14 @@ class Register
             'nb_email_verified',
             1
         );
-
-        delete_user_meta(
-            $user_id,
-            'nb_email_verification_token'
-        );
+        self::clear_verification_token($user_id);
 
         do_action(
             'nb_accounts_email_verified',
             $user_id
         );
 
-        return true;
+        return 'success';
     }
 
     /**
@@ -579,22 +616,261 @@ class Register
     }
 
     /**
-     * Stop registration with an error.
+     * Consume persisted registration form state.
      */
-    private function error(
-        string $message
-    ): void {
+    public static function consume_form_state(): array
+    {
+        $key = isset($_GET['reg_state'])
+            ? sanitize_key(wp_unslash($_GET['reg_state']))
+            : '';
 
-        wp_die(
-            esc_html($message),
-            esc_html__(
-                'Registration Error',
-                'newsblenda-accounts'
-            ),
-            [
-                'response' => 400,
-            ]
+        if ($key === '') {
+            return [
+                'values' => [],
+                'errors' => [],
+            ];
+        }
+
+        $state = get_transient(self::REG_STATE_PREFIX . $key);
+        delete_transient(self::REG_STATE_PREFIX . $key);
+
+        if (! is_array($state)) {
+            return [
+                'values' => [],
+                'errors' => [],
+            ];
+        }
+
+        return [
+            'values' => is_array($state['values'] ?? null) ? $state['values'] : [],
+            'errors' => is_array($state['errors'] ?? null) ? $state['errors'] : [],
+        ];
+    }
+
+    /**
+     * Handle verification resend submission.
+     */
+    private function resend_verification_email(): void
+    {
+        if (
+            ! isset($_POST['_wpnonce']) ||
+            ! wp_verify_nonce(
+                sanitize_text_field(wp_unslash($_POST['_wpnonce'])),
+                'nb_resend_verification'
+            )
+        ) {
+            Helpers::redirect(
+                add_query_arg(
+                    'status',
+                    'resend-invalid-nonce',
+                    home_url('/verify-email/')
+                )
+            );
+        }
+
+        $email = sanitize_email(
+            wp_unslash($_POST['nbe_resend_email'] ?? '')
         );
 
+        if (! is_email($email)) {
+            Helpers::redirect(
+                add_query_arg(
+                    'status',
+                    'resend-invalid-email',
+                    home_url('/verify-email/')
+                )
+            );
+        }
+
+        $user = get_user_by('email', $email);
+        if (! $user instanceof \WP_User) {
+            Helpers::redirect(
+                add_query_arg(
+                    'status',
+                    'resent',
+                    home_url('/verify-email/')
+                )
+            );
+        }
+
+        if (self::email_verified($user->ID)) {
+            Helpers::redirect(
+                add_query_arg(
+                    'status',
+                    'already-verified',
+                    home_url('/verify-email/')
+                )
+            );
+        }
+
+        $last_sent = (int) get_user_meta(
+            $user->ID,
+            'nb_email_verification_last_sent',
+            true
+        );
+
+        if ($last_sent > 0 && (time() - $last_sent) < self::RESEND_MIN_INTERVAL) {
+            Helpers::redirect(
+                add_query_arg(
+                    'status',
+                    'resend-throttled',
+                    home_url('/verify-email/')
+                )
+            );
+        }
+
+        $token = $this->issue_verification_token($user->ID);
+        $sent = $token !== '' && $this->send_verification_email(
+            $user->ID,
+            $user->user_email,
+            $user->user_login,
+            $token
+        );
+
+        Helpers::redirect(
+            add_query_arg(
+                'status',
+                $sent ? 'resent' : 'resend-failed',
+                home_url('/verify-email/')
+            )
+        );
+    }
+
+    /**
+     * Store form state and redirect to register page.
+     */
+    private function redirect_with_form_state(
+        array $values,
+        array $errors
+    ): void {
+        $state_key = wp_generate_uuid4();
+        set_transient(
+            self::REG_STATE_PREFIX . $state_key,
+            [
+                'values' => $values,
+                'errors' => $errors,
+            ],
+            self::REG_STATE_TTL
+        );
+
+        Helpers::redirect(
+            add_query_arg(
+                'reg_state',
+                $state_key,
+                home_url('/register/')
+            )
+        );
+    }
+
+    /**
+     * Collect safe form values for refill.
+     */
+    private function request_values(): array
+    {
+        return [
+            'nbe_username' => sanitize_user(
+                wp_unslash($_POST['nbe_username'] ?? $_POST['username'] ?? '')
+            ),
+            'nbe_email' => sanitize_email(
+                wp_unslash($_POST['nbe_email'] ?? $_POST['email'] ?? '')
+            ),
+            'nbe_full_name' => sanitize_text_field(
+                wp_unslash($_POST['nbe_full_name'] ?? $_POST['display_name'] ?? '')
+            ),
+            'nbe_phone' => sanitize_text_field(
+                wp_unslash($_POST['nbe_phone'] ?? $_POST['nb_phone'] ?? '')
+            ),
+            'nbe_country' => sanitize_text_field(
+                wp_unslash($_POST['nbe_country'] ?? $_POST['nb_country'] ?? '')
+            ),
+            'nbe_state' => sanitize_text_field(
+                wp_unslash($_POST['nbe_state'] ?? $_POST['nb_state'] ?? '')
+            ),
+            'nbe_niche' => sanitize_text_field(
+                wp_unslash($_POST['nbe_niche'] ?? $_POST['nb_niche'] ?? '')
+            ),
+            'nbe_terms' => ! empty($_POST['nbe_terms']) ? '1' : '0',
+            'account_type' => sanitize_text_field(
+                wp_unslash($_POST['account_type'] ?? 'subscriber')
+            ),
+        ];
+    }
+
+    /**
+     * Generate and store a verification token hash.
+     */
+    private function issue_verification_token(int $user_id): string
+    {
+        try {
+            $token = bin2hex(random_bytes(32));
+        } catch (\Exception $exception) {
+            $token = wp_generate_password(64, false, false);
+        }
+
+        update_user_meta(
+            $user_id,
+            'nb_email_verification_token_hash',
+            wp_hash_password($token)
+        );
+        update_user_meta(
+            $user_id,
+            'nb_email_verification_expires',
+            time() + self::VERIFICATION_WINDOW
+        );
+        update_user_meta(
+            $user_id,
+            'nb_email_verification_last_sent',
+            time()
+        );
+
+        // Cleanup legacy token storage.
+        delete_user_meta($user_id, 'nb_email_verification_token');
+
+        return $token;
+    }
+
+    /**
+     * Clear token metadata.
+     */
+    private static function clear_verification_token(int $user_id): void
+    {
+        delete_user_meta($user_id, 'nb_email_verification_token_hash');
+        delete_user_meta($user_id, 'nb_email_verification_expires');
+        delete_user_meta($user_id, 'nb_email_verification_token');
+    }
+
+    /**
+     * Send verification message.
+     */
+    private function send_verification_email(
+        int $user_id,
+        string $email,
+        string $username,
+        string $token
+    ): bool {
+        $verification_url = self::verification_url($user_id, $token);
+        $subject = __('Verify your email address', 'newsblenda-accounts');
+
+        $message  = '<p>' . sprintf(
+            esc_html__('Hello %s,', 'newsblenda-accounts'),
+            esc_html($username)
+        ) . '</p>';
+        $message .= '<p>' . esc_html__(
+            'Thank you for registering your Newsblenda account. Please verify your email within 24 hours to activate your account.',
+            'newsblenda-accounts'
+        ) . '</p>';
+        $message .= '<p><a href="' . esc_url($verification_url) . '" style="display:inline-block;padding:12px 20px;background:#2563eb;color:#ffffff;text-decoration:none;border-radius:6px;">' .
+            esc_html__('Verify Email Address', 'newsblenda-accounts') .
+            '</a></p>';
+        $message .= '<p>' . esc_html__(
+            'If the button does not work, copy and paste this URL into your browser:',
+            'newsblenda-accounts'
+        ) . '<br><a href="' . esc_url($verification_url) . '">' . esc_html($verification_url) . '</a></p>';
+
+        return Mailer::send(
+            $email,
+            $subject,
+            $message
+        );
     }
 }
