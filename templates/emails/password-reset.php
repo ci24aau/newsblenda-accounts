@@ -14,6 +14,9 @@ $site_name = wp_specialchars_decode(
 $user_name = $user_name ?? __('Author', 'newsblenda-accounts');
 
 $reset_url = $reset_url ?? home_url('/reset-password/');
+$expiry_hours = isset($expiry_hours)
+	? (int) $expiry_hours
+	: 24;
 
 $login_url = home_url('/login/');
 
@@ -238,10 +241,15 @@ class="button"
 
 	<li>
 
-		<?php esc_html_e(
-			'This password reset link is valid for a limited time only.',
-			'newsblenda-accounts'
-		); ?>
+		<?php
+		printf(
+			esc_html__(
+				'This password reset link is valid for %d hours.',
+				'newsblenda-accounts'
+			),
+			$expiry_hours
+		);
+		?>
 
 	</li>
 
@@ -286,7 +294,7 @@ class="button"
 <h2>
 
 	<?php esc_html_e(
-		'Didn't request this?',
+		'Didn\'t request this?',
 		'newsblenda-accounts'
 	); ?>
 

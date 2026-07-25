@@ -8,6 +8,32 @@ if (! defined('ABSPATH')) {
 
 $login    = home_url('/login/');
 $register = home_url('/register/');
+$status = isset($_GET['status'])
+	? sanitize_key(wp_unslash($_GET['status']))
+	: '';
+
+$status_messages = [
+	'sent' => [
+		'type' => 'success',
+		'message' => __('If an account exists with that email address, a password reset link has been sent.', 'newsblenda-accounts'),
+	],
+	'throttled' => [
+		'type' => 'info',
+		'message' => __('Too many reset requests. Please wait before trying again.', 'newsblenda-accounts'),
+	],
+	'invalid-email' => [
+		'type' => 'error',
+		'message' => __('Please enter a valid email address.', 'newsblenda-accounts'),
+	],
+	'invalid-nonce' => [
+		'type' => 'error',
+		'message' => __('Security validation failed. Please refresh and try again.', 'newsblenda-accounts'),
+	],
+	'error' => [
+		'type' => 'error',
+		'message' => __('Unable to process your request right now. Please try again.', 'newsblenda-accounts'),
+	],
+];
 ?>
 
 <div class="nba-auth-wrapper nba-forgot-password">
@@ -38,36 +64,18 @@ $register = home_url('/register/');
 
 		</p>
 
-		<?php if (isset($_GET['sent'])) : ?>
-
-			<div class="nba-message nba-message-success">
-
-				<?php esc_html_e(
-					'If an account exists with that email address, a password reset link has been sent.',
-					'newsblenda-accounts'
-				); ?>
-
+		<?php if (isset($status_messages[$status])) : ?>
+			<div class="nba-message nba-message-<?php echo esc_attr($status_messages[$status]['type']); ?>">
+				<?php echo esc_html($status_messages[$status]['message']); ?>
 			</div>
-
-		<?php endif; ?>
-
-		<?php if (isset($_GET['error'])) : ?>
-
-			<div class="nba-message nba-message-error">
-
-				<?php esc_html_e(
-					'Unable to process your request. Please try again.',
-					'newsblenda-accounts'
-				); ?>
-
-			</div>
-
 		<?php endif; ?>
 
 		<form
 			method="post"
 			class="nba-forgot-password-form"
 			autocomplete="off"
+			data-nb-lock-submit="1"
+			data-nba-ajax="1"
 		>
 
 			<?php wp_nonce_field('nbe_nonce'); ?>
@@ -97,6 +105,7 @@ $register = home_url('/register/');
 					autocomplete="email"
 					placeholder="<?php esc_attr_e('Enter your email address', 'newsblenda-accounts'); ?>"
 				>
+				<input type="text" name="nb_website" value="" tabindex="-1" autocomplete="off" class="nba-honeypot" aria-hidden="true">
 
 			</p>
 
@@ -104,17 +113,18 @@ $register = home_url('/register/');
 
 				<button
 					type="submit"
-					class="button button-primary"
+					class="button button-primary nba-submit-button"
 				>
-
-					<?php esc_html_e(
+					<span class="nba-submit-button-label"><?php esc_html_e(
 						'Send Reset Link',
 						'newsblenda-accounts'
-					); ?>
-
+					); ?></span>
+					<span class="nba-submit-spinner" aria-hidden="true"></span>
 				</button>
 
 			</p>
+
+			<div class="nba-form-response" aria-live="polite"></div>
 
 		</form>
 

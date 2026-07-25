@@ -18,6 +18,7 @@ $tables = [
 	$wpdb->prefix . 'nb_activity',
 	$wpdb->prefix . 'nb_notifications',
 	$wpdb->prefix . 'nb_email_verification_tokens',
+	$wpdb->prefix . 'nb_password_reset_tokens',
 ];
 
 foreach ($tables as $table) {
