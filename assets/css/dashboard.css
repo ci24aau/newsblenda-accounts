@@ -1,0 +1,366 @@
+/**
+ * Newsblenda Accounts Dashboard Styles
+ */
+
+.nba-dashboard{
+	width:100%;
+	margin:30px auto;
+}
+
+.nba-dashboard-header{
+	margin-bottom:30px;
+}
+
+.nba-dashboard-header h1,
+.nba-dashboard-header h2{
+	margin:0 0 10px;
+	font-size:30px;
+	line-height:1.3;
+}
+
+.nba-dashboard-header p{
+	margin:0;
+	color:#666;
+}
+
+.nba-dashboard-grid{
+	display:grid;
+	grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+	gap:20px;
+	margin-bottom:35px;
+}
+
+.nba-card,
+.nba-dashboard-card{
+	background:#fff;
+	border:1px solid #e5e5e5;
+	border-radius:8px;
+	padding:25px;
+	box-shadow:0 2px 6px rgba(0,0,0,.05);
+	transition:.2s ease;
+}
+
+.nba-card:hover,
+.nba-dashboard-card:hover{
+	box-shadow:0 5px 14px rgba(0,0,0,.08);
+	transform:translateY(-2px);
+}
+
+.nba-card h3,
+.nba-card h4,
+.nba-dashboard-card h3{
+	margin:0 0 15px;
+	font-size:16px;
+	color:#555;
+}
+
+.nba-card-number,
+.nba-dashboard-value{
+	font-size:32px;
+	font-weight:700;
+	color:#111;
+}
+
+.nba-dashboard-actions{
+	margin-top:40px;
+}
+
+.nba-dashboard-actions h2{
+	margin-bottom:20px;
+	font-size:22px;
+}
+
+.nba-action-buttons{
+	display:flex;
+	flex-wrap:wrap;
+	gap:15px;
+}
+
+.nba-action-buttons .button{
+	min-width:180px;
+	text-align:center;
+}
+
+.nba-table{
+	width:100%;
+	border-collapse:collapse;
+	margin-top:20px;
+}
+
+.nba-table th,
+.nba-table td{
+	padding:14px;
+	border:1px solid #e5e5e5;
+	text-align:left;
+}
+
+.nba-table th{
+	background:#f7f7f7;
+	font-weight:600;
+}
+
+.nba-message{
+	padding:15px;
+	border-radius:6px;
+	margin-bottom:20px;
+}
+
+.nba-message-info{
+	background:#eef6ff;
+	border:1px solid #c8defc;
+}
+
+.nba-message-success{
+	background:#eef9ef;
+	border:1px solid #b6ddb7;
+}
+
+.nba-message-error{
+	background:#fff2f2;
+	border:1px solid #efc0c0;
+}
+
+@media (max-width:768px){
+
+	.nba-dashboard-grid{
+		grid-template-columns:1fr;
+	}
+
+	.nba-action-buttons{
+		flex-direction:column;
+	}
+
+	.nba-action-buttons .button{
+		width:100%;
+	}
+
+	.nba-table{
+		display:block;
+		overflow-x:auto;
+		white-space:nowrap;
+	}
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| Dashboard Layout
+|--------------------------------------------------------------------------
+*/
+
+.nba-dashboard-container{
+	display:grid;
+	grid-template-columns:260px 1fr;
+	gap:30px;
+	align-items:start;
+}
+
+.nba-dashboard-sidebar{
+	background:#fff;
+	border:1px solid #e5e5e5;
+	border-radius:8px;
+	overflow:hidden;
+}
+
+.nba-dashboard-content{
+	min-width:0;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Navigation
+|--------------------------------------------------------------------------
+*/
+
+.nba-dashboard-menu{
+	list-style:none;
+	margin:0;
+	padding:0;
+}
+
+.nba-dashboard-menu li{
+	margin:0;
+	padding:0;
+}
+
+.nba-dashboard-menu a{
+	display:block;
+	padding:14px 18px;
+	color:#444;
+	text-decoration:none;
+	border-bottom:1px solid #f1f1f1;
+	font-weight:500;
+	transition:.2s;
+}
+
+.nba-dashboard-menu a:hover{
+	background:#f6f7f7;
+	color:#2271b1;
+}
+
+.nba-dashboard-menu a.active{
+	background:#2271b1;
+	color:#fff;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Statistics
+|--------------------------------------------------------------------------
+*/
+
+.nba-stat-grid{
+	display:grid;
+	grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+	gap:20px;
+	margin-bottom:30px;
+}
+
+.nba-stat-card{
+	background:#fff;
+	border:1px solid #e5e5e5;
+	border-radius:8px;
+	padding:24px;
+	box-shadow:0 2px 6px rgba(0,0,0,.05);
+}
+
+.nba-stat-card h4{
+	margin:0 0 10px;
+	font-size:14px;
+	font-weight:600;
+	color:#666;
+	text-transform:uppercase;
+}
+
+.nba-stat-card .value{
+	font-size:34px;
+	font-weight:700;
+	line-height:1.2;
+	color:#111;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Activity
+|--------------------------------------------------------------------------
+*/
+
+.nba-activity-list{
+	list-style:none;
+	margin:0;
+	padding:0;
+}
+
+.nba-activity-list li{
+	padding:15px 0;
+	border-bottom:1px solid #ececec;
+}
+
+.nba-activity-list li:last-child{
+	border-bottom:none;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Status Badges
+|--------------------------------------------------------------------------
+*/
+
+.nba-badge{
+	display:inline-block;
+	padding:4px 10px;
+	font-size:12px;
+	font-weight:600;
+	border-radius:999px;
+}
+
+.nba-badge-success{
+	background:#dff6dd;
+	color:#0f5132;
+}
+
+.nba-badge-warning{
+	background:#fff3cd;
+	color:#664d03;
+}
+
+.nba-badge-danger{
+	background:#f8d7da;
+	color:#842029;
+}
+
+.nba-badge-info{
+	background:#cff4fc;
+	color:#055160;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Empty States
+|--------------------------------------------------------------------------
+*/
+
+.nba-empty{
+	padding:50px 20px;
+	text-align:center;
+	color:#666;
+	background:#fff;
+	border:1px dashed #dcdcde;
+	border-radius:8px;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Loading
+|--------------------------------------------------------------------------
+*/
+
+.nba-dashboard-loading{
+	position:relative;
+	pointer-events:none;
+	opacity:.65;
+}
+
+.nba-dashboard-loading::after{
+	content:"";
+	position:absolute;
+	top:50%;
+	left:50%;
+	width:22px;
+	height:22px;
+	margin:-11px 0 0 -11px;
+	border:3px solid #ddd;
+	border-top-color:#2271b1;
+	border-radius:50%;
+	animation:nba-dashboard-spin .8s linear infinite;
+}
+
+@keyframes nba-dashboard-spin{
+
+	from{
+		transform:rotate(0deg);
+	}
+
+	to{
+		transform:rotate(360deg);
+	}
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| Responsive
+|--------------------------------------------------------------------------
+*/
+
+@media (max-width:992px){
+
+	.nba-dashboard-container{
+		grid-template-columns:1fr;
+	}
+
+	.nba-dashboard-sidebar{
+		margin-bottom:20px;
+	}
+
+}

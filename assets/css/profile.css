@@ -1,0 +1,320 @@
+/**
+ * Newsblenda Accounts Profile Styles
+ */
+
+.nba-profile-page{
+	max-width:900px;
+	margin:30px auto;
+}
+
+.nba-profile-header{
+	margin-bottom:30px;
+}
+
+.nba-profile-header h1{
+	margin:0 0 10px;
+	font-size:30px;
+	line-height:1.3;
+}
+
+.nba-profile-header p{
+	margin:0;
+	color:#666;
+}
+
+.nba-profile-form{
+	background:#fff;
+	border:1px solid #e5e5e5;
+	border-radius:8px;
+	padding:30px;
+	box-sizing:border-box;
+}
+
+.nba-profile-form hr{
+	margin:35px 0;
+	border:0;
+	border-top:1px solid #ececec;
+}
+
+.nba-profile-form h2{
+	margin:0 0 20px;
+	font-size:22px;
+}
+
+.nba-form-group{
+	margin-bottom:20px;
+}
+
+.nba-form-group label{
+	display:block;
+	margin-bottom:8px;
+	font-weight:600;
+}
+
+.nba-form-group input,
+.nba-form-group textarea,
+.nba-form-group select{
+	width:100%;
+	padding:12px;
+	border:1px solid #ccc;
+	border-radius:4px;
+	box-sizing:border-box;
+	font-size:15px;
+	background:#fff;
+}
+
+.nba-form-group textarea{
+	min-height:120px;
+	resize:vertical;
+}
+
+.nba-profile-form .button{
+	min-width:180px;
+}
+
+.nba-avatar-preview{
+	width:120px;
+	height:120px;
+	border-radius:50%;
+	object-fit:cover;
+	border:3px solid #ddd;
+	display:block;
+	margin-bottom:20px;
+}
+
+.nba-profile-success{
+	padding:15px;
+	background:#edf9ed;
+	border:1px solid #8bc98b;
+	border-radius:4px;
+	color:#226122;
+	margin-bottom:25px;
+}
+
+.nba-profile-error{
+	padding:15px;
+	background:#fff2f2;
+	border:1px solid #efb2b2;
+	border-radius:4px;
+	color:#a32020;
+	margin-bottom:25px;
+}
+
+@media (max-width:768px){
+
+	.nba-profile-page{
+		margin:20px auto;
+	}
+
+	.nba-profile-form{
+		padding:20px;
+	}
+
+	.nba-profile-form .button{
+		width:100%;
+	}
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| Profile Layout
+|--------------------------------------------------------------------------
+*/
+
+.nba-profile-grid{
+	display:grid;
+	grid-template-columns:280px 1fr;
+	gap:30px;
+	align-items:start;
+}
+
+.nba-profile-sidebar{
+	background:#fff;
+	border:1px solid #e5e5e5;
+	border-radius:8px;
+	padding:25px;
+	text-align:center;
+}
+
+.nba-profile-content{
+	min-width:0;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Avatar
+|--------------------------------------------------------------------------
+*/
+
+.nba-avatar-wrapper{
+	text-align:center;
+	margin-bottom:25px;
+}
+
+.nba-avatar-preview{
+	margin:0 auto 15px;
+}
+
+.nba-avatar-actions{
+	display:flex;
+	flex-wrap:wrap;
+	justify-content:center;
+	gap:10px;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Profile Information
+|--------------------------------------------------------------------------
+*/
+
+.nba-profile-section{
+	margin-bottom:35px;
+}
+
+.nba-profile-section:last-child{
+	margin-bottom:0;
+}
+
+.nba-profile-section h3{
+	margin:0 0 18px;
+	padding-bottom:10px;
+	border-bottom:1px solid #ececec;
+	font-size:18px;
+}
+
+.nba-form-row{
+	display:grid;
+	grid-template-columns:1fr 1fr;
+	gap:20px;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Readonly Fields
+|--------------------------------------------------------------------------
+*/
+
+.nba-form-group input[readonly],
+.nba-form-group textarea[readonly],
+.nba-form-group select[disabled]{
+	background:#f6f7f7;
+	cursor:not-allowed;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Validation
+|--------------------------------------------------------------------------
+*/
+
+.nba-form-group input:focus,
+.nba-form-group textarea:focus,
+.nba-form-group select:focus{
+	outline:none;
+	border-color:#2271b1;
+	box-shadow:0 0 0 1px #2271b1;
+}
+
+.nba-invalid{
+	border-color:#d63638 !important;
+	box-shadow:0 0 0 1px #d63638 !important;
+}
+
+.nba-valid{
+	border-color:#46b450 !important;
+	box-shadow:0 0 0 1px #46b450 !important;
+}
+
+.nba-field-help{
+	display:block;
+	margin-top:6px;
+	font-size:13px;
+	color:#666;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Loading
+|--------------------------------------------------------------------------
+*/
+
+.nba-profile-loading{
+	position:relative;
+	opacity:.7;
+	pointer-events:none;
+}
+
+.nba-profile-loading::after{
+	content:"";
+	position:absolute;
+	top:50%;
+	left:50%;
+	width:22px;
+	height:22px;
+	margin:-11px 0 0 -11px;
+	border:2px solid #ddd;
+	border-top-color:#2271b1;
+	border-radius:50%;
+	animation:nba-profile-spin .8s linear infinite;
+}
+
+@keyframes nba-profile-spin{
+
+	from{
+		transform:rotate(0deg);
+	}
+
+	to{
+		transform:rotate(360deg);
+	}
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| Actions
+|--------------------------------------------------------------------------
+*/
+
+.nba-profile-actions{
+	display:flex;
+	gap:12px;
+	margin-top:30px;
+	flex-wrap:wrap;
+}
+
+.nba-profile-actions .button{
+	min-width:180px;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Responsive
+|--------------------------------------------------------------------------
+*/
+
+@media (max-width:768px){
+
+	.nba-profile-grid{
+		grid-template-columns:1fr;
+	}
+
+	.nba-form-row{
+		grid-template-columns:1fr;
+	}
+
+	.nba-avatar-actions{
+		flex-direction:column;
+	}
+
+	.nba-profile-actions{
+		flex-direction:column;
+	}
+
+	.nba-profile-actions .button{
+		width:100%;
+	}
+
+}

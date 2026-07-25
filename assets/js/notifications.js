@@ -1,0 +1,256 @@
+/**
+ * Newsblenda Accounts Notifications
+ */
+
+(function ($) {
+	'use strict';
+
+	const Notifications = {
+
+		refreshTimer: null,
+
+		init: function () {
+
+			this.markRead();
+			this.markAllRead();
+			this.deleteNotification();
+			this.filterNotifications();
+			this.searchNotifications();
+			this.autoRefresh();
+			this.updateCounter();
+
+		},
+
+		/**
+		 * Mark a notification as read.
+		 */
+		markRead: function () {
+
+			const self = this;
+
+			$(document).on(
+				'click',
+				'.nba-notification-read',
+				function (e) {
+
+					e.preventDefault();
+
+					const notification = $(this)
+						.closest('.nba-notification');
+
+					notification
+						.removeClass('nba-unread')
+						.addClass('nba-read');
+
+					self.updateCounter();
+
+					$(document).trigger(
+						'nba_notification_read',
+						[notification]
+					);
+
+				}
+			);
+
+		},
+
+		/**
+		 * Mark all notifications as read.
+		 */
+		markAllRead: function () {
+
+			const self = this;
+
+			$(document).on(
+				'click',
+				'#nba-mark-all-read',
+				function (e) {
+
+					e.preventDefault();
+
+					$('.nba-notification')
+						.removeClass('nba-unread')
+						.addClass('nba-read');
+
+					self.updateCounter();
+
+					$(document).trigger(
+						'nba_notifications_mark_all_read'
+					);
+
+				}
+			);
+
+		},
+
+		/**
+		 * Delete notification.
+		 */
+		deleteNotification: function () {
+
+			const self = this;
+
+			$(document).on(
+				'click',
+				'.nba-notification-delete',
+				function (e) {
+
+					e.preventDefault();
+
+					if (!window.confirm('Delete this notification?')) {
+						return;
+					}
+
+					$(this)
+						.closest('.nba-notification')
+						.fadeOut(200, function () {
+
+							$(this).remove();
+
+							self.updateCounter();
+							self.checkEmptyState();
+
+						});
+
+				}
+			);
+
+		},
+
+		/**
+		 * Filter notifications.
+		 */
+		filterNotifications: function () {
+
+			$(document).on(
+				'change',
+				'.nba-notification-filter',
+				function () {
+
+					const filter = $(this).val();
+
+					$('.nba-notification').each(function () {
+
+						if (
+							filter === '' ||
+							filter === 'all'
+						) {
+
+							$(this).show();
+
+							return;
+
+						}
+
+						if ($(this).hasClass(filter)) {
+
+							$(this).show();
+
+						} else {
+
+							$(this).hide();
+
+						}
+
+					});
+
+				}
+			);
+
+		},
+
+		/**
+		 * Search notifications.
+		 */
+		searchNotifications: function () {
+
+			$(document).on(
+				'keyup',
+				'.nba-notification-search',
+				function () {
+
+					const value = $(this)
+						.val()
+						.toLowerCase();
+
+					$('.nba-notification').each(function () {
+
+						$(this).toggle(
+							$(this)
+								.text()
+								.toLowerCase()
+								.indexOf(value) > -1
+						);
+
+					});
+
+				}
+			);
+
+		},
+
+		/**
+		 * Update unread counter.
+		 */
+		updateCounter: function () {
+
+			const unread = $('.nba-notification.nba-unread').length;
+
+			$('.nba-notification-count').text(unread);
+
+		},
+
+		/**
+		 * Empty state.
+		 */
+		checkEmptyState: function () {
+
+			if ($('.nba-notification').length) {
+				return;
+			}
+
+			$('.nba-notifications-list').html(
+				'<div class="nba-empty-state">No notifications available.</div>'
+			);
+
+		},
+
+		/**
+		 * Automatic refresh.
+		 */
+		autoRefresh: function () {
+
+			const refresh = parseInt(
+				$('.nba-notifications').data('refresh'),
+				10
+			);
+
+			if (!refresh || refresh <= 0) {
+				return;
+			}
+
+			if (this.refreshTimer) {
+				clearInterval(this.refreshTimer);
+			}
+
+			this.refreshTimer = setInterval(function () {
+
+				$(document).trigger(
+					'nba_notifications_refresh'
+				);
+
+			}, refresh * 1000);
+
+		}
+
+	};
+
+	$(function () {
+
+		Notifications.init();
+
+		window.NBNotifications = Notifications;
+
+	});
+
+})(jQuery);

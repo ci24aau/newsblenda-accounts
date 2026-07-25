@@ -1,0 +1,302 @@
+/**
+ * Newsblenda Accounts Authentication Styles
+ */
+
+.nba-auth-wrapper{
+	max-width:480px;
+	margin:40px auto;
+	padding:20px;
+}
+
+.nba-auth-card{
+	background:#fff;
+	border:1px solid #ddd;
+	border-radius:8px;
+	padding:30px;
+	box-shadow:0 2px 8px rgba(0,0,0,.08);
+}
+
+.nba-auth-card h1{
+	margin:0 0 20px;
+	font-size:30px;
+	line-height:1.3;
+	text-align:center;
+}
+
+.nba-auth-card p{
+	margin-bottom:18px;
+}
+
+.nba-auth-card label{
+	display:block;
+	font-weight:600;
+	margin-bottom:8px;
+}
+
+.nba-auth-card input,
+.nba-auth-card select,
+.nba-auth-card textarea{
+	width:100%;
+	padding:12px;
+	border:1px solid #ccc;
+	border-radius:4px;
+	box-sizing:border-box;
+	font-size:15px;
+	background:#fff;
+}
+
+.nba-auth-card input:focus,
+.nba-auth-card textarea:focus,
+.nba-auth-card select:focus{
+	outline:none;
+	border-color:#2271b1;
+	box-shadow:0 0 0 1px #2271b1;
+}
+
+.nba-auth-card .button,
+.nba-auth-card button{
+	width:100%;
+	margin-top:10px;
+}
+
+.nba-auth-links{
+	margin-top:20px;
+	text-align:center;
+}
+
+.nba-auth-links a{
+	text-decoration:none;
+}
+
+.nba-auth-links a:hover{
+	text-decoration:underline;
+}
+
+.nba-password-strength{
+	margin-top:8px;
+	font-size:13px;
+	font-weight:600;
+}
+
+.nba-password-strength.weak{
+	color:#d63638;
+}
+
+.nba-password-strength.medium{
+	color:#dba617;
+}
+
+.nba-password-strength.strong{
+	color:#2c8a42;
+}
+
+.nba-password-strength.very-strong{
+	color:#008a20;
+}
+
+.nba-password-match{
+	margin-top:6px;
+	font-size:13px;
+	font-weight:600;
+}
+
+.nba-password-match.success{
+	color:#2c8a42;
+}
+
+.nba-password-match.error{
+	color:#d63638;
+}
+
+.nba-notice{
+	padding:15px;
+	border-radius:6px;
+	margin-bottom:20px;
+}
+
+.nba-notice-success{
+	background:#edf9ed;
+	border:1px solid #8dc58d;
+	color:#236623;
+}
+
+.nba-notice-error{
+	background:#fff2f2;
+	border:1px solid #efb3b3;
+	color:#a32020;
+}
+
+@media (max-width:768px){
+
+	.nba-auth-wrapper{
+		padding:15px;
+	}
+
+	.nba-auth-card{
+		padding:20px;
+	}
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| Authentication Forms
+|--------------------------------------------------------------------------
+*/
+
+.nba-auth-card form{
+	margin:0;
+}
+
+.nba-auth-card .form-group{
+	margin-bottom:20px;
+	position:relative;
+}
+
+.nba-auth-card input:disabled,
+.nba-auth-card textarea:disabled,
+.nba-auth-card button:disabled{
+	opacity:.65;
+	cursor:not-allowed;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Password Toggle
+|--------------------------------------------------------------------------
+*/
+
+.nba-password-toggle{
+	position:absolute;
+	right:12px;
+	top:50%;
+	transform:translateY(-50%);
+	cursor:pointer;
+	color:#666;
+	font-size:14px;
+	user-select:none;
+}
+
+.nba-password-toggle:hover{
+	color:#2271b1;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Validation
+|--------------------------------------------------------------------------
+*/
+
+.nba-invalid{
+	border-color:#d63638 !important;
+	box-shadow:0 0 0 1px #d63638 !important;
+}
+
+.nba-valid{
+	border-color:#2c8a42 !important;
+	box-shadow:0 0 0 1px #2c8a42 !important;
+}
+
+.nba-field-error{
+	margin-top:6px;
+	font-size:13px;
+	color:#d63638;
+}
+
+.nba-field-success{
+	margin-top:6px;
+	font-size:13px;
+	color:#2c8a42;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Loading State
+|--------------------------------------------------------------------------
+*/
+
+.nba-auth-loading{
+	position:relative;
+	pointer-events:none;
+	opacity:.7;
+}
+
+.nba-auth-loading::after{
+	content:"";
+	position:absolute;
+	top:50%;
+	left:50%;
+	width:18px;
+	height:18px;
+	margin:-9px 0 0 -9px;
+	border:2px solid #ddd;
+	border-top-color:#2271b1;
+	border-radius:50%;
+	animation:nba-auth-spin .8s linear infinite;
+}
+
+@keyframes nba-auth-spin{
+
+	from{
+		transform:rotate(0deg);
+	}
+
+	to{
+		transform:rotate(360deg);
+	}
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| Status Messages
+|--------------------------------------------------------------------------
+*/
+
+.nba-auth-message{
+	padding:15px;
+	margin-bottom:20px;
+	border-radius:6px;
+}
+
+.nba-auth-message.info{
+	background:#eef6ff;
+	color:#055160;
+	border:1px solid #b6d4fe;
+}
+
+.nba-auth-message.success{
+	background:#edf9ed;
+	color:#236623;
+	border:1px solid #8dc58d;
+}
+
+.nba-auth-message.warning{
+	background:#fff8e5;
+	color:#8a6d00;
+	border:1px solid #f0d98a;
+}
+
+.nba-auth-message.error{
+	background:#fff2f2;
+	color:#a32020;
+	border:1px solid #efb3b3;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Small Text
+|--------------------------------------------------------------------------
+*/
+
+.nba-auth-help{
+	margin-top:8px;
+	font-size:13px;
+	color:#666;
+}
+
+.nba-auth-footer{
+	margin-top:25px;
+	text-align:center;
+	font-size:14px;
+}

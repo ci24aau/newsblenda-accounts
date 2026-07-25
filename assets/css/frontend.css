@@ -1,0 +1,107 @@
+:root {
+	--nba-bg: #f4f7fb;
+	--nba-surface: #ffffff;
+	--nba-surface-alt: #f8fafc;
+	--nba-border: #dce3ec;
+	--nba-text: #172033;
+	--nba-muted: #64748b;
+	--nba-primary: #2563eb;
+	--nba-primary-dark: #1d4ed8;
+	--nba-success: #0f766e;
+	--nba-error: #dc2626;
+	--nba-warning: #d97706;
+	--nba-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+}
+
+body { background: var(--nba-bg); color: var(--nba-text); }
+
+.nba-auth-wrapper,
+.nba-dashboard,
+.nba-profile-page,
+.nba-notifications,
+.nba-earnings-page {
+	max-width: 1100px;
+	margin: 32px auto;
+	padding: 0 20px 32px;
+}
+
+.nba-auth-card,
+.nba-card,
+.nba-dashboard-header,
+.nba-dashboard-actions,
+.nba-profile-form,
+.nba-notifications,
+.nba-earnings-page {
+	background: var(--nba-surface);
+	border: 1px solid var(--nba-border);
+	border-radius: 24px;
+	box-shadow: var(--nba-shadow);
+}
+
+.nba-auth-card { max-width: 650px; margin: 0 auto; padding: 36px; }
+.nba-auth-card h1,
+.nba-dashboard h1,
+.nba-profile-page h1,
+.nba-notifications h2 { font-size: clamp(1.8rem, 2.3vw, 2.4rem); margin: 0 0 10px; }
+
+.nba-auth-card p,
+.nba-dashboard p,
+.nba-profile-page p,
+.nba-notifications p { color: var(--nba-muted); line-height: 1.6; }
+
+.nba-dashboard-header,
+.nba-dashboard-actions,
+.nba-profile-form { padding: 24px; }
+
+.nba-dashboard-header { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 24px; }
+
+.nba-dashboard-grid,
+.nba-dashboard-columns,
+.nba-action-buttons { display: grid; gap: 16px; }
+
+.nba-dashboard-grid { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); margin-bottom: 24px; }
+.nba-dashboard-columns { grid-template-columns: 1.2fr 0.8fr; margin-bottom: 24px; }
+.nba-action-buttons { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+
+.nba-card { padding: 22px; }
+.nba-dashboard-card { padding: 22px; border-radius: 20px; background: linear-gradient(135deg, var(--nba-surface-alt), var(--nba-surface)); border: 1px solid var(--nba-border); }
+.nba-card-number,
+.nba-dashboard-value { font-size: 1.8rem; font-weight: 700; color: var(--nba-primary); margin-top: 8px; }
+
+input, textarea, select { width: 100%; padding: 12px 14px; border: 1px solid var(--nba-border); border-radius: 14px; background: var(--nba-surface-alt); color: var(--nba-text); font-size: 1rem; box-sizing: border-box; transition: border-color .2s, box-shadow .2s, background-color .2s; }
+
+input:focus, textarea:focus, select:focus { outline: none; border-color: var(--nba-primary); box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12); background: var(--nba-surface); }
+
+label { display: block; margin: 0 0 8px; font-weight: 600; color: var(--nba-text); }
+
+button, .button, .button-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 16px; border-radius: 999px; border: 1px solid var(--nba-primary); background: var(--nba-primary); color: #fff; text-decoration: none; font-weight: 600; transition: transform .2s, box-shadow .2s, background-color .2s; }
+
+button:hover, .button:hover, .button-primary:hover { background: var(--nba-primary-dark); transform: translateY(-1px); box-shadow: 0 10px 24px rgba(37, 99, 235, 0.18); }
+
+.nba-form-group { margin-bottom: 18px; }
+.nba-form-actions { display: flex; justify-content: flex-end; margin-top: 20px; }
+
+.nba-message { padding: 14px 16px; border-radius: 16px; margin-bottom: 18px; border: 1px solid transparent; }
+.nba-message-success { background: rgba(15, 118, 110, 0.12); color: var(--nba-success); border-color: rgba(15, 118, 110, 0.2); }
+.nba-message-error { background: rgba(220, 38, 38, 0.1); color: var(--nba-error); border-color: rgba(220, 38, 38, 0.18); }
+.nba-message-info { background: rgba(37, 99, 235, 0.1); color: var(--nba-primary); border-color: rgba(37, 99, 235, 0.16); }
+
+.nba-password-strength { margin-top: 6px; font-size: 0.92rem; font-weight: 600; }
+.nba-password-strength.weak { color: var(--nba-error); }
+.nba-password-strength.medium { color: var(--nba-warning); }
+.nba-password-strength.strong, .nba-password-strength.very-strong { color: var(--nba-success); }
+
+.nba-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+.nba-table th, .nba-table td { padding: 12px; border-bottom: 1px solid var(--nba-border); text-align: left; }
+.nba-table th { background: var(--nba-surface-alt); font-weight: 700; }
+.nba-table tbody tr:hover { background: rgba(37, 99, 235, 0.04); }
+
+.nba-notification-item { padding: 12px 0; border-bottom: 1px solid var(--nba-border); }
+.nba-notification-item:last-child { border-bottom: 0; }
+
+.nba-loading { position: relative; opacity: .7; pointer-events: none; }
+.nba-loading::after { content: ""; position: absolute; inset: 50% auto auto 50%; width: 18px; height: 18px; margin: -9px 0 0 -9px; border: 2px solid rgba(37, 99, 235, 0.2); border-top-color: var(--nba-primary); border-radius: 50%; animation: nba-spin .8s linear infinite; }
+
+@keyframes nba-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+@media (max-width: 768px) { .nba-auth-card, .nba-card, .nba-dashboard-header, .nba-dashboard-actions, .nba-profile-form { padding: 20px; } .nba-dashboard-header { flex-direction: column; align-items: flex-start; } .nba-dashboard-columns { grid-template-columns: 1fr; } .nba-action-buttons { grid-template-columns: 1fr; } }

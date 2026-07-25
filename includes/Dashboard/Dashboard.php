@@ -1,0 +1,537 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Newsblenda\Accounts\Dashboard;
+
+defined('ABSPATH') || exit;
+
+class Dashboard
+{
+    /**
+     * Constructor.
+     */
+    public function __construct()
+    {
+        add_shortcode(
+            'newsblenda_dashboard',
+            [$this, 'render']
+        );
+
+        add_shortcode(
+            'nbe_dashboard',
+            [$this, 'render']
+        );
+
+        add_shortcode(
+            'nb_dashboard',
+            [$this, 'render']
+        );
+    }
+
+    /**
+     * Render dashboard.
+     */
+    public function render(): string
+    {
+        if (! is_user_logged_in()) {
+
+            return $this->message(
+                __('You must be logged in to view your dashboard.', 'newsblenda-accounts'),
+                'error'
+            );
+
+        }
+
+        $user = wp_get_current_user();
+
+        $stats = $this->get_dashboard_data(
+            $user->ID
+        );
+
+        ob_start();
+
+        ?>
+
+        <div class="nba-dashboard">
+
+            <div class="nba-dashboard-header">
+
+                <div>
+
+                    <h2>
+
+                        <?php
+
+                        printf(
+                            esc_html__(
+                                'Welcome, %s',
+                                'newsblenda-accounts'
+                            ),
+                            esc_html(
+                                $user->display_name
+                            )
+                        );
+
+                        ?>
+
+                    </h2>
+
+                    <p>
+
+                        <?php esc_html_e(
+                            'Newsblenda Author Dashboard',
+                            'newsblenda-accounts'
+                        ); ?>
+
+                    </p>
+
+                </div>
+
+                <div class="nba-dashboard-actions">
+
+                    <a class="button button-primary"
+                       href="<?php echo esc_url(home_url('/submit/')); ?>">
+
+                        <?php esc_html_e(
+                            'Submit Article',
+                            'newsblenda-accounts'
+                        ); ?>
+
+                    </a>
+
+                    <a class="button"
+                       href="<?php echo esc_url(home_url('/profile/')); ?>">
+
+                        <?php esc_html_e(
+                            'Edit Profile',
+                            'newsblenda-accounts'
+                        ); ?>
+
+                    </a>
+
+                </div>
+
+            </div>
+
+            <div class="nba-dashboard-cards">
+
+                <?php foreach ($stats as $card) : ?>
+
+                    <div class="nba-dashboard-card">
+
+                        <h3>
+
+                            <?php echo esc_html($card['title']); ?>
+
+                        </h3>
+
+                        <div class="nba-dashboard-value">
+
+                            <?php echo esc_html((string) $card['value']); ?>
+
+                        </div>
+
+                    </div>
+
+                <?php endforeach; ?>
+
+            </div>
+            
+                        <div class="nba-dashboard-row">
+
+                <div class="nba-dashboard-panel">
+
+                    <h3>
+
+                        <?php esc_html_e(
+                            'Account Overview',
+                            'newsblenda-accounts'
+                        ); ?>
+
+                    </h3>
+
+                    <table class="nba-dashboard-table">
+
+                        <tr>
+
+                            <th><?php esc_html_e('Username', 'newsblenda-accounts'); ?></th>
+
+                            <td><?php echo esc_html($user->user_login); ?></td>
+
+                        </tr>
+
+                        <tr>
+
+                            <th><?php esc_html_e('Email', 'newsblenda-accounts'); ?></th>
+
+                            <td><?php echo esc_html($user->user_email); ?></td>
+
+                        </tr>
+
+                        <tr>
+
+                            <th><?php esc_html_e('Role', 'newsblenda-accounts'); ?></th>
+
+                            <td>
+
+                                <?php
+                                echo esc_html(
+                                    ucfirst(
+                                        implode(', ', $user->roles)
+                                    )
+                                );
+                                ?>
+
+                            </td>
+
+                        </tr>
+
+                        <tr>
+
+                            <th><?php esc_html_e('Member Since', 'newsblenda-accounts'); ?></th>
+
+                            <td>
+
+                                <?php
+                                echo esc_html(
+                                    mysql2date(
+                                        get_option('date_format'),
+                                        $user->user_registered
+                                    )
+                                );
+                                ?>
+
+                            </td>
+
+                        </tr>
+
+                    </table>
+
+                </div>
+
+                <div class="nba-dashboard-panel">
+
+                    <h3>
+
+                        <?php esc_html_e(
+                            'Quick Links',
+                            'newsblenda-accounts'
+                        ); ?>
+
+                    </h3>
+
+                    <ul class="nba-dashboard-links">
+
+                        <li>
+
+                            <a href="<?php echo esc_url(home_url('/submit/')); ?>">
+
+                                <?php esc_html_e(
+                                    'Submit a new article',
+                                    'newsblenda-accounts'
+                                ); ?>
+
+                            </a>
+
+                        </li>
+
+                        <li>
+
+                            <a href="<?php echo esc_url(home_url('/profile/')); ?>">
+
+                                <?php esc_html_e(
+                                    'Update your profile',
+                                    'newsblenda-accounts'
+                                ); ?>
+
+                            </a>
+
+                        </li>
+
+                        <li>
+
+                            <a href="<?php echo esc_url(home_url('/notifications/')); ?>">
+
+                                <?php esc_html_e(
+                                    'View notifications',
+                                    'newsblenda-accounts'
+                                ); ?>
+
+                            </a>
+
+                        </li>
+
+                        <li>
+
+                            <a href="<?php echo esc_url(home_url('/earnings/')); ?>">
+
+                                <?php esc_html_e(
+                                    'View earnings',
+                                    'newsblenda-accounts'
+                                ); ?>
+
+                            </a>
+
+                        </li>
+
+                    </ul>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <?php
+
+        return (string) ob_get_clean();
+    }
+
+    /**
+     * Dashboard statistics.
+     */
+    private function get_dashboard_data(
+        int $user_id
+    ): array
+    {
+        $published = (int) count_user_posts(
+            $user_id,
+            'post',
+            true
+        );
+
+        $pending = $this->count_posts_by_status(
+            $user_id,
+            'pending'
+        );
+
+        $drafts = $this->count_posts_by_status(
+            $user_id,
+            'draft'
+        );
+
+        $rejected = $this->count_posts_by_status(
+            $user_id,
+            'rejected'
+        );
+
+        $status = get_user_meta(
+            $user_id,
+            'nb_account_status',
+            true
+        );
+
+        if (empty($status)) {
+            $status = 'Pending';
+        }
+
+        $earnings = (float) get_user_meta(
+            $user_id,
+            'nb_total_earnings',
+            true
+        );
+
+        return [
+
+            [
+                'title' => __('Published Articles', 'newsblenda-accounts'),
+                'value' => $published,
+            ],
+
+            [
+                'title' => __('Pending Review', 'newsblenda-accounts'),
+                'value' => $pending,
+            ],
+
+            [
+                'title' => __('Drafts', 'newsblenda-accounts'),
+                'value' => $drafts,
+            ],
+
+            [
+                'title' => __('Rejected', 'newsblenda-accounts'),
+                'value' => $rejected,
+            ],
+
+            [
+                'title' => __('Account Status', 'newsblenda-accounts'),
+                'value' => ucfirst((string) $status),
+            ],
+
+            [
+                'title' => __('Total Earnings', 'newsblenda-accounts'),
+                'value' => number_format($earnings, 2),
+            ],
+
+        ];
+    }
+    
+        /**
+     * Count posts by status.
+     */
+    private function count_posts_by_status(
+        int $user_id,
+        string $status
+    ): int {
+
+        $query = new \WP_Query(
+            [
+                'post_type'      => 'post',
+                'post_status'    => $status,
+                'author'         => $user_id,
+                'posts_per_page' => 1,
+                'fields'         => 'ids',
+                'no_found_rows'  => false,
+            ]
+        );
+
+        return (int) $query->found_posts;
+    }
+
+    /**
+     * Get total article views.
+     */
+    private function total_views(
+        int $user_id
+    ): int {
+
+        global $wpdb;
+
+        $views = (int) $wpdb->get_var(
+            $wpdb->prepare(
+                "
+                SELECT SUM(meta_value)
+                FROM {$wpdb->postmeta}
+                INNER JOIN {$wpdb->posts}
+                    ON {$wpdb->posts}.ID = {$wpdb->postmeta}.post_id
+                WHERE {$wpdb->posts}.post_author = %d
+                AND meta_key = 'nb_post_views'
+                ",
+                $user_id
+            )
+        );
+
+        return max(0, $views);
+    }
+
+    /**
+     * Profile completion.
+     */
+    private function profile_completion(
+        int $user_id
+    ): int {
+
+        $fields = [
+
+            'first_name',
+            'last_name',
+            'description',
+            'nb_phone',
+            'nb_country',
+            'nb_state',
+            'nb_city',
+            'nb_niche',
+            'nb_profile_photo',
+
+        ];
+
+        $completed = 0;
+
+        foreach ($fields as $field) {
+
+            if (! empty(get_user_meta($user_id, $field, true))) {
+
+                $completed++;
+
+            }
+
+        }
+
+        return (int) round(
+            ($completed / count($fields)) * 100
+        );
+    }
+
+    /**
+     * Dashboard message.
+     */
+    private function message(
+        string $message,
+        string $type = 'info'
+    ): string {
+
+        return sprintf(
+            '<div class="nba-message nba-message-%1$s">%2$s</div>',
+            esc_attr($type),
+            esc_html($message)
+        );
+
+    }
+
+    /**
+     * Dashboard URL.
+     */
+    public static function url(): string
+    {
+        return home_url('/dashboard/');
+    }
+
+    /**
+     * Is dashboard page.
+     */
+    public static function is_dashboard(): bool
+    {
+        return is_page('dashboard');
+    }
+
+    /**
+     * Current dashboard user.
+     */
+    public static function current_user(): ?\WP_User
+    {
+        if (! is_user_logged_in()) {
+            return null;
+        }
+
+        return wp_get_current_user();
+    }
+
+    /**
+     * Dashboard statistics for external use.
+     */
+    public function statistics(
+        int $user_id
+    ): array
+    {
+        return $this->get_dashboard_data($user_id);
+    }
+
+    /**
+     * Dashboard summary.
+     */
+    public function summary(
+        int $user_id
+    ): array
+    {
+        return [
+
+            'posts' => (int) count_user_posts(
+                $user_id,
+                'post',
+                true
+            ),
+
+            'views' => $this->total_views($user_id),
+
+            'completion' => $this->profile_completion($user_id),
+
+            'earnings' => (float) get_user_meta(
+                $user_id,
+                'nb_total_earnings',
+                true
+            ),
+
+        ];
+    }
+}

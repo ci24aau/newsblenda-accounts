@@ -1,0 +1,407 @@
+/**
+ * Newsblenda Accounts
+ * Shared Styles
+ */
+
+:root{
+	--nba-primary:#2271b1;
+	--nba-primary-hover:#135e96;
+	--nba-success:#2c8a42;
+	--nba-warning:#dba617;
+	--nba-danger:#d63638;
+	--nba-border:#dcdcde;
+	--nba-bg:#f6f7f7;
+	--nba-text:#1d2327;
+	--nba-radius:8px;
+	--nba-shadow:0 2px 8px rgba(0,0,0,.08);
+}
+
+*,
+*::before,
+*::after{
+	box-sizing:border-box;
+}
+
+.nba-hidden{
+	display:none!important;
+}
+
+.nba-text-left{
+	text-align:left;
+}
+
+.nba-text-center{
+	text-align:center;
+}
+
+.nba-text-right{
+	text-align:right;
+}
+
+.nba-mt-0{
+	margin-top:0;
+}
+
+.nba-mt-10{
+	margin-top:10px;
+}
+
+.nba-mt-20{
+	margin-top:20px;
+}
+
+.nba-mt-30{
+	margin-top:30px;
+}
+
+.nba-mb-0{
+	margin-bottom:0;
+}
+
+.nba-mb-10{
+	margin-bottom:10px;
+}
+
+.nba-mb-20{
+	margin-bottom:20px;
+}
+
+.nba-mb-30{
+	margin-bottom:30px;
+}
+
+.nba-p-10{
+	padding:10px;
+}
+
+.nba-p-20{
+	padding:20px;
+}
+
+.nba-p-30{
+	padding:30px;
+}
+
+.nba-card{
+	background:#fff;
+	border:1px solid var(--nba-border);
+	border-radius:var(--nba-radius);
+	box-shadow:var(--nba-shadow);
+}
+
+.nba-flex{
+	display:flex;
+}
+
+.nba-flex-between{
+	display:flex;
+	justify-content:space-between;
+	align-items:center;
+}
+
+.nba-flex-center{
+	display:flex;
+	align-items:center;
+	justify-content:center;
+}
+
+.nba-grid{
+	display:grid;
+	gap:20px;
+}
+
+.nba-grid-2{
+	grid-template-columns:repeat(2,1fr);
+}
+
+.nba-grid-3{
+	grid-template-columns:repeat(3,1fr);
+}
+
+.nba-grid-4{
+	grid-template-columns:repeat(4,1fr);
+}
+
+.nba-button{
+	display:inline-block;
+	padding:10px 18px;
+	border-radius:4px;
+	background:var(--nba-primary);
+	color:#fff;
+	text-decoration:none;
+	cursor:pointer;
+	border:none;
+	transition:.2s;
+}
+
+.nba-button:hover{
+	background:var(--nba-primary-hover);
+	color:#fff;
+}
+
+.nba-table-responsive{
+	width:100%;
+	overflow-x:auto;
+}
+
+@media (max-width:768px){
+
+	.nba-grid-2,
+	.nba-grid-3,
+	.nba-grid-4{
+		grid-template-columns:1fr;
+	}
+
+	.nba-flex-between{
+		flex-direction:column;
+		align-items:flex-start;
+	}
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| Spacing Utilities
+|--------------------------------------------------------------------------
+*/
+
+.nba-mt-40{margin-top:40px;}
+.nba-mb-40{margin-bottom:40px;}
+.nba-ml-10{margin-left:10px;}
+.nba-ml-20{margin-left:20px;}
+.nba-mr-10{margin-right:10px;}
+.nba-mr-20{margin-right:20px;}
+
+.nba-p-40{padding:40px;}
+.nba-px-20{
+	padding-left:20px;
+	padding-right:20px;
+}
+.nba-py-20{
+	padding-top:20px;
+	padding-bottom:20px;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Width Utilities
+|--------------------------------------------------------------------------
+*/
+
+.nba-w-100{
+	width:100%;
+}
+
+.nba-max-600{
+	max-width:600px;
+}
+
+.nba-max-900{
+	max-width:900px;
+}
+
+.nba-max-1200{
+	max-width:1200px;
+	margin-left:auto;
+	margin-right:auto;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Flex Utilities
+|--------------------------------------------------------------------------
+*/
+
+.nba-flex-column{
+	display:flex;
+	flex-direction:column;
+}
+
+.nba-flex-wrap{
+	flex-wrap:wrap;
+}
+
+.nba-align-center{
+	align-items:center;
+}
+
+.nba-justify-center{
+	justify-content:center;
+}
+
+.nba-gap-10{
+	gap:10px;
+}
+
+.nba-gap-20{
+	gap:20px;
+}
+
+.nba-gap-30{
+	gap:30px;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Card Utilities
+|--------------------------------------------------------------------------
+*/
+
+.nba-card-header{
+	margin-bottom:20px;
+	padding-bottom:15px;
+	border-bottom:1px solid var(--nba-border);
+}
+
+.nba-card-footer{
+	margin-top:20px;
+	padding-top:20px;
+	border-top:1px solid var(--nba-border);
+}
+
+/*
+|--------------------------------------------------------------------------
+| Badges
+|--------------------------------------------------------------------------
+*/
+
+.nba-badge{
+	display:inline-block;
+	padding:4px 10px;
+	border-radius:999px;
+	font-size:12px;
+	font-weight:600;
+	line-height:1.5;
+}
+
+.nba-badge-success{
+	background:#dff6dd;
+	color:#0f5132;
+}
+
+.nba-badge-warning{
+	background:#fff3cd;
+	color:#664d03;
+}
+
+.nba-badge-danger{
+	background:#f8d7da;
+	color:#842029;
+}
+
+.nba-badge-info{
+	background:#cff4fc;
+	color:#055160;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Loading Overlay
+|--------------------------------------------------------------------------
+*/
+
+.nba-loading{
+	position:relative;
+	pointer-events:none;
+	opacity:.65;
+}
+
+.nba-loading::after{
+	content:"";
+	position:absolute;
+	top:50%;
+	left:50%;
+	width:20px;
+	height:20px;
+	margin:-10px 0 0 -10px;
+	border:2px solid #ddd;
+	border-top-color:var(--nba-primary);
+	border-radius:50%;
+	animation:nba-spin .8s linear infinite;
+}
+
+@keyframes nba-spin{
+
+	from{
+		transform:rotate(0deg);
+	}
+
+	to{
+		transform:rotate(360deg);
+	}
+
+}
+
+/*
+|--------------------------------------------------------------------------
+| Tables
+|--------------------------------------------------------------------------
+*/
+
+.nba-table{
+	width:100%;
+	border-collapse:collapse;
+}
+
+.nba-table th,
+.nba-table td{
+	padding:14px;
+	border:1px solid var(--nba-border);
+	text-align:left;
+}
+
+.nba-table th{
+	background:var(--nba-bg);
+	font-weight:600;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Empty States
+|--------------------------------------------------------------------------
+*/
+
+.nba-empty{
+	padding:50px 20px;
+	text-align:center;
+	border:2px dashed var(--nba-border);
+	border-radius:var(--nba-radius);
+	background:#fff;
+	color:#666;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Form Helpers
+|--------------------------------------------------------------------------
+*/
+
+.nba-required{
+	color:#d63638;
+}
+
+.nba-help-text{
+	display:block;
+	margin-top:6px;
+	font-size:13px;
+	color:#666;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Responsive
+|--------------------------------------------------------------------------
+*/
+
+@media (max-width:768px){
+
+	.nba-flex{
+		flex-direction:column;
+	}
+
+	.nba-gap-20,
+	.nba-gap-30{
+		gap:15px;
+	}
+
+}
