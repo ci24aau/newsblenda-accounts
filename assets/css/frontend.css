@@ -100,6 +100,14 @@ button:hover, .button:hover, .button-primary:hover { background: var(--nba-prima
 .nba-loading .nba-submit-button-label { opacity: .8; }
 .nba-submit-button:disabled { opacity: .75; cursor: not-allowed; }
 
+.nba-password-field { position: relative; display: block; }
+.nba-password-field input { padding-right: 44px; width: 100%; }
+.nba-password-toggle { position: absolute; right: 0; top: 0; bottom: 0; width: 44px; background: none; border: none; border-left: 1px solid var(--nba-border); border-radius: 0 14px 14px 0; cursor: pointer; color: var(--nba-muted); font-size: 16px; display: flex; align-items: center; justify-content: center; padding: 0; transition: color .2s; }
+.nba-password-toggle:hover { background: none; color: var(--nba-primary); transform: none; box-shadow: none; }
+.nba-password-match { display: block; margin-top: 6px; font-size: 0.9rem; font-weight: 600; }
+.nba-password-match.success { color: var(--nba-success); }
+.nba-password-match.error   { color: var(--nba-error); }
+
 .nba-resend-verification-card { margin-top: 20px; padding: 18px; border-radius: 16px; }
 .nba-resend-verification-form { display: grid; gap: 12px; }
 

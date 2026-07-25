@@ -388,6 +388,16 @@ class Plugin
                     'nb_accounts'
                 ),
                 'logged_in' => is_user_logged_in(),
+                'i18n'      => [
+                    'showPassword'     => __('Show password', 'newsblenda-accounts'),
+                    'hidePassword'     => __('Hide password', 'newsblenda-accounts'),
+                    'strengthWeak'     => __('Weak', 'newsblenda-accounts'),
+                    'strengthMedium'   => __('Medium', 'newsblenda-accounts'),
+                    'strengthStrong'   => __('Strong', 'newsblenda-accounts'),
+                    'strengthVStrong'  => __('Very Strong', 'newsblenda-accounts'),
+                    'passwordsMatch'   => __('Passwords match', 'newsblenda-accounts'),
+                    'passwordsNoMatch' => __('Passwords do not match', 'newsblenda-accounts'),
+                ],
             ]
         );
     }

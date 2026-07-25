@@ -10,6 +10,8 @@
 		init: function () {
 
 			this.passwordToggle();
+			this.passwordStrength();
+			this.confirmPassword();
 			this.confirmActions();
 			this.autoDismiss();
 			this.disableDoubleSubmit();
@@ -32,20 +34,102 @@
 
 					e.preventDefault();
 
-					const input = $(this).siblings('input');
+					const input = $(this).closest('.nba-password-field').find('input');
 
 					if (!input.length) {
 						return;
 					}
 
-					input.attr(
-						'type',
-						input.attr('type') === 'password'
-							? 'text'
-							: 'password'
-					);
+					const isPassword = input.attr('type') === 'password';
+					const i18n       = (typeof NBAccounts !== 'undefined' && NBAccounts.i18n) ? NBAccounts.i18n : {};
 
-					$(this).toggleClass('visible');
+					input.attr('type', isPassword ? 'text' : 'password');
+
+					$(this)
+						.toggleClass('visible')
+						.attr(
+							'aria-label',
+							isPassword
+								? (i18n.hidePassword || 'Hide password')
+								: (i18n.showPassword || 'Show password')
+						);
+
+				}
+			);
+
+		},
+
+		passwordStrength: function () {
+
+			$(document).on(
+				'keyup input',
+				'input[name="nbe_password"]',
+				function () {
+
+					const password = $(this).val();
+					const meter    = $(this).closest('p, .nba-form-group').find('.nba-password-strength');
+					const i18n     = (typeof NBAccounts !== 'undefined' && NBAccounts.i18n) ? NBAccounts.i18n : {};
+
+					if (!meter.length) {
+						return;
+					}
+
+					if (!password.length) {
+						meter.text('').removeClass('weak medium strong very-strong');
+						return;
+					}
+
+					let strength = 0;
+
+					if (password.length >= 8)            strength++;
+					if (/[A-Z]/.test(password))          strength++;
+					if (/[a-z]/.test(password))          strength++;
+					if (/[0-9]/.test(password))          strength++;
+					if (/[^A-Za-z0-9]/.test(password))  strength++;
+
+					meter.removeClass('weak medium strong very-strong');
+
+					if (strength <= 2) {
+						meter.addClass('weak').text(i18n.strengthWeak || 'Weak');
+					} else if (strength === 3) {
+						meter.addClass('medium').text(i18n.strengthMedium || 'Medium');
+					} else if (strength === 4) {
+						meter.addClass('strong').text(i18n.strengthStrong || 'Strong');
+					} else {
+						meter.addClass('very-strong').text(i18n.strengthVStrong || 'Very Strong');
+					}
+
+				}
+			);
+
+		},
+
+		confirmPassword: function () {
+
+			$(document).on(
+				'keyup input',
+				'input[name="nbe_confirm_password"]',
+				function () {
+
+					const confirm  = $(this).val();
+					const password = $('input[name="nbe_password"]').val();
+					const status   = $(this).closest('p, .nba-form-group').find('.nba-password-match');
+					const i18n     = (typeof NBAccounts !== 'undefined' && NBAccounts.i18n) ? NBAccounts.i18n : {};
+
+					if (!status.length) {
+						return;
+					}
+
+					if (!confirm.length) {
+						status.text('').removeClass('success error');
+						return;
+					}
+
+					if (password === confirm) {
+						status.removeClass('error').addClass('success').text(i18n.passwordsMatch || 'Passwords match');
+					} else {
+						status.removeClass('success').addClass('error').text(i18n.passwordsNoMatch || 'Passwords do not match');
+					}
 
 				}
 			);

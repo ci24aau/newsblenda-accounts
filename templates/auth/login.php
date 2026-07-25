@@ -147,14 +147,21 @@ $login_messages = [
 
 				</label>
 
-				<input
-					id="nba_password"
-					type="password"
-					name="nbe_password"
-					required
-					autocomplete="current-password"
-					placeholder="<?php esc_attr_e('Enter your password', 'newsblenda-accounts'); ?>"
-				>
+				<span class="nba-password-field">
+					<input
+						id="nba_password"
+						type="password"
+						name="nbe_password"
+						required
+						autocomplete="current-password"
+						placeholder="<?php esc_attr_e('Enter your password', 'newsblenda-accounts'); ?>"
+					>
+					<button
+						type="button"
+						class="nba-password-toggle"
+						aria-label="<?php esc_attr_e('Show password', 'newsblenda-accounts'); ?>"
+					>&#128065;</button>
+				</span>
 
 			</p>
 

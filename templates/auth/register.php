@@ -95,6 +95,12 @@ $general_errors = array_values(array_unique($general_errors));
 				value="<?php echo esc_attr($value('account_type', 'subscriber')); ?>"
 			>
 
+			<!-- Honeypot: hidden from real users, filled by bots -->
+			<div style="position:absolute;left:-9999px;top:-9999px;" aria-hidden="true">
+				<label for="nb_website"><?php esc_html_e('Leave blank', 'newsblenda-accounts'); ?></label>
+				<input id="nb_website" type="text" name="nb_website" value="" tabindex="-1" autocomplete="off">
+			</div>
+
 			<h3><?php esc_html_e('Account Information', 'newsblenda-accounts'); ?></h3>
 			<?php if ($field_error('account_type') !== '') : ?>
 				<p class="nba-field-error"><?php echo esc_html($field_error('account_type')); ?></p>
@@ -229,15 +235,23 @@ $general_errors = array_values(array_unique($general_errors));
 
 				</label>
 
-				<input
-					id="nba_password"
-					type="password"
-					name="nbe_password"
-					required
-					autocomplete="new-password"
-					class="<?php echo esc_attr(trim($field_class('nbe_password'))); ?>"
-					aria-describedby="nba-password-requirements"
-				>
+				<span class="nba-password-field">
+					<input
+						id="nba_password"
+						type="password"
+						name="nbe_password"
+						required
+						autocomplete="new-password"
+						class="<?php echo esc_attr(trim($field_class('nbe_password'))); ?>"
+						aria-describedby="nba-password-requirements"
+					>
+					<button
+						type="button"
+						class="nba-password-toggle"
+						aria-label="<?php esc_attr_e('Show password', 'newsblenda-accounts'); ?>"
+					>&#128065;</button>
+				</span>
+				<span class="nba-password-strength"></span>
 				<?php if ($field_error('nbe_password') !== '') : ?>
 					<span class="nba-field-error"><?php echo esc_html($field_error('nbe_password')); ?></span>
 				<?php endif; ?>
@@ -252,14 +266,22 @@ $general_errors = array_values(array_unique($general_errors));
 
 				</label>
 
-				<input
-					id="nba_confirm_password"
-					type="password"
-					name="nbe_confirm_password"
-					required
-					autocomplete="new-password"
-					class="<?php echo esc_attr(trim($field_class('nbe_confirm_password'))); ?>"
-				>
+				<span class="nba-password-field">
+					<input
+						id="nba_confirm_password"
+						type="password"
+						name="nbe_confirm_password"
+						required
+						autocomplete="new-password"
+						class="<?php echo esc_attr(trim($field_class('nbe_confirm_password'))); ?>"
+					>
+					<button
+						type="button"
+						class="nba-password-toggle"
+						aria-label="<?php esc_attr_e('Show password', 'newsblenda-accounts'); ?>"
+					>&#128065;</button>
+				</span>
+				<span class="nba-password-match"></span>
 				<?php if ($field_error('nbe_confirm_password') !== '') : ?>
 					<span class="nba-field-error"><?php echo esc_html($field_error('nbe_confirm_password')); ?></span>
 				<?php endif; ?>
