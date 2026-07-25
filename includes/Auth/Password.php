@@ -368,8 +368,8 @@ class Password
                 $exception->getMessage()
             );
             if (function_exists('openssl_random_pseudo_bytes')) {
-                $bytes = openssl_random_pseudo_bytes(32, $strong);
-                if ($bytes !== false && $strong) {
+                $bytes = openssl_random_pseudo_bytes(32, $is_cryptographically_strong);
+                if ($bytes !== false && $is_cryptographically_strong) {
                     $token = bin2hex($bytes);
                 }
             }
@@ -722,6 +722,8 @@ class Password
          *
          * By default this uses REMOTE_ADDR to avoid trusting spoofable
          * forwarded headers unless a site explicitly overrides it.
+         * Proxy/load-balancer setups should implement this filter and
+         * safely map to trusted forwarded headers.
          */
         return (string) apply_filters('nb_accounts_password_reset_client_ip', $ip);
     }

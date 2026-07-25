@@ -403,7 +403,6 @@ class Database
             'activity',
 
             'email_tokens',
-
             'password_reset_tokens',
 
             'login_log',

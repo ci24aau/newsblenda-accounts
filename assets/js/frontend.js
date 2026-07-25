@@ -4,8 +4,8 @@
 
 (function ($) {
 	'use strict';
-	// Brief delay so users can see the success state before redirect.
-	const REDIRECT_DELAY_MS = 700;
+	// Brief delay so users (including screen reader users) can perceive success feedback before redirect.
+	const REDIRECT_DELAY_MS = 1500;
 
 	const NBAccounts = {
 
