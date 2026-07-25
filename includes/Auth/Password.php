@@ -714,9 +714,15 @@ class Password
         $ip = sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'] ?? ''));
 
         if (! filter_var($ip, FILTER_VALIDATE_IP)) {
-            return '';
+            $ip = '';
         }
 
-        return $ip;
+        /**
+         * Filter client IP used for password reset rate limiting.
+         *
+         * By default this uses REMOTE_ADDR to avoid trusting spoofable
+         * forwarded headers unless a site explicitly overrides it.
+         */
+        return (string) apply_filters('nb_accounts_password_reset_client_ip', $ip);
     }
 }

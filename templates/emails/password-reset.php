@@ -16,7 +16,7 @@ $user_name = $user_name ?? __('Author', 'newsblenda-accounts');
 $reset_url = $reset_url ?? home_url('/reset-password/');
 $expiry_hours = isset($expiry_hours)
 	? (int) $expiry_hours
-	: (int) (DAY_IN_SECONDS / HOUR_IN_SECONDS);
+	: 24;
 
 $login_url = home_url('/login/');
 

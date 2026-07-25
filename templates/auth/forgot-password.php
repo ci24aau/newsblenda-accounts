@@ -105,7 +105,7 @@ $status_messages = [
 					autocomplete="email"
 					placeholder="<?php esc_attr_e('Enter your email address', 'newsblenda-accounts'); ?>"
 				>
-				<input type="text" name="nb_website" value="" tabindex="-1" autocomplete="off" class="nba-honeypot" aria-hidden="true" role="presentation">
+				<input type="text" name="nb_website" value="" tabindex="-1" autocomplete="off" class="nba-honeypot" aria-hidden="true">
 
 			</p>
 

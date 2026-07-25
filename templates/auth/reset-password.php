@@ -149,7 +149,7 @@ $status_icon = $token_valid ? '🔒' : '⚠️';
 					<li><?php esc_html_e('At least one number and one special character', 'newsblenda-accounts'); ?></li>
 				</ul>
 
-				<input type="text" name="nb_website" value="" tabindex="-1" autocomplete="off" class="nba-honeypot" aria-hidden="true" role="presentation">
+				<input type="text" name="nb_website" value="" tabindex="-1" autocomplete="off" class="nba-honeypot" aria-hidden="true">
 
 				<p>
 					<button type="submit" class="button button-primary nba-submit-button">
