@@ -447,6 +447,7 @@ class Register
             return false;
         }
 
+        // Require at least one non-alphanumeric character.
         if (! preg_match('/[^a-zA-Z0-9]/', $password)) {
             return false;
         }
@@ -810,7 +811,7 @@ class Register
             $token = bin2hex(random_bytes(32));
         } catch (\Exception $exception) {
             if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('Newsblenda Accounts: random_bytes failed for verification token: ' . $exception->getMessage()); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+                error_log('Newsblenda Accounts: random_bytes failed for verification token generation.'); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
             }
 
             if (function_exists('openssl_random_pseudo_bytes')) {

@@ -5,6 +5,8 @@
 (function ($) {
 	'use strict';
 
+	const SUBMIT_RESET_TIMEOUT = 10000;
+
 	const NBAccounts = {
 
 		init: function () {
@@ -104,7 +106,7 @@
 								.find('button[type="submit"], input[type="submit"]')
 								.prop('disabled', false);
 						}
-					}, 10000);
+					}, SUBMIT_RESET_TIMEOUT);
 
 				}
 			);

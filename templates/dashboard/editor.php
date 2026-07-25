@@ -147,14 +147,28 @@ $pending_count = isset($post_counts->pending)
 					</thead>
 					<tbody>
 						<?php foreach ($pending_posts as $post) : ?>
+							<?php
+							$approve_url = wp_nonce_url(
+								get_edit_post_link($post->ID),
+								'nb_editor_moderation_' . $post->ID
+							);
+							$revision_url = wp_nonce_url(
+								add_query_arg('nb_moderation_action', 'request-revision', get_edit_post_link($post->ID)),
+								'nb_editor_moderation_' . $post->ID
+							);
+							$reject_url = wp_nonce_url(
+								add_query_arg('nb_moderation_action', 'reject', get_edit_post_link($post->ID)),
+								'nb_editor_moderation_' . $post->ID
+							);
+							?>
 							<tr>
 								<td><?php echo esc_html($post->post_title); ?></td>
 								<td><?php echo esc_html(get_the_author_meta('display_name', $post->post_author)); ?></td>
 								<td><?php echo esc_html(get_the_date(get_option('date_format'), $post)); ?></td>
 								<td class="nba-editor-actions">
-									<a class="button button-small" href="<?php echo esc_url(get_edit_post_link($post->ID)); ?>"><?php esc_html_e('Approve', 'newsblenda-accounts'); ?></a>
-									<a class="button button-small" href="<?php echo esc_url(add_query_arg('nb_moderation_action', 'request-revision', get_edit_post_link($post->ID))); ?>"><?php esc_html_e('Request Revisions', 'newsblenda-accounts'); ?></a>
-									<a class="button button-small" href="<?php echo esc_url(add_query_arg('nb_moderation_action', 'reject', get_edit_post_link($post->ID))); ?>"><?php esc_html_e('Reject', 'newsblenda-accounts'); ?></a>
+									<a class="button button-small" href="<?php echo esc_url($approve_url); ?>"><?php esc_html_e('Approve', 'newsblenda-accounts'); ?></a>
+									<a class="button button-small" href="<?php echo esc_url($revision_url); ?>"><?php esc_html_e('Request Revisions', 'newsblenda-accounts'); ?></a>
+									<a class="button button-small" href="<?php echo esc_url($reject_url); ?>"><?php esc_html_e('Reject', 'newsblenda-accounts'); ?></a>
 								</td>
 							</tr>
 						<?php endforeach; ?>

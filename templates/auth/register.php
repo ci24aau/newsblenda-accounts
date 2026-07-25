@@ -274,7 +274,7 @@ $general_errors = array_values(array_unique($general_errors));
 				); ?>
 
 			</p>
-			<ul id="nba-password-requirements" class="nba-password-requirements" aria-label="<?php esc_attr_e('Password requirements', 'newsblenda-accounts'); ?>">
+			<ul id="nba-password-requirements" class="nba-password-requirements" role="list" aria-label="<?php esc_attr_e('Password requirements', 'newsblenda-accounts'); ?>">
 				<li><?php esc_html_e('at least 8 characters', 'newsblenda-accounts'); ?></li>
 				<li><?php esc_html_e('an uppercase letter', 'newsblenda-accounts'); ?></li>
 				<li><?php esc_html_e('a lowercase letter', 'newsblenda-accounts'); ?></li>
