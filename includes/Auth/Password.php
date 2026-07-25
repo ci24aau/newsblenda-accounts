@@ -13,6 +13,7 @@ class Password
     private const TOKEN_WINDOW = DAY_IN_SECONDS;
     private const REQUEST_HOURLY_MAX = 5;
     private const SUBMIT_HOURLY_MAX = 10;
+    private const TOKEN_LOOKUP_LIMIT = 50;
     private const HONEYPOT_FIELD = 'nb_website';
 
     /**
@@ -225,6 +226,8 @@ class Password
             return $generic;
         }
 
+        $this->cleanup_expired_tokens((int) $user->ID);
+
         $token = $this->issue_reset_token((int) $user->ID, (string) $user->user_email);
 
         if ($token === '') {
@@ -378,7 +381,10 @@ class Password
                 'user_id' => $user_id,
                 'email' => $email,
                 'token_hash' => wp_hash_password($token),
-                'expires_at' => gmdate('Y-m-d H:i:s', time() + self::TOKEN_WINDOW),
+                'expires_at' => wp_date(
+                    'Y-m-d H:i:s',
+                    current_time('timestamp') + self::TOKEN_WINDOW
+                ),
                 'consumed_at' => null,
                 'created_at' => current_time('mysql'),
             ],
@@ -421,7 +427,10 @@ class Password
             $message  = '<p>' . sprintf(esc_html__('Hello %s,', 'newsblenda-accounts'), esc_html($user->display_name)) . '</p>';
             $message .= '<p>' . esc_html__('A request was made to reset your password.', 'newsblenda-accounts') . '</p>';
             $message .= '<p><a href="' . esc_url($reset_url) . '">' . esc_html__('Reset Password', 'newsblenda-accounts') . '</a></p>';
-            $message .= '<p>' . esc_html__('This reset link expires in 24 hours.', 'newsblenda-accounts') . '</p>';
+            $message .= '<p>' . sprintf(
+                esc_html__('This reset link expires in %d hours.', 'newsblenda-accounts'),
+                (int) (self::TOKEN_WINDOW / HOUR_IN_SECONDS)
+            ) . '</p>';
         }
 
         return Mailer::send((string) $user->user_email, $subject, $message);
@@ -555,7 +564,7 @@ class Password
                 FROM {$table}
                 WHERE user_id = %d
                 ORDER BY created_at DESC
-                LIMIT 50",
+                LIMIT " . self::TOKEN_LOOKUP_LIMIT,
                 $user_id
             ),
             ARRAY_A
@@ -572,6 +581,30 @@ class Password
         }
 
         return null;
+    }
+
+    /**
+     * Cleanup expired and consumed tokens for a user.
+     */
+    private function cleanup_expired_tokens(int $user_id): void
+    {
+        global $wpdb;
+
+        $table = self::token_table();
+        $now = current_time('mysql');
+
+        $wpdb->query(
+            $wpdb->prepare(
+                "DELETE FROM {$table}
+                WHERE user_id = %d
+                AND (
+                    expires_at < %s
+                    OR consumed_at IS NOT NULL
+                )",
+                $user_id,
+                $now
+            )
+        );
     }
 
     /**

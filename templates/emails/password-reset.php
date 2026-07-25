@@ -292,7 +292,7 @@ class="button"
 <h2>
 
 	<?php esc_html_e(
-		"Didn't request this?",
+		'Didn\'t request this?',
 		'newsblenda-accounts'
 	); ?>
 

@@ -18,7 +18,7 @@ class Database
      */
     public function __construct()
     {
-        if (self::needs_upgrade() || ! self::exists('password_reset_tokens')) {
+        if (self::needs_upgrade()) {
             self::install();
         }
     }
