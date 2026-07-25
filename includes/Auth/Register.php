@@ -903,13 +903,19 @@ class Register
             include $template;
             $message = (string) ob_get_clean();
         } else {
+            // Fallback inline HTML when the email template file is missing.
+            // Mailer::send() internally fires the 'nb_accounts_email_sent' action.
+            $expiry_hours = (int) (self::VERIFICATION_WINDOW / HOUR_IN_SECONDS);
             $message  = '<p>' . sprintf(
                 esc_html__('Hello %s,', 'newsblenda-accounts'),
                 esc_html($username)
             ) . '</p>';
-            $message .= '<p>' . esc_html__(
-                'Thank you for registering your Newsblenda account. Please verify your email within 48 hours to activate your account.',
-                'newsblenda-accounts'
+            $message .= '<p>' . sprintf(
+                esc_html__(
+                    'Thank you for registering your Newsblenda account. Please verify your email within %d hours to activate your account.',
+                    'newsblenda-accounts'
+                ),
+                $expiry_hours
             ) . '</p>';
             $message .= '<p><a href="' . esc_url($verification_url) . '" style="display:inline-block;padding:12px 20px;background:#2563eb;color:#ffffff;text-decoration:none;border-radius:6px;">' .
                 esc_html__('Verify Email Address', 'newsblenda-accounts') .
