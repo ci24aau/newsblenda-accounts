@@ -810,10 +810,6 @@ class Register
         try {
             $token = bin2hex(random_bytes(32));
         } catch (\Exception $exception) {
-            if (defined('WP_DEBUG') && WP_DEBUG) {
-                error_log('Newsblenda Accounts: random_bytes failed for verification token generation.'); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-            }
-
             if (function_exists('openssl_random_pseudo_bytes')) {
                 $bytes = openssl_random_pseudo_bytes(32, $strong);
                 if ($bytes !== false && $strong) {
@@ -827,7 +823,7 @@ class Register
                 'nb_accounts_verification_token_fallback',
                 $user_id
             );
-            $token = wp_generate_password(64, false, false);
+            return '';
         }
 
         update_user_meta(

@@ -5,8 +5,6 @@
 (function ($) {
 	'use strict';
 
-	const SUBMIT_RESET_TIMEOUT = 10000;
-
 	const NBAccounts = {
 
 		init: function () {
@@ -98,15 +96,6 @@
 					form
 						.find('button[type="submit"], input[type="submit"]')
 						.prop('disabled', true);
-
-					window.setTimeout(function () {
-						if (form.data('nb-submitting')) {
-							form.data('nb-submitting', false).removeClass('nba-loading');
-							form
-								.find('button[type="submit"], input[type="submit"]')
-								.prop('disabled', false);
-						}
-					}, SUBMIT_RESET_TIMEOUT);
 
 				}
 			);
