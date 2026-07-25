@@ -148,8 +148,8 @@ $authors = get_users(
 								<td><?php echo esc_html(get_the_date(get_option('date_format'), $post)); ?></td>
 								<td class="nba-editor-actions">
 									<a class="button button-small" href="<?php echo esc_url(get_edit_post_link($post->ID)); ?>"><?php esc_html_e('Approve', 'newsblenda-accounts'); ?></a>
-									<a class="button button-small" href="<?php echo esc_url(add_query_arg('post_status', 'draft', admin_url('edit.php'))); ?>"><?php esc_html_e('Request Revisions', 'newsblenda-accounts'); ?></a>
-									<a class="button button-small" href="<?php echo esc_url(add_query_arg('post_status', 'trash', admin_url('edit.php'))); ?>"><?php esc_html_e('Reject', 'newsblenda-accounts'); ?></a>
+									<a class="button button-small" href="<?php echo esc_url(add_query_arg('nb_moderation_action', 'request-revision', get_edit_post_link($post->ID))); ?>"><?php esc_html_e('Request Revisions', 'newsblenda-accounts'); ?></a>
+									<a class="button button-small" href="<?php echo esc_url(add_query_arg('nb_moderation_action', 'reject', get_edit_post_link($post->ID))); ?>"><?php esc_html_e('Reject', 'newsblenda-accounts'); ?></a>
 								</td>
 							</tr>
 						<?php endforeach; ?>

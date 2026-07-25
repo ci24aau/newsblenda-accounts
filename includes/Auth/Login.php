@@ -343,7 +343,7 @@ private function log_login(int $user_id): void
         return home_url('/editor-dashboard/');
         }
 
-        if (in_array('nb_author', $user->roles, true) || in_array('nb_author_pending', $user->roles, true) || in_array('nb_author_restricted', $user->roles, true)) {
+        if ($this->has_author_dashboard_role($user)) {
         return home_url('/dashboard/');
         }
 
@@ -389,5 +389,15 @@ private function log_login(int $user_id): void
                 home_url('/login/')
             )
         );
+    }
+
+    /**
+     * User has a dashboard author role.
+     */
+    private function has_author_dashboard_role(\WP_User $user): bool
+    {
+        $roles = ['nb_author', 'nb_author_pending', 'nb_author_restricted'];
+
+        return ! empty(array_intersect($roles, (array) $user->roles));
     }
 }

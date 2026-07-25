@@ -119,12 +119,14 @@ $notice = $notices[$status] ?? [
 
 		<?php endif; ?>
 
-		<p>
-			<?php esc_html_e(
-				'If you cannot find the message, please check your Spam, Junk or Promotions folder.',
-				'newsblenda-accounts'
-			); ?>
-		</p>
+		<?php if (in_array($status, ['', 'registered', 'resent'], true)) : ?>
+			<p>
+				<?php esc_html_e(
+					'If you cannot find the message, please check your Spam, Junk or Promotions folder.',
+					'newsblenda-accounts'
+				); ?>
+			</p>
+		<?php endif; ?>
 
 		<div class="nba-card nba-resend-verification-card">
 			<h3><?php esc_html_e('Resend Verification Email', 'newsblenda-accounts'); ?></h3>

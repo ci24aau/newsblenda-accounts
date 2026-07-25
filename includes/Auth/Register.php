@@ -801,9 +801,24 @@ class Register
      */
     private function issue_verification_token(int $user_id): string
     {
+        $token = '';
+
         try {
             $token = bin2hex(random_bytes(32));
         } catch (\Exception $exception) {
+            if (function_exists('openssl_random_pseudo_bytes')) {
+                $bytes = openssl_random_pseudo_bytes(32, $strong);
+                if ($bytes !== false && $strong) {
+                    $token = bin2hex($bytes);
+                }
+            }
+        }
+
+        if (empty($token)) {
+            do_action(
+                'nb_accounts_verification_token_fallback',
+                $user_id
+            );
             $token = wp_generate_password(64, false, false);
         }
 
