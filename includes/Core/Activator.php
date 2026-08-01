@@ -84,65 +84,39 @@ class Activator
      */
     private static function create_options(): void
     {
-        $defaults = [
-
-            /*
-            |--------------------------------------------------------------------------
-            | Registration
-            |--------------------------------------------------------------------------
-            */
-
+        // Preserve the legacy flat option for backward compatibility.
+        $legacy_defaults = [
             'allow_author_registration'     => 1,
             'allow_subscriber_registration' => 1,
             'require_email_verification'    => 1,
             'require_admin_approval'        => 1,
-
-            /*
-            |--------------------------------------------------------------------------
-            | Routes
-            |--------------------------------------------------------------------------
-            */
-
-            'login_slug'            => 'login',
-            'register_slug'         => 'register',
-            'dashboard_slug'        => 'dashboard',
-            'profile_slug'          => 'profile',
-            'forgot_password_slug'  => 'forgot-password',
-            'reset_password_slug'   => 'reset-password',
-            'verify_email_slug'     => 'verify-email',
-            'notifications_slug'    => 'notifications',
-            'earnings_slug'         => 'earnings',
-            'submit_slug'           => 'submit',
-
-            /*
-            |--------------------------------------------------------------------------
-            | Security
-            |--------------------------------------------------------------------------
-            */
-
-            'max_login_attempts' => 5,
-            'lockout_minutes'    => 30,
-
-            /*
-            |--------------------------------------------------------------------------
-            | Email
-            |--------------------------------------------------------------------------
-            */
-
-            'sender_name'  => get_bloginfo('name'),
-            'sender_email' => get_option('admin_email'),
-
+            'login_slug'                    => 'login',
+            'register_slug'                 => 'register',
+            'dashboard_slug'                => 'dashboard',
+            'profile_slug'                  => 'profile',
+            'forgot_password_slug'          => 'forgot-password',
+            'reset_password_slug'           => 'reset-password',
+            'verify_email_slug'             => 'verify-email',
+            'notifications_slug'            => 'notifications',
+            'earnings_slug'                 => 'earnings',
+            'submit_slug'                   => 'submit',
+            'max_login_attempts'            => 5,
+            'lockout_minutes'               => 30,
+            'sender_name'                   => get_bloginfo('name'),
+            'sender_email'                  => get_option('admin_email'),
         ];
 
+        if (get_option('nb_accounts_settings') === false) {
+            add_option('nb_accounts_settings', $legacy_defaults);
+        }
+
+        // Initialise the new per-section settings groups.
         if (
-            get_option('nb_accounts_settings') === false
+            class_exists(
+                '\Newsblenda\Accounts\Admin\SettingsManager'
+            )
         ) {
-
-            add_option(
-                'nb_accounts_settings',
-                $defaults
-            );
-
+            \Newsblenda\Accounts\Admin\SettingsManager::initialize();
         }
     }
     

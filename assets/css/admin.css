@@ -310,3 +310,311 @@
 	}
 
 }
+/*
+|--------------------------------------------------------------------------
+| Settings Page Layout
+|--------------------------------------------------------------------------
+*/
+
+.nba-settings-wrap {
+	max-width: 1100px;
+	margin: 20px 0;
+}
+
+.nba-settings-header {
+	margin-bottom: 24px;
+	padding-bottom: 16px;
+	border-bottom: 1px solid #dcdcde;
+}
+
+.nba-settings-title {
+	margin: 0 0 6px;
+	font-size: 22px;
+	font-weight: 700;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	color: #1d2327;
+}
+
+.nba-settings-title .dashicons {
+	font-size: 22px;
+	color: #2271b1;
+}
+
+.nba-settings-subtitle {
+	margin: 0;
+	color: #646970;
+	font-size: 14px;
+}
+
+.nba-settings-layout {
+	display: flex;
+	gap: 0;
+	align-items: flex-start;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Settings Tab Navigation
+|--------------------------------------------------------------------------
+*/
+
+.nba-settings-tabs {
+	flex: 0 0 180px;
+	min-width: 180px;
+	margin: 0 20px 0 0;
+	padding: 0;
+	list-style: none;
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
+	position: sticky;
+	top: 60px;
+}
+
+.nba-settings-tab {
+	display: block;
+	padding: 10px 14px;
+	background: transparent;
+	border: 1px solid transparent;
+	border-radius: 6px;
+	color: #1d2327;
+	text-decoration: none;
+	font-size: 13px;
+	font-weight: 500;
+	transition: background .15s, color .15s, border-color .15s;
+	white-space: nowrap;
+}
+
+.nba-settings-tab:hover {
+	background: #f0f0f1;
+	border-color: #c3c4c7;
+	color: #1d2327;
+}
+
+.nba-settings-tab.active {
+	background: #2271b1;
+	border-color: #2271b1;
+	color: #fff;
+	font-weight: 600;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Settings Content Area
+|--------------------------------------------------------------------------
+*/
+
+.nba-settings-content {
+	flex: 1;
+	min-width: 0;
+}
+
+.nba-settings-form .form-table th {
+	width: 240px;
+	vertical-align: top;
+	padding-top: 12px;
+}
+
+.nba-settings-form .form-table td {
+	vertical-align: top;
+}
+
+.nba-settings-form .form-table td .description {
+	margin-top: 6px;
+	color: #646970;
+	font-size: 12px;
+	line-height: 1.5;
+}
+
+.nba-settings-form h2 {
+	margin: 24px 0 8px;
+	font-size: 14px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: .5px;
+	color: #50575e;
+	padding-bottom: 6px;
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.nba-settings-footer {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-top: 28px;
+	padding-top: 20px;
+	border-top: 1px solid #dcdcde;
+}
+
+.nba-save-notice {
+	margin-bottom: 20px;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Info / Summary Cards (Security & Earnings)
+|--------------------------------------------------------------------------
+*/
+
+.nba-info-card {
+	background: #f6f7f7;
+	border: 1px solid #dcdcde;
+	border-radius: 8px;
+	padding: 18px 20px;
+	margin-bottom: 24px;
+}
+
+.nba-info-card-title {
+	margin: 0 0 14px;
+	font-size: 13px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: .5px;
+	color: #1d2327;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.nba-info-card-title .dashicons {
+	font-size: 16px;
+	color: #2271b1;
+}
+
+.nba-info-card table.widefat {
+	background: #fff;
+	border-radius: 6px;
+	border: 1px solid #dcdcde;
+}
+
+.nba-info-card table.widefat th {
+	width: 200px;
+	font-weight: 600;
+	font-size: 13px;
+}
+
+.nba-info-card table.widefat td {
+	font-size: 13px;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Earnings Summary Grid
+|--------------------------------------------------------------------------
+*/
+
+.nba-summary-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+	gap: 14px;
+}
+
+.nba-summary-stat {
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 6px;
+	padding: 14px 16px;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.nba-summary-label {
+	font-size: 11px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: .5px;
+	color: #50575e;
+}
+
+.nba-summary-value {
+	font-size: 20px;
+	font-weight: 700;
+	color: #1d2327;
+}
+
+/*
+|--------------------------------------------------------------------------
+| SMTP Test Button / Result
+|--------------------------------------------------------------------------
+*/
+
+.nba-smtp-test-row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-top: 16px;
+	padding-top: 16px;
+	border-top: 1px solid #f0f0f1;
+}
+
+#nba-smtp-test-result {
+	font-size: 13px;
+	font-weight: 600;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Test Email Button
+|--------------------------------------------------------------------------
+*/
+
+.nba-send-test-email {
+	margin-left: 8px;
+}
+
+.nba-test-email-result {
+	font-size: 12px;
+	font-weight: 600;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Password field
+|--------------------------------------------------------------------------
+*/
+
+input[type="password"].regular-text {
+	font-family: monospace;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Responsive
+|--------------------------------------------------------------------------
+*/
+
+@media (max-width: 960px) {
+
+	.nba-settings-layout {
+		flex-direction: column;
+	}
+
+	.nba-settings-tabs {
+		flex-direction: row;
+		flex-wrap: wrap;
+		position: static;
+		min-width: 0;
+		flex: none;
+		margin: 0 0 20px;
+	}
+
+	.nba-settings-tab {
+		flex: 0 0 auto;
+	}
+
+}
+
+@media (max-width: 600px) {
+
+	.nba-settings-form .form-table th {
+		width: auto;
+	}
+
+	.nba-summary-grid {
+		grid-template-columns: 1fr;
+	}
+
+}

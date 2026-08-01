@@ -1,5 +1,5 @@
 /**
- * Newsblenda Accounts Settings
+ * Newsblenda Accounts — Settings
  */
 
 (function ($) {
@@ -8,238 +8,321 @@
 	const Settings = {
 
 		init: function () {
-
-			this.tabs();
-			this.dependencies();
+			this.colorPickers();
+			this.smtpDependencies();
 			this.numberValidation();
 			this.trackChanges();
-			this.loadingButtons();
-			this.resetConfirmation();
+			this.sendTestEmail();
+			this.smtpTest();
+			this.resetSection();
 			this.preventDoubleSubmit();
+			this.highlightActiveTab();
+		},
+
+		/**
+		 * Initialise WordPress colour pickers.
+		 */
+		colorPickers: function () {
+
+			if ($.fn.wpColorPicker) {
+
+				$('.nba-color-picker').wpColorPicker();
+
+			}
 
 		},
 
 		/**
-		 * Settings tabs.
+		 * Show/hide SMTP fields based on the "Enable SMTP" checkbox.
 		 */
-		tabs: function () {
+		smtpDependencies: function () {
 
-			const tabs = $('.nba-settings-tabs a');
+			const $smtp    = $('#nba_smtp_enabled');
+			const $fields  = $('.nba-smtp-fields');
 
-			if (!tabs.length) {
+			if (!$smtp.length || !$fields.length) {
 				return;
 			}
 
-			const savedTab = sessionStorage.getItem('nba-settings-tab');
+			const toggle = function () {
 
-			if (savedTab && $(savedTab).length) {
-
-				tabs.removeClass('active');
-				$('.nba-settings-panel').hide();
-
-				$('.nba-settings-tabs a[href="' + savedTab + '"]')
-					.addClass('active');
-
-				$(savedTab).show();
-
-			} else {
-
-				tabs.first().addClass('active');
-
-				$('.nba-settings-panel').hide();
-
-				$(
-					tabs.first().attr('href')
-				).show();
-
-			}
-
-			$(document).on(
-				'click',
-				'.nba-settings-tabs a',
-				function (e) {
-
-					e.preventDefault();
-
-					const target = $(this).attr('href');
-
-					sessionStorage.setItem(
-						'nba-settings-tab',
-						target
-					);
-
-					tabs.removeClass('active');
-
-					$(this).addClass('active');
-
-					$('.nba-settings-panel').hide();
-
-					$(target).fadeIn(150);
-
+				if ($smtp.is(':checked')) {
+					$fields.slideDown(200);
+				} else {
+					$fields.slideUp(200);
 				}
-			);
+
+			};
+
+			toggle();
+
+			$smtp.on('change', toggle);
 
 		},
 
 		/**
-		 * Toggle dependent settings.
-		 */
-		dependencies: function () {
-
-			$(document).on(
-				'change',
-				'[data-toggle]',
-				function () {
-
-					const target = $(this).data('toggle');
-
-					if (!target) {
-						return;
-					}
-
-					let visible = false;
-
-					if ($(this).is(':checkbox')) {
-
-						visible = $(this).is(':checked');
-
-					} else {
-
-						visible = $(this).val() !== '';
-
-					}
-
-					if (visible) {
-
-						$(target).stop(true, true).slideDown(200);
-
-					} else {
-
-						$(target).stop(true, true).slideUp(200);
-
-					}
-
-				}
-			);
-
-			$('[data-toggle]').trigger('change');
-
-		},
-
-		/**
-		 * Validate number fields.
+		 * Clamp number inputs to their min/max.
 		 */
 		numberValidation: function () {
 
-			$(document).on(
-				'input',
-				'input[type="number"]',
-				function () {
+			$(document).on('input', 'input[type="number"]', function () {
 
-					const min = parseFloat($(this).attr('min'));
-					const max = parseFloat($(this).attr('max'));
+				const min   = parseFloat($(this).attr('min'));
+				const max   = parseFloat($(this).attr('max'));
+				let   value = parseFloat($(this).val());
 
-					let value = parseFloat($(this).val());
-
-					if (isNaN(value)) {
-						return;
-					}
-
-					if (!isNaN(min) && value < min) {
-						value = min;
-					}
-
-					if (!isNaN(max) && value > max) {
-						value = max;
-					}
-
-					$(this).val(value);
-
+				if (isNaN(value)) {
+					return;
 				}
-			);
+
+				if (!isNaN(min) && value < min) {
+					$(this).val(min);
+				}
+
+				if (!isNaN(max) && value > max) {
+					$(this).val(max);
+				}
+
+			});
 
 		},
 
 		/**
-		 * Track changed fields.
+		 * Mark rows as dirty when values change.
 		 */
 		trackChanges: function () {
 
-			$('.nba-settings-form :input').on(
-				'change input',
-				function () {
+			$('.nba-settings-form :input').on('change input', function () {
 
-					$(this)
-						.closest('.form-table, .nba-form-group')
-						.addClass('nba-dirty');
+				$(this)
+					.closest('tr, .nba-form-group')
+					.addClass('nba-dirty');
 
-				}
-			);
+			});
 
 		},
 
 		/**
-		 * Loading state.
+		 * Send a test email via AJAX.
 		 */
-		loadingButtons: function () {
+		sendTestEmail: function () {
 
-			$(document).on(
-				'click',
-				'.nba-loading-button',
-				function () {
+			$(document).on('click', '.nba-send-test-email', function (e) {
 
-					$(this)
-						.prop('disabled', true)
-						.addClass('nba-loading');
+				e.preventDefault();
 
-				}
-			);
+				const $btn    = $(this);
+				const $input  = $btn.prev('input[type="email"]');
+				const $result = $btn.next('.nba-test-email-result');
+				const email   = $input.val().trim();
+				const nonce   = $btn.data('nonce') || (window.nbaSettings && window.nbaSettings.testEmailNonce);
 
-		},
-
-		/**
-		 * Confirm reset buttons.
-		 */
-		resetConfirmation: function () {
-
-			$(document).on(
-				'click',
-				'.nba-settings-reset',
-				function (e) {
-
-					if (
-						!window.confirm(
-							'Reset all settings to their default values?'
+				if (!email) {
+					$result
+						.text(
+							window.nbaSettings
+								? window.nbaSettings.i18n.sending
+								: 'Please enter an email address.'
 						)
-					) {
+						.css('color', '#d63638')
+						.show();
+					return;
+				}
 
-						e.preventDefault();
+				$btn.prop('disabled', true).text(
+					window.nbaSettings ? window.nbaSettings.i18n.sending : 'Sending…'
+				);
+
+				$result.hide().text('');
+
+				$.post(
+					window.nbaSettings ? window.nbaSettings.ajaxUrl : ajaxurl,
+					{
+						action : 'nba_send_test_email',
+						nonce  : nonce,
+						email  : email,
+					},
+					function (response) {
+
+						$btn.prop('disabled', false).text('Send Test Email');
+
+						if (response.success) {
+							$result
+								.text(response.data.message)
+								.css('color', '#46b450')
+								.show();
+						} else {
+							$result
+								.text(response.data.message)
+								.css('color', '#d63638')
+								.show();
+						}
 
 					}
+				).fail(function () {
 
-				}
-			);
+					$btn.prop('disabled', false).text('Send Test Email');
+
+					$result
+						.text('Request failed. Check your network connection.')
+						.css('color', '#d63638')
+						.show();
+
+				});
+
+			});
 
 		},
 
 		/**
-		 * Prevent duplicate submissions.
+		 * SMTP connection test.
+		 */
+		smtpTest: function () {
+
+			$(document).on('click', '.nba-smtp-test', function (e) {
+
+				e.preventDefault();
+
+				const $btn        = $(this);
+				const $result     = $('#nba-smtp-test-result');
+				const host        = $('#nba_smtp_host').val().trim();
+				const port        = $('#nba_smtp_port').val();
+				const encryption  = $('#nba_smtp_encryption').val();
+				const nonce       = window.nbaSettings ? window.nbaSettings.smtpTestNonce : '';
+
+				if (!host) {
+					$result.text('Please enter an SMTP host.').css('color', '#d63638').show();
+					return;
+				}
+
+				$btn.prop('disabled', true).text(
+					window.nbaSettings ? window.nbaSettings.i18n.testing : 'Testing…'
+				);
+
+				$result.hide().text('');
+
+				$.post(
+					window.nbaSettings ? window.nbaSettings.ajaxUrl : ajaxurl,
+					{
+						action     : 'nba_smtp_test',
+						nonce      : nonce,
+						host       : host,
+						port       : port,
+						encryption : encryption,
+					},
+					function (response) {
+
+						$btn.prop('disabled', false).text('Test Connection');
+
+						if (response.success) {
+							$result
+								.text(response.data.message)
+								.css('color', '#46b450')
+								.show();
+						} else {
+							$result
+								.text(response.data.message)
+								.css('color', '#d63638')
+								.show();
+						}
+
+					}
+				).fail(function () {
+
+					$btn.prop('disabled', false).text('Test Connection');
+
+					$result
+						.text('Request failed.')
+						.css('color', '#d63638')
+						.show();
+
+				});
+
+			});
+
+		},
+
+		/**
+		 * Reset a settings section to defaults.
+		 */
+		resetSection: function () {
+
+			$(document).on('click', '.nba-reset-section', function (e) {
+
+				e.preventDefault();
+
+				const confirmMsg = window.nbaSettings
+					? window.nbaSettings.i18n.confirmReset
+					: 'Reset all settings in this tab to their default values? This cannot be undone.';
+
+				if (!window.confirm(confirmMsg)) {
+					return;
+				}
+
+				const $btn    = $(this);
+				const section = $btn.data('section');
+				const nonce   = $btn.data('nonce');
+
+				$btn.prop('disabled', true);
+
+				$.post(
+					window.nbaSettings ? window.nbaSettings.ajaxUrl : ajaxurl,
+					{
+						action  : 'nba_reset_settings',
+						nonce   : nonce,
+						section : section,
+					},
+					function (response) {
+
+						$btn.prop('disabled', false);
+
+						if (response.success) {
+							window.location.reload();
+						} else {
+							alert(response.data.message || 'Reset failed.');
+						}
+
+					}
+				).fail(function () {
+
+					$btn.prop('disabled', false);
+					alert('Request failed.');
+
+				});
+
+			});
+
+		},
+
+		/**
+		 * Prevent double form submissions.
 		 */
 		preventDoubleSubmit: function () {
 
-			$(document).on(
-				'submit',
-				'form',
-				function () {
+			$(document).on('submit', '.nba-settings-form', function () {
 
-					$(this)
-						.find(
-							'button[type="submit"], input[type="submit"]'
-						)
-						.prop('disabled', true);
+				$(this)
+					.find('button[type="submit"], input[type="submit"]')
+					.prop('disabled', true);
 
+			});
+
+		},
+
+		/**
+		 * Add active class to the current tab link.
+		 */
+		highlightActiveTab: function () {
+
+			const current = window.location.href;
+
+			$('.nba-settings-tabs .nba-settings-tab').each(function () {
+
+				if ($(this).attr('href') === current) {
+					$(this).addClass('active');
 				}
-			);
+
+			});
 
 		}
 
