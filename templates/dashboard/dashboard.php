@@ -15,203 +15,175 @@ $user = wp_get_current_user();
 | Stats
 |--------------------------------------------------------------------------
 */
+$cache_version = (string) get_option('nb_dashboard_cache_version', '1');
+$cache_key     = 'nb_dashboard_author_' . $user->ID . '_' . md5($cache_version);
+$cached_data   = get_transient($cache_key);
 
-$published_query = new WP_Query([
-	'post_type'      => 'post',
-	'post_status'    => 'publish',
-	'author'         => $user->ID,
-	'posts_per_page' => 1,
-	'fields'         => 'ids',
-	'no_found_rows'  => false,
-]);
+if ($cached_data === false) {
+	global $wpdb;
 
-$pending_query = new WP_Query([
-	'post_type'      => 'post',
-	'post_status'    => 'pending',
-	'author'         => $user->ID,
-	'posts_per_page' => 1,
-	'fields'         => 'ids',
-	'no_found_rows'  => false,
-]);
+	$stats = (array) $wpdb->get_row(
+		$wpdb->prepare(
+			"SELECT
+				COUNT(CASE WHEN p.post_status = 'publish' THEN 1 END) AS published_count,
+				COUNT(CASE WHEN p.post_status = 'pending' THEN 1 END) AS pending_count,
+				COUNT(CASE WHEN p.post_status = 'draft' AND (pm.meta_value IS NULL OR pm.meta_value = %s) THEN 1 END) AS draft_count,
+				COUNT(CASE WHEN p.post_status = 'draft' AND pm.meta_value = %s THEN 1 END) AS rejected_count,
+				COUNT(CASE WHEN p.post_status = 'draft' AND pm.meta_value = %s THEN 1 END) AS revision_count
+			FROM {$wpdb->posts} p
+			LEFT JOIN {$wpdb->postmeta} pm
+				ON pm.post_id = p.ID
+				AND pm.meta_key = 'nb_workflow_status'
+			WHERE p.post_type = 'post'
+				AND p.post_author = %d",
+			WorkflowManager::STATUS_DRAFT,
+			WorkflowManager::STATUS_REJECTED,
+			WorkflowManager::STATUS_REVISION_REQUESTED,
+			$user->ID
+		),
+		ARRAY_A
+	);
 
-$draft_query = new WP_Query([
-	'post_type'      => 'post',
-	'post_status'    => 'draft',
-	'author'         => $user->ID,
-	'meta_query'     => [
-		'relation' => 'OR',
-		[
-			'key'     => 'nb_workflow_status',
-			'compare' => 'NOT EXISTS',
+	$published_count = (int) ($stats['published_count'] ?? 0);
+	$pending_count   = (int) ($stats['pending_count'] ?? 0);
+	$draft_count     = (int) ($stats['draft_count'] ?? 0);
+	$rejected_count  = (int) ($stats['rejected_count'] ?? 0);
+	$revision_count  = (int) ($stats['revision_count'] ?? 0);
+
+	$total_submissions = $published_count
+		+ $pending_count
+		+ $draft_count
+		+ $rejected_count
+		+ $revision_count;
+
+	$total_views = (int) $wpdb->get_var(
+		$wpdb->prepare(
+			"SELECT COALESCE(SUM(pm.meta_value), 0)
+			FROM {$wpdb->postmeta} pm
+			INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
+			WHERE p.post_author = %d
+				AND pm.meta_key = 'nb_post_views'",
+			$user->ID
+		)
+	);
+
+	$total_earnings = (float) get_user_meta($user->ID, 'nb_total_earnings', true);
+
+	$unpaid_balance = (float) $wpdb->get_var(
+		$wpdb->prepare(
+			"SELECT COALESCE(SUM(amount), 0)
+			FROM {$wpdb->prefix}nb_earnings
+			WHERE user_id = %d AND status = 'unpaid'",
+			$user->ID
+		)
+	);
+
+	$base_post_args = [
+		'post_type'              => 'post',
+		'author'                 => $user->ID,
+		'posts_per_page'         => 5,
+		'no_found_rows'          => true,
+		'update_post_term_cache' => false,
+		'cache_results'          => true,
+	];
+
+	$recent_posts = get_posts(array_merge($base_post_args, [
+		'post_status' => ['publish', 'pending', 'draft', 'future'],
+		'orderby'     => 'modified',
+		'order'       => 'DESC',
+	]));
+
+	$pending_posts = get_posts(array_merge($base_post_args, [
+		'post_status' => 'pending',
+		'orderby'     => 'date',
+		'order'       => 'ASC',
+	]));
+
+	$revision_posts = get_posts(array_merge($base_post_args, [
+		'post_status' => 'draft',
+		'meta_key'    => 'nb_workflow_status',
+		'meta_value'  => WorkflowManager::STATUS_REVISION_REQUESTED,
+		'orderby'     => 'date',
+		'order'       => 'DESC',
+	]));
+
+	$rejected_posts = get_posts(array_merge($base_post_args, [
+		'post_status' => 'draft',
+		'meta_key'    => 'nb_workflow_status',
+		'meta_value'  => WorkflowManager::STATUS_REJECTED,
+		'orderby'     => 'date',
+		'order'       => 'DESC',
+	]));
+
+	$draft_posts = get_posts(array_merge($base_post_args, [
+		'post_status' => 'draft',
+		'meta_query'  => [
+			'relation' => 'OR',
+			[
+				'key'     => 'nb_workflow_status',
+				'compare' => 'NOT EXISTS',
+			],
+			[
+				'key'   => 'nb_workflow_status',
+				'value' => WorkflowManager::STATUS_DRAFT,
+			],
 		],
-		[
-			'key'   => 'nb_workflow_status',
-			'value' => WorkflowManager::STATUS_DRAFT,
-		],
-	],
-	'posts_per_page' => 1,
-	'fields'         => 'ids',
-	'no_found_rows'  => false,
-]);
+		'orderby'     => 'modified',
+		'order'       => 'DESC',
+	]));
 
-$rejected_query = new WP_Query([
-	'post_type'      => 'post',
-	'post_status'    => 'draft',
-	'author'         => $user->ID,
-	'meta_key'       => 'nb_workflow_status',
-	'meta_value'     => WorkflowManager::STATUS_REJECTED,
-	'posts_per_page' => 1,
-	'fields'         => 'ids',
-	'no_found_rows'  => false,
-]);
+	$profile_fields = [
+		'first_name',
+		'last_name',
+		'description',
+		'nb_phone',
+		'nb_country',
+		'nb_state',
+		'nb_city',
+		'nb_niche',
+		'nb_payment_method',
+		'nb_whatsapp',
+		'nb_gender',
+	];
 
-$revision_query = new WP_Query([
-	'post_type'      => 'post',
-	'post_status'    => 'draft',
-	'author'         => $user->ID,
-	'meta_key'       => 'nb_workflow_status',
-	'meta_value'     => WorkflowManager::STATUS_REVISION_REQUESTED,
-	'posts_per_page' => 1,
-	'fields'         => 'ids',
-	'no_found_rows'  => false,
-]);
-
-$total_submissions = (int) $published_query->found_posts
-	+ (int) $pending_query->found_posts
-	+ (int) $draft_query->found_posts
-	+ (int) $rejected_query->found_posts
-	+ (int) $revision_query->found_posts;
-
-global $wpdb;
-
-$total_views = (int) $wpdb->get_var(
-	$wpdb->prepare(
-		"SELECT COALESCE(SUM(pm.meta_value), 0)
-		 FROM {$wpdb->postmeta} pm
-		 INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
-		 WHERE p.post_author = %d
-		   AND pm.meta_key = 'nb_post_views'",
-		$user->ID
-	)
-);
-
-$total_earnings = (float) get_user_meta($user->ID, 'nb_total_earnings', true);
-
-$unpaid_balance = (float) $wpdb->get_var(
-	$wpdb->prepare(
-		"SELECT COALESCE(SUM(amount), 0)
-		 FROM {$wpdb->prefix}nb_earnings
-		 WHERE user_id = %d AND status = 'unpaid'",
-		$user->ID
-	)
-);
-
-/*
-|--------------------------------------------------------------------------
-| Article Lists
-|--------------------------------------------------------------------------
-*/
-
-$recent_posts = get_posts([
-	'post_type'      => 'post',
-	'author'         => $user->ID,
-	'post_status'    => ['publish', 'pending', 'draft', 'future'],
-	'posts_per_page' => 5,
-	'orderby'        => 'modified',
-	'order'          => 'DESC',
-]);
-
-$pending_posts = get_posts([
-	'post_type'      => 'post',
-	'post_status'    => 'pending',
-	'author'         => $user->ID,
-	'posts_per_page' => 5,
-	'orderby'        => 'date',
-	'order'          => 'ASC',
-]);
-
-$revision_posts = get_posts([
-	'post_type'      => 'post',
-	'post_status'    => 'draft',
-	'author'         => $user->ID,
-	'meta_key'       => 'nb_workflow_status',
-	'meta_value'     => WorkflowManager::STATUS_REVISION_REQUESTED,
-	'posts_per_page' => 5,
-	'orderby'        => 'date',
-	'order'          => 'DESC',
-]);
-
-$rejected_posts = get_posts([
-	'post_type'      => 'post',
-	'post_status'    => 'draft',
-	'author'         => $user->ID,
-	'meta_key'       => 'nb_workflow_status',
-	'meta_value'     => WorkflowManager::STATUS_REJECTED,
-	'posts_per_page' => 5,
-	'orderby'        => 'date',
-	'order'          => 'DESC',
-]);
-
-$draft_posts = get_posts([
-	'post_type'      => 'post',
-	'post_status'    => 'draft',
-	'author'         => $user->ID,
-	'meta_query'     => [
-		'relation' => 'OR',
-		[
-			'key'     => 'nb_workflow_status',
-			'compare' => 'NOT EXISTS',
-		],
-		[
-			'key'   => 'nb_workflow_status',
-			'value' => WorkflowManager::STATUS_DRAFT,
-		],
-	],
-	'posts_per_page' => 5,
-	'orderby'        => 'modified',
-	'order'          => 'DESC',
-]);
-
-/*
-|--------------------------------------------------------------------------
-| Profile Completion
-|--------------------------------------------------------------------------
-*/
-
-$profile_fields = [
-	'first_name',
-	'last_name',
-	'description',
-	'nb_phone',
-	'nb_country',
-	'nb_state',
-	'nb_city',
-	'nb_niche',
-	'nb_payment_method',
-	'nb_whatsapp',
-	'nb_gender',
-];
-
-$profile_completed = 0;
-
-foreach ($profile_fields as $field) {
-	if (! empty(get_user_meta($user->ID, $field, true))) {
-		$profile_completed++;
+	$profile_completed = 0;
+	foreach ($profile_fields as $field) {
+		if (! empty(get_user_meta($user->ID, $field, true))) {
+			$profile_completed++;
+		}
 	}
+
+	$profile_percent = (int) round(
+		($profile_completed / count($profile_fields)) * 100
+	);
+
+	$notifications = \Newsblenda\Accounts\Notifications\Notifications::get_latest($user->ID, 4);
+	$unread_count  = \Newsblenda\Accounts\Notifications\Notifications::get_unread_count($user->ID);
+
+	$cached_data = compact(
+		'total_submissions',
+		'published_count',
+		'pending_count',
+		'draft_count',
+		'rejected_count',
+		'revision_count',
+		'total_views',
+		'total_earnings',
+		'unpaid_balance',
+		'recent_posts',
+		'pending_posts',
+		'revision_posts',
+		'rejected_posts',
+		'draft_posts',
+		'profile_percent',
+		'notifications',
+		'unread_count'
+	);
+
+	set_transient($cache_key, $cached_data, HOUR_IN_SECONDS);
 }
 
-$profile_percent = (int) round(
-	($profile_completed / count($profile_fields)) * 100
-);
-
-/*
-|--------------------------------------------------------------------------
-| Recent Notifications
-|--------------------------------------------------------------------------
-*/
-
-$notifications = \Newsblenda\Accounts\Notifications\Notifications::get_latest($user->ID, 4);
-$unread_count  = \Newsblenda\Accounts\Notifications\Notifications::get_unread_count($user->ID);
+extract($cached_data, EXTR_SKIP);
 
 /*
 |--------------------------------------------------------------------------
@@ -289,27 +261,27 @@ $badge = static function (string $status): string {
 
 		<div class="nba-stat-card">
 			<h4><?php esc_html_e('Published', 'newsblenda-accounts'); ?></h4>
-			<div class="nba-stat-value nba-stat-success"><?php echo esc_html((string) $published_query->found_posts); ?></div>
+			<div class="nba-stat-value nba-stat-success"><?php echo esc_html((string) $published_count); ?></div>
 		</div>
 
 		<div class="nba-stat-card">
 			<h4><?php esc_html_e('Pending Review', 'newsblenda-accounts'); ?></h4>
-			<div class="nba-stat-value nba-stat-warning"><?php echo esc_html((string) $pending_query->found_posts); ?></div>
+			<div class="nba-stat-value nba-stat-warning"><?php echo esc_html((string) $pending_count); ?></div>
 		</div>
 
 		<div class="nba-stat-card">
 			<h4><?php esc_html_e('Revision Requested', 'newsblenda-accounts'); ?></h4>
-			<div class="nba-stat-value nba-stat-warning"><?php echo esc_html((string) $revision_query->found_posts); ?></div>
+			<div class="nba-stat-value nba-stat-warning"><?php echo esc_html((string) $revision_count); ?></div>
 		</div>
 
 		<div class="nba-stat-card">
 			<h4><?php esc_html_e('Rejected', 'newsblenda-accounts'); ?></h4>
-			<div class="nba-stat-value nba-stat-danger"><?php echo esc_html((string) $rejected_query->found_posts); ?></div>
+			<div class="nba-stat-value nba-stat-danger"><?php echo esc_html((string) $rejected_count); ?></div>
 		</div>
 
 		<div class="nba-stat-card">
 			<h4><?php esc_html_e('Drafts', 'newsblenda-accounts'); ?></h4>
-			<div class="nba-stat-value"><?php echo esc_html((string) $draft_query->found_posts); ?></div>
+			<div class="nba-stat-value"><?php echo esc_html((string) $draft_count); ?></div>
 		</div>
 
 		<div class="nba-stat-card">

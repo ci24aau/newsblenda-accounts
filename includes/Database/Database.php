@@ -11,7 +11,7 @@ class Database
     /**
      * Database version.
      */
-    public const VERSION = '1.2.0';
+    public const VERSION = '1.3.0';
 
     /**
      * Constructor.
@@ -81,7 +81,9 @@ class Database
 
                 KEY author_id (author_id),
 
-                KEY current_status (current_status)
+                KEY current_status (current_status),
+
+                KEY idx_post_status (post_id, current_status)
 
             ) {$charset};"
 
@@ -125,7 +127,11 @@ class Database
 
                 KEY is_read (is_read),
 
-                KEY status (status)
+                KEY status (status),
+
+                KEY idx_user_read (user_id, is_read),
+
+                KEY idx_created (created_at)
 
             ) {$charset};"
 
@@ -193,7 +199,9 @@ class Database
 
                 UNIQUE KEY token (token),
 
-                KEY user_id (user_id)
+                KEY user_id (user_id),
+
+                KEY idx_user_expires (user_id, expires_at)
 
             ) {$charset};"
 
@@ -231,7 +239,9 @@ class Database
 
                 KEY email (email),
 
-                KEY expires_at (expires_at)
+                KEY expires_at (expires_at),
+
+                KEY idx_email_expires (email, expires_at)
 
             ) {$charset};"
 

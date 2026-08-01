@@ -29,8 +29,27 @@ class Earnings
         );
 
         add_action(
-            'nb_accounts_daily_sync',
+            'nb_accounts_daily_event',
             [$this, 'sync']
+        );
+
+        add_action(
+            'save_post',
+            [$this, 'invalidate_cache_on_save'],
+            10,
+            3
+        );
+
+        add_action(
+            'delete_post',
+            [$this, 'invalidate_cache_on_delete']
+        );
+
+        add_action(
+            'transition_post_status',
+            [$this, 'invalidate_cache_on_status_change'],
+            10,
+            3
         );
     }
 
@@ -90,22 +109,27 @@ class Earnings
      */
     public function sync(): void
     {
-        $users = get_users(
-            [
-                'role__in' => [
-                    'nb_author',
-                    'nb_author_restricted',
-                ],
-            ]
-        );
+        $page = 1;
 
-        foreach ($users as $user) {
-
-            $this->calculate(
-                $user->ID
+        do {
+            $users = get_users(
+                [
+                    'role__in' => [
+                        'nb_author',
+                        'nb_author_restricted',
+                    ],
+                    'fields' => 'ID',
+                    'number' => 500,
+                    'paged'  => $page,
+                ]
             );
 
-        }
+            foreach ($users as $user_id) {
+                $this->calculate((int) $user_id);
+            }
+
+            $page++;
+        } while (! empty($users));
     }
 
     /**
@@ -115,49 +139,59 @@ class Earnings
         int $user_id
     ): void
     {
-        $posts = get_posts(
-            [
-                'post_type' => 'post',
-                'post_status' => 'publish',
-                'author' => $user_id,
-                'posts_per_page' => -1,
-            ]
-        );
+        global $wpdb;
 
         $rate = (float) get_option(
             'nb_rate_per_1000_views',
             2
         );
 
-        $views = 0;
+        $cache_version = (string) get_option('nb_dashboard_cache_version', '1');
+        $cache_key     = 'nb_earnings_summary_' . $user_id . '_' . md5($cache_version);
+        $summary       = get_transient($cache_key);
 
-        $earnings = 0;
-
-        $top_views = 0;
-
-        $top_article = '';
-
-        foreach ($posts as $post) {
-
-            $count = (int) get_post_meta(
-                $post->ID,
-                'nb_valid_views',
-                true
+        if ($summary === false) {
+            $summary = (array) $wpdb->get_row(
+                $wpdb->prepare(
+                    "SELECT
+                        COALESCE(SUM(CAST(pm.meta_value AS UNSIGNED)), 0) AS total_views,
+                        COALESCE(MAX(CAST(pm.meta_value AS UNSIGNED)), 0) AS max_views
+                    FROM {$wpdb->posts} p
+                    LEFT JOIN {$wpdb->postmeta} pm
+                        ON pm.post_id = p.ID
+                        AND pm.meta_key = 'nb_valid_views'
+                    WHERE p.post_type = 'post'
+                        AND p.post_status = 'publish'
+                        AND p.post_author = %d",
+                    $user_id
+                ),
+                ARRAY_A
             );
 
-            $views += $count;
+            $top_article = (string) $wpdb->get_var(
+                $wpdb->prepare(
+                    "SELECT p.post_title
+                    FROM {$wpdb->posts} p
+                    LEFT JOIN {$wpdb->postmeta} pm
+                        ON pm.post_id = p.ID
+                        AND pm.meta_key = 'nb_valid_views'
+                    WHERE p.post_type = 'post'
+                        AND p.post_status = 'publish'
+                        AND p.post_author = %d
+                    ORDER BY CAST(COALESCE(pm.meta_value, 0) AS UNSIGNED) DESC, p.ID DESC
+                    LIMIT 1",
+                    $user_id
+                )
+            );
 
-            $earnings += ($count / 1000) * $rate;
+            $summary['top_article'] = $top_article;
 
-            if ($count > $top_views) {
-
-                $top_views = $count;
-
-                $top_article = $post->post_title;
-
-            }
-
+            set_transient($cache_key, $summary, DAY_IN_SECONDS);
         }
+
+        $views      = (int) ($summary['total_views'] ?? 0);
+        $earnings   = ($views / 1000) * $rate;
+        $top_article = (string) ($summary['top_article'] ?? '');
 
         update_user_meta(
             $user_id,
@@ -182,6 +216,73 @@ class Earnings
             'nb_last_earnings_update',
             current_time('mysql')
         );
+    }
+
+    /**
+     * Invalidate earnings cache on post save.
+     */
+    public function invalidate_cache_on_save(
+        int $post_id,
+        \WP_Post $post,
+        bool $update
+    ): void {
+        if ($post->post_type !== 'post') {
+            return;
+        }
+
+        if (wp_is_post_revision($post_id)) {
+            return;
+        }
+
+        $this->invalidate_author_cache((int) $post->post_author);
+    }
+
+    /**
+     * Invalidate earnings cache on post deletion.
+     */
+    public function invalidate_cache_on_delete(
+        int $post_id
+    ): void {
+        $post = get_post($post_id);
+        if (! $post instanceof \WP_Post || $post->post_type !== 'post') {
+            return;
+        }
+
+        $this->invalidate_author_cache((int) $post->post_author);
+    }
+
+    /**
+     * Invalidate earnings cache on status transition.
+     */
+    public function invalidate_cache_on_status_change(
+        string $new_status,
+        string $old_status,
+        \WP_Post $post
+    ): void {
+        if ($post->post_type !== 'post') {
+            return;
+        }
+
+        if ($new_status === $old_status) {
+            return;
+        }
+
+        $this->invalidate_author_cache((int) $post->post_author);
+    }
+
+    /**
+     * Invalidate transient cache for author earnings summary.
+     */
+    private function invalidate_author_cache(
+        int $user_id
+    ): void {
+        if ($user_id <= 0) {
+            return;
+        }
+
+        $cache_version = (string) get_option('nb_dashboard_cache_version', '1');
+        $cache_key     = 'nb_earnings_summary_' . $user_id . '_' . md5($cache_version);
+        delete_transient($cache_key);
     }
     
         /**
