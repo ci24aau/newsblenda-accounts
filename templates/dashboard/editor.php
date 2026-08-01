@@ -23,121 +23,100 @@ $filter_author = isset($_GET['nb_author'])
 	? absint($_GET['nb_author'])
 	: 0;
 
-/*
-|--------------------------------------------------------------------------
-| Review Queue (Pending Review)
-|--------------------------------------------------------------------------
-*/
+$cache_version = (string) get_option('nb_dashboard_cache_version', '1');
+$cache_seed    = implode('|', [$editor->ID, $search, (string) $filter_author, $cache_version]);
+$cache_key     = 'nb_dashboard_editor_' . md5($cache_seed);
+$cached_data   = get_transient($cache_key);
 
-$queue_args = [
-	'post_type'      => 'post',
-	'post_status'    => 'pending',
-	'posts_per_page' => 20,
-	'orderby'        => 'date',
-	'order'          => 'ASC',
-	's'              => $search,
-];
+if ($cached_data === false) {
+	$base_args = [
+		'post_type'              => 'post',
+		'posts_per_page'         => 20,
+		'no_found_rows'          => true,
+		'update_post_term_cache' => false,
+		'cache_results'          => true,
+	];
 
-if ($filter_author > 0) {
-	$queue_args['author'] = $filter_author;
+	$queue_args = array_merge($base_args, [
+		'post_status'    => 'pending',
+		'posts_per_page' => 20,
+		'orderby'        => 'date',
+		'order'          => 'ASC',
+		's'              => $search,
+	]);
+
+	if ($filter_author > 0) {
+		$queue_args['author'] = $filter_author;
+	}
+
+	$queue_posts = get_posts($queue_args);
+
+	$revision_args = array_merge($base_args, [
+		'post_status'    => 'draft',
+		'posts_per_page' => 10,
+		'meta_key'       => 'nb_workflow_status',
+		'meta_value'     => WorkflowManager::STATUS_REVISION_REQUESTED,
+		'orderby'        => 'modified',
+		'order'          => 'DESC',
+	]);
+
+	if ($filter_author > 0) {
+		$revision_args['author'] = $filter_author;
+	}
+
+	$revision_posts = get_posts($revision_args);
+
+	$approved_posts = get_posts(array_merge($base_args, [
+		'post_status'    => 'draft',
+		'posts_per_page' => 8,
+		'meta_key'       => 'nb_workflow_status',
+		'meta_value'     => WorkflowManager::STATUS_APPROVED,
+		'orderby'        => 'modified',
+		'order'          => 'DESC',
+	]));
+
+	$published_posts = get_posts(array_merge($base_args, [
+		'post_status'    => 'publish',
+		'posts_per_page' => 8,
+		'orderby'        => 'date',
+		'order'          => 'DESC',
+		's'              => $search,
+	]));
+
+	$pending_count  = count($queue_posts);
+	$revision_count = count($revision_posts);
+	$approved_count = count($approved_posts);
+
+	$total_published = (int) wp_count_posts('post')->publish;
+
+	$authors = get_users([
+		'role__in' => ['nb_author', 'nb_author_pending', 'nb_author_restricted'],
+		'number'   => 10,
+		'orderby'  => 'registered',
+		'order'    => 'DESC',
+	]);
+
+	$editor_notifs = \Newsblenda\Accounts\Notifications\Notifications::get_latest($editor->ID, 5);
+	$unread_count  = \Newsblenda\Accounts\Notifications\Notifications::get_unread_count($editor->ID);
+
+	$cached_data = compact(
+		'queue_posts',
+		'revision_posts',
+		'approved_posts',
+		'published_posts',
+		'pending_count',
+		'revision_count',
+		'approved_count',
+		'total_published',
+		'authors',
+		'editor_notifs',
+		'unread_count'
+	);
+
+	set_transient($cache_key, $cached_data, 15 * MINUTE_IN_SECONDS);
 }
 
-$queue_posts = get_posts($queue_args);
-
-/*
-|--------------------------------------------------------------------------
-| Revision Requests
-|--------------------------------------------------------------------------
-*/
-
-$revision_args = [
-	'post_type'      => 'post',
-	'post_status'    => 'draft',
-	'meta_key'       => 'nb_workflow_status',
-	'meta_value'     => WorkflowManager::STATUS_REVISION_REQUESTED,
-	'posts_per_page' => 10,
-	'orderby'        => 'modified',
-	'order'          => 'DESC',
-];
-
-if ($filter_author > 0) {
-	$revision_args['author'] = $filter_author;
-}
-
-$revision_posts = get_posts($revision_args);
-
-/*
-|--------------------------------------------------------------------------
-| Recently Approved
-|--------------------------------------------------------------------------
-*/
-
-$approved_posts = get_posts([
-	'post_type'      => 'post',
-	'post_status'    => 'draft',
-	'meta_key'       => 'nb_workflow_status',
-	'meta_value'     => WorkflowManager::STATUS_APPROVED,
-	'posts_per_page' => 8,
-	'orderby'        => 'modified',
-	'order'          => 'DESC',
-]);
-
-/*
-|--------------------------------------------------------------------------
-| Published Articles
-|--------------------------------------------------------------------------
-*/
-
-$published_posts = get_posts([
-	'post_type'      => 'post',
-	'post_status'    => 'publish',
-	'posts_per_page' => 8,
-	'orderby'        => 'date',
-	'order'          => 'DESC',
-	's'              => $search,
-]);
-
-/*
-|--------------------------------------------------------------------------
-| Stats
-|--------------------------------------------------------------------------
-*/
-
-$pending_count  = count($queue_posts);
-$revision_count = count($revision_posts);
-$approved_count = count($approved_posts);
-
-$published_query = new WP_Query([
-	'post_type'      => 'post',
-	'post_status'    => 'publish',
-	'posts_per_page' => 1,
-	'fields'         => 'ids',
-	'no_found_rows'  => false,
-]);
-
-$total_published = (int) $published_query->found_posts;
-
-/*
-|--------------------------------------------------------------------------
-| Author List
-|--------------------------------------------------------------------------
-*/
-
-$authors = get_users([
-	'role__in' => ['nb_author', 'nb_author_pending', 'nb_author_restricted'],
-	'number'   => 10,
-	'orderby'  => 'registered',
-	'order'    => 'DESC',
-]);
-
-/*
-|--------------------------------------------------------------------------
-| Notifications for editor
-|--------------------------------------------------------------------------
-*/
-
-$editor_notifs = \Newsblenda\Accounts\Notifications\Notifications::get_latest($editor->ID, 5);
-$unread_count  = \Newsblenda\Accounts\Notifications\Notifications::get_unread_count($editor->ID);
+extract($cached_data, EXTR_SKIP);
 
 /*
 |--------------------------------------------------------------------------

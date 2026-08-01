@@ -27,6 +27,96 @@ class Dashboard
             'nb_dashboard',
             [$this, 'render']
         );
+
+        add_action(
+            'save_post',
+            [$this, 'invalidate_cache_on_save'],
+            10,
+            3
+        );
+
+        add_action(
+            'delete_post',
+            [$this, 'invalidate_cache_on_delete']
+        );
+
+        add_action(
+            'transition_post_status',
+            [$this, 'invalidate_cache_on_status_change'],
+            10,
+            3
+        );
+    }
+
+    /**
+     * Invalidate dashboard caches when content changes.
+     */
+    public function invalidate_cache_on_save(
+        int $post_id,
+        \WP_Post $post,
+        bool $update
+    ): void {
+        if ($post->post_type !== 'post') {
+            return;
+        }
+
+        if (wp_is_post_revision($post_id)) {
+            return;
+        }
+
+        $this->invalidate_cache_for_author((int) $post->post_author);
+    }
+
+    /**
+     * Invalidate dashboard caches when post is deleted.
+     */
+    public function invalidate_cache_on_delete(
+        int $post_id
+    ): void {
+        $post = get_post($post_id);
+        if (! $post instanceof \WP_Post || $post->post_type !== 'post') {
+            return;
+        }
+
+        $this->invalidate_cache_for_author((int) $post->post_author);
+    }
+
+    /**
+     * Invalidate dashboard caches when status transitions.
+     */
+    public function invalidate_cache_on_status_change(
+        string $new_status,
+        string $old_status,
+        \WP_Post $post
+    ): void {
+        if ($post->post_type !== 'post') {
+            return;
+        }
+
+        if ($new_status === $old_status) {
+            return;
+        }
+
+        $this->invalidate_cache_for_author((int) $post->post_author);
+    }
+
+    /**
+     * Invalidate author/editor dashboard cache keys.
+     */
+    private function invalidate_cache_for_author(
+        int $author_id
+    ): void {
+        if ($author_id <= 0) {
+            return;
+        }
+
+        delete_transient('nb_dashboard_author_' . $author_id);
+
+        update_option(
+            'nb_dashboard_cache_version',
+            (string) time(),
+            false
+        );
     }
 
     /**

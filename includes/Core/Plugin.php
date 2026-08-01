@@ -363,6 +363,10 @@ class Plugin
      */
     public function frontend_assets(): void
     {
+        if (! $this->should_load_frontend_assets()) {
+            return;
+        }
+
         wp_enqueue_style(
             'nb-accounts-design-system',
             NB_ACCOUNTS_URL . 'assets/css/design-system.css',
@@ -384,12 +388,14 @@ class Plugin
             NB_ACCOUNTS_VERSION
         );
 
-        wp_enqueue_style(
-            'nb-accounts-dashboard',
-            NB_ACCOUNTS_URL . 'assets/css/dashboard.css',
-            ['nb-accounts-design-system', 'nb-accounts-components'],
-            NB_ACCOUNTS_VERSION
-        );
+        if ($this->is_dashboard_context()) {
+            wp_enqueue_style(
+                'nb-accounts-dashboard',
+                NB_ACCOUNTS_URL . 'assets/css/dashboard.css',
+                ['nb-accounts-design-system', 'nb-accounts-components'],
+                NB_ACCOUNTS_VERSION
+            );
+        }
 
         wp_enqueue_script(
             'nb-accounts-frontend',
@@ -430,6 +436,93 @@ class Plugin
                 ],
             ]
         );
+    }
+
+    /**
+     * Determine whether frontend assets should be loaded.
+     */
+    private function should_load_frontend_assets(): bool
+    {
+        if (is_admin()) {
+            return false;
+        }
+
+        if ($this->is_dashboard_context()) {
+            return true;
+        }
+
+        if (is_page(
+            [
+                'login',
+                'register',
+                'forgot-password',
+                'reset-password',
+                'verify-email',
+                'submit',
+                'profile',
+                'notifications',
+                'earnings',
+                'payouts',
+            ]
+        )) {
+            return true;
+        }
+
+        return $this->has_accounts_shortcode();
+    }
+
+    /**
+     * Determine whether current request is a dashboard screen.
+     */
+    private function is_dashboard_context(): bool
+    {
+        return is_page(['dashboard', 'editor-dashboard']);
+    }
+
+    /**
+     * Check whether current singular content has account shortcodes.
+     */
+    private function has_accounts_shortcode(): bool
+    {
+        if (! is_singular()) {
+            return false;
+        }
+
+        $post = get_post();
+        if (! $post instanceof \WP_Post) {
+            return false;
+        }
+
+        $shortcodes = [
+            'nbe_dashboard',
+            'nb_dashboard',
+            'nbe_login',
+            'nb_login',
+            'nbe_register',
+            'nb_register',
+            'nbe_profile',
+            'nb_profile',
+            'nbe_notifications',
+            'nb_notifications',
+            'nbe_earnings',
+            'nb_earnings',
+            'nbe_submit',
+            'nb_submit',
+            'nbe_forgot_password',
+            'nb_forgot_password',
+            'nbe_reset_password',
+            'nb_reset_password',
+            'nbe_verify_email',
+            'nb_verify_email',
+        ];
+
+        foreach ($shortcodes as $shortcode) {
+            if (has_shortcode($post->post_content, $shortcode)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
