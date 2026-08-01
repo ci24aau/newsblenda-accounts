@@ -130,6 +130,8 @@ class Plugin
 
         new \Newsblenda\Accounts\Admin\Settings();
 
+        new \Newsblenda\Accounts\Admin\SettingsMigrator();
+
         /*
         |--------------------------------------------------------------------------
         | Authentication

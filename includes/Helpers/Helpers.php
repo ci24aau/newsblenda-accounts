@@ -131,16 +131,29 @@ class Helpers
 
     /**
      * Plugin option.
+     *
+     * Reads from the new per-section settings first (via the legacy map in
+     * SettingsManager); falls back to the old flat option for keys that are
+     * not mapped (e.g. route slugs).
+     *
+     * @param string $key
+     * @param mixed  $default
+     * @return mixed
      */
     public static function option(
         string $key,
         $default = null
     ) {
 
-        $settings = get_option(
-            'nb_accounts_settings',
-            []
-        );
+        if (class_exists('\Newsblenda\Accounts\Admin\SettingsManager')) {
+            $value = \Newsblenda\Accounts\Admin\SettingsManager::legacy_get($key);
+
+            if ($value !== null) {
+                return $value;
+            }
+        }
+
+        $settings = get_option('nb_accounts_settings', []);
 
         return $settings[$key] ?? $default;
     }
