@@ -139,8 +139,10 @@ class Auth
             return;
         }
 
+        // Editors use the frontend editor dashboard, not wp-admin.
         if (current_user_can('nb_editor')) {
-            return;
+            wp_safe_redirect(home_url('/editor-dashboard/'));
+            exit;
         }
 
         wp_safe_redirect(home_url('/dashboard/'));

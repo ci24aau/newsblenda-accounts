@@ -606,4 +606,56 @@ class Notifications
         );
 
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Static Helpers (safe to call from templates)
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Get the latest notifications for a user (static, no instantiation).
+     */
+    public static function get_latest(
+        int $user_id,
+        int $limit = 5
+    ): array {
+
+        global $wpdb;
+
+        $table = $wpdb->prefix . 'nb_notifications';
+
+        return (array) $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT * FROM {$table}
+                 WHERE user_id = %d
+                 ORDER BY created_at DESC
+                 LIMIT %d",
+                $user_id,
+                $limit
+            )
+        );
+
+    }
+
+    /**
+     * Get the unread notification count for a user (static, no instantiation).
+     */
+    public static function get_unread_count(
+        int $user_id
+    ): int {
+
+        global $wpdb;
+
+        $table = $wpdb->prefix . 'nb_notifications';
+
+        return (int) $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT COUNT(*) FROM {$table}
+                 WHERE user_id = %d AND is_read = 0",
+                $user_id
+            )
+        );
+
+    }
 }

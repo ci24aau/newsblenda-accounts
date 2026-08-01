@@ -11,7 +11,7 @@ class Database
     /**
      * Database version.
      */
-    public const VERSION = '1.1.0';
+    public const VERSION = '1.2.0';
 
     /**
      * Constructor.
@@ -40,6 +40,52 @@ class Database
 
 
         $charset = $wpdb->get_charset_collate();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Workflow History
+        |--------------------------------------------------------------------------
+        */
+
+        $workflow_history = $wpdb->prefix . 'nb_workflow_history';
+
+        $wpdb->query(
+
+            "CREATE TABLE IF NOT EXISTS {$workflow_history} (
+
+                id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+
+                post_id BIGINT UNSIGNED NOT NULL,
+
+                author_id BIGINT UNSIGNED NOT NULL,
+
+                editor_id BIGINT UNSIGNED NULL,
+
+                previous_status VARCHAR(50) NOT NULL,
+
+                current_status VARCHAR(50) NOT NULL,
+
+                editor_comments LONGTEXT NULL,
+
+                revision_requests LONGTEXT NULL,
+
+                rejection_reason TEXT NULL,
+
+                status_changed_at DATETIME NOT NULL,
+
+                created_at DATETIME NOT NULL,
+
+                PRIMARY KEY (id),
+
+                KEY post_id (post_id),
+
+                KEY author_id (author_id),
+
+                KEY current_status (current_status)
+
+            ) {$charset};"
+
+        );
 
         /*
         |--------------------------------------------------------------------------
@@ -398,6 +444,8 @@ class Database
     {
         $required = [
 
+            'workflow_history',
+
             'notifications',
 
             'activity',
@@ -432,6 +480,8 @@ class Database
     public static function tables(): array
     {
         return [
+
+            self::table('workflow_history'),
 
             self::table('notifications'),
 
