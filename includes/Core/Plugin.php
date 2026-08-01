@@ -364,16 +364,30 @@ class Plugin
     public function frontend_assets(): void
     {
         wp_enqueue_style(
+            'nb-accounts-design-system',
+            NB_ACCOUNTS_URL . 'assets/css/design-system.css',
+            [],
+            NB_ACCOUNTS_VERSION
+        );
+
+        wp_enqueue_style(
+            'nb-accounts-components',
+            NB_ACCOUNTS_URL . 'assets/css/components.css',
+            ['nb-accounts-design-system'],
+            NB_ACCOUNTS_VERSION
+        );
+
+        wp_enqueue_style(
             'nb-accounts-frontend',
             NB_ACCOUNTS_URL . 'assets/css/frontend.css',
-            [],
+            ['nb-accounts-design-system', 'nb-accounts-components'],
             NB_ACCOUNTS_VERSION
         );
 
         wp_enqueue_style(
             'nb-accounts-dashboard',
             NB_ACCOUNTS_URL . 'assets/css/dashboard.css',
-            [],
+            ['nb-accounts-design-system', 'nb-accounts-components'],
             NB_ACCOUNTS_VERSION
         );
 
@@ -424,9 +438,16 @@ class Plugin
     public function admin_assets(): void
     {
         wp_enqueue_style(
+            'nb-accounts-design-system',
+            NB_ACCOUNTS_URL . 'assets/css/design-system.css',
+            [],
+            NB_ACCOUNTS_VERSION
+        );
+
+        wp_enqueue_style(
             'nb-accounts-admin',
             NB_ACCOUNTS_URL . 'assets/css/admin.css',
-            [],
+            ['nb-accounts-design-system'],
             NB_ACCOUNTS_VERSION
         );
 

@@ -1,19 +1,366 @@
 /**
  * Newsblenda Accounts
- * Shared Styles
+ * Shared Styles (legacy aliases and shared utilities)
+ * Note: Design tokens are defined in design-system.css
  */
 
-:root{
-	--nba-primary:#2271b1;
-	--nba-primary-hover:#135e96;
-	--nba-success:#2c8a42;
-	--nba-warning:#dba617;
-	--nba-danger:#d63638;
-	--nba-border:#dcdcde;
-	--nba-bg:#f6f7f7;
-	--nba-text:#1d2327;
-	--nba-radius:8px;
-	--nba-shadow:0 2px 8px rgba(0,0,0,.08);
+/* Ensure box-sizing is applied everywhere */
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Legacy variable aliases (backward compatibility)
+|--------------------------------------------------------------------------
+*/
+
+:root {
+	--nba-primary:        #2563eb;
+	--nba-primary-hover:  #1d4ed8;
+	--nba-success:        #10b981;
+	--nba-warning:        #f59e0b;
+	--nba-danger:         #ef4444;
+	--nba-border:         #e5e7eb;
+	--nba-bg:             #f3f4f6;
+	--nba-text:           #1a1a1a;
+	--nba-radius:         8px;
+	--nba-shadow:         0 1px 3px rgba(0, 0, 0, 0.10), 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+/*
+|--------------------------------------------------------------------------
+| Shared: card
+|--------------------------------------------------------------------------
+*/
+
+.nba-card {
+	background: #fff;
+	border: 1px solid var(--nba-border);
+	border-radius: var(--nba-radius);
+	box-shadow: var(--nba-shadow);
+}
+
+/*
+|--------------------------------------------------------------------------
+| Shared: flex helpers
+|--------------------------------------------------------------------------
+*/
+
+.nba-flex         { display: flex; }
+.nba-flex-between { display: flex; justify-content: space-between; align-items: center; }
+.nba-flex-center  { display: flex; align-items: center; justify-content: center; }
+.nba-flex-column  { display: flex; flex-direction: column; }
+.nba-flex-wrap    { flex-wrap: wrap; }
+.nba-align-center { align-items: center; }
+.nba-justify-center { justify-content: center; }
+.nba-gap-10 { gap: 10px; }
+.nba-gap-20 { gap: 20px; }
+.nba-gap-30 { gap: 30px; }
+
+/*
+|--------------------------------------------------------------------------
+| Shared: grid helpers
+|--------------------------------------------------------------------------
+*/
+
+.nba-grid   { display: grid; gap: 20px; }
+.nba-grid-2 { grid-template-columns: repeat(2, 1fr); }
+.nba-grid-3 { grid-template-columns: repeat(3, 1fr); }
+.nba-grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+/*
+|--------------------------------------------------------------------------
+| Shared: button (legacy .nba-button)
+|--------------------------------------------------------------------------
+*/
+
+.nba-button {
+	display: inline-block;
+	padding: 10px 18px;
+	border-radius: var(--nba-radius);
+	background: var(--nba-primary);
+	color: #fff;
+	text-decoration: none;
+	cursor: pointer;
+	border: none;
+	font-weight: 600;
+	transition: background-color 0.15s ease-in-out;
+}
+
+.nba-button:hover {
+	background: var(--nba-primary-hover);
+	color: #fff;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Shared: badges
+|--------------------------------------------------------------------------
+*/
+
+.nba-badge {
+	display: inline-flex;
+	align-items: center;
+	padding: 4px 8px;
+	border-radius: 4px;
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 1;
+	white-space: nowrap;
+}
+
+.nba-badge-success  { background: #d1fae5; color: #065f46; }
+.nba-badge-warning  { background: #fef3c7; color: #92400e; }
+.nba-badge-danger   { background: #fee2e2; color: #991b1b; }
+.nba-badge-info     { background: #eff6ff; color: #1e40af; }
+
+/*
+|--------------------------------------------------------------------------
+| Shared: table
+|--------------------------------------------------------------------------
+*/
+
+.nba-table-responsive,
+.nba-table-wrap {
+	width: 100%;
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
+}
+
+.nba-table {
+	width: 100%;
+	border-collapse: collapse;
+}
+
+.nba-table th,
+.nba-table td {
+	padding: 12px 16px;
+	border-bottom: 1px solid var(--nba-border);
+	text-align: left;
+}
+
+.nba-table th {
+	background: #f9fafb;
+	font-weight: 600;
+	color: #4b5563;
+	font-size: 12px;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+.nba-table tbody tr:hover {
+	background: #f9fafb;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Shared: loading spinner
+|--------------------------------------------------------------------------
+*/
+
+.nba-loading {
+	position: relative;
+	pointer-events: none;
+	opacity: 0.65;
+}
+
+.nba-loading::after {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 20px;
+	height: 20px;
+	margin: -10px 0 0 -10px;
+	border: 2px solid #e5e7eb;
+	border-top-color: var(--nba-primary);
+	border-radius: 50%;
+	animation: nba-spin 0.8s linear infinite;
+}
+
+@keyframes nba-spin {
+	from { transform: rotate(0deg); }
+	to   { transform: rotate(360deg); }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Shared: empty state
+|--------------------------------------------------------------------------
+*/
+
+.nba-empty {
+	padding: 48px 20px;
+	text-align: center;
+	border: 2px dashed var(--nba-border);
+	border-radius: var(--nba-radius);
+	background: #fff;
+	color: #666;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Shared: form helpers
+|--------------------------------------------------------------------------
+*/
+
+.nba-required  { color: #ef4444; }
+
+.nba-help-text {
+	display: block;
+	margin-top: 4px;
+	font-size: 12px;
+	color: #6b7280;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Shared: card header/footer
+|--------------------------------------------------------------------------
+*/
+
+.nba-card-header {
+	margin-bottom: 16px;
+	padding-bottom: 12px;
+	border-bottom: 1px solid var(--nba-border);
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+
+.nba-card-footer {
+	margin-top: 16px;
+	padding-top: 16px;
+	border-top: 1px solid var(--nba-border);
+}
+
+/*
+|--------------------------------------------------------------------------
+| Shared: visibility
+|--------------------------------------------------------------------------
+*/
+
+.nba-hidden { display: none !important; }
+
+/*
+|--------------------------------------------------------------------------
+| Shared: spacing utilities
+|--------------------------------------------------------------------------
+*/
+
+.nba-mt-0  { margin-top: 0; }
+.nba-mt-10 { margin-top: 10px; }
+.nba-mt-20 { margin-top: 20px; }
+.nba-mt-30 { margin-top: 30px; }
+.nba-mt-40 { margin-top: 40px; }
+.nba-mb-0  { margin-bottom: 0; }
+.nba-mb-10 { margin-bottom: 10px; }
+.nba-mb-20 { margin-bottom: 20px; }
+.nba-mb-30 { margin-bottom: 30px; }
+.nba-mb-40 { margin-bottom: 40px; }
+.nba-ml-10 { margin-left: 10px; }
+.nba-ml-20 { margin-left: 20px; }
+.nba-mr-10 { margin-right: 10px; }
+.nba-mr-20 { margin-right: 20px; }
+.nba-p-10  { padding: 10px; }
+.nba-p-20  { padding: 20px; }
+.nba-p-30  { padding: 30px; }
+.nba-p-40  { padding: 40px; }
+.nba-px-20 { padding-left: 20px; padding-right: 20px; }
+.nba-py-20 { padding-top: 20px; padding-bottom: 20px; }
+
+/*
+|--------------------------------------------------------------------------
+| Shared: width utilities
+|--------------------------------------------------------------------------
+*/
+
+.nba-w-100   { width: 100%; }
+.nba-max-600 { max-width: 600px; }
+.nba-max-900 { max-width: 900px; }
+.nba-max-1200 {
+	max-width: 1200px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Shared: text utilities
+|--------------------------------------------------------------------------
+*/
+
+.nba-text-left   { text-align: left; }
+.nba-text-center { text-align: center; }
+.nba-text-right  { text-align: right; }
+
+/*
+|--------------------------------------------------------------------------
+| Shared: progress bar
+|--------------------------------------------------------------------------
+*/
+
+.nba-progress-wrap {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-bottom: 12px;
+}
+
+.nba-progress-bar {
+	flex: 1;
+	height: 8px;
+	background: #e5e7eb;
+	border-radius: 9999px;
+	overflow: hidden;
+}
+
+.nba-progress-fill {
+	height: 100%;
+	background: var(--nba-primary);
+	border-radius: 9999px;
+	transition: width 0.4s ease;
+}
+
+.nba-progress-label {
+	font-size: 13px;
+	font-weight: 600;
+	min-width: 36px;
+	text-align: right;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Responsive
+|--------------------------------------------------------------------------
+*/
+
+@media (max-width: 768px) {
+
+	.nba-grid-2,
+	.nba-grid-3,
+	.nba-grid-4 {
+		grid-template-columns: 1fr;
+	}
+
+	.nba-flex-between {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.nba-flex {
+		flex-direction: column;
+	}
+
+	.nba-gap-20,
+	.nba-gap-30 {
+		gap: 15px;
+	}
+
 }
 
 *,

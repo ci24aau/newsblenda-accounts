@@ -1,11 +1,340 @@
 /**
  * Newsblenda Accounts Profile Styles
+ * Requires design-system.css and components.css
  */
 
-.nba-profile-page{
-	max-width:900px;
-	margin:30px auto;
+/*
+|--------------------------------------------------------------------------
+| Page Container
+|--------------------------------------------------------------------------
+*/
+
+.nba-profile-page {
+	max-width: 900px;
+	margin: var(--nba-space-xl) auto;
+	padding: 0 var(--nba-space-md) var(--nba-space-xl);
 }
+
+/*
+|--------------------------------------------------------------------------
+| Page Header
+|--------------------------------------------------------------------------
+*/
+
+.nba-profile-header {
+	margin-bottom: var(--nba-space-lg);
+}
+
+.nba-profile-header h1 {
+	margin: 0 0 var(--nba-space-sm);
+	font-size: clamp(1.375rem, 3vw, var(--nba-font-size-h3));
+	font-weight: var(--nba-font-weight-bold);
+	color: var(--nba-text);
+	line-height: var(--nba-line-height-heading);
+	letter-spacing: var(--nba-letter-spacing-heading);
+}
+
+.nba-profile-header p {
+	margin: 0;
+	color: var(--nba-text-muted);
+	font-size: var(--nba-font-size-small);
+}
+
+/*
+|--------------------------------------------------------------------------
+| Profile Grid (Sidebar + Content)
+|--------------------------------------------------------------------------
+*/
+
+.nba-profile-grid {
+	display: grid;
+	grid-template-columns: 260px 1fr;
+	gap: var(--nba-space-lg);
+	align-items: start;
+}
+
+.nba-profile-sidebar {
+	background: var(--nba-white);
+	border: 1px solid var(--nba-border);
+	border-radius: var(--nba-radius-md);
+	padding: var(--nba-space-lg);
+	text-align: center;
+	box-shadow: var(--nba-shadow-subtle);
+	position: sticky;
+	top: var(--nba-space-lg);
+}
+
+.nba-profile-content {
+	min-width: 0;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Profile Form Card
+|--------------------------------------------------------------------------
+*/
+
+.nba-profile-form {
+	background: var(--nba-white);
+	border: 1px solid var(--nba-border);
+	border-radius: var(--nba-radius-md);
+	padding: var(--nba-space-xl);
+	box-sizing: border-box;
+	box-shadow: var(--nba-shadow-subtle);
+}
+
+.nba-profile-form hr {
+	margin: var(--nba-space-xl) 0;
+	border: 0;
+	border-top: 1px solid var(--nba-border);
+}
+
+.nba-profile-form h2 {
+	margin: 0 0 var(--nba-space-md);
+	font-size: var(--nba-font-size-h4);
+	font-weight: var(--nba-font-weight-bold);
+	color: var(--nba-text);
+	letter-spacing: var(--nba-letter-spacing-heading);
+}
+
+/*
+|--------------------------------------------------------------------------
+| Profile Sections
+|--------------------------------------------------------------------------
+*/
+
+.nba-profile-section {
+	margin-bottom: var(--nba-space-xl);
+}
+
+.nba-profile-section:last-child { margin-bottom: 0; }
+
+.nba-profile-section h3 {
+	margin: 0 0 var(--nba-space-md);
+	padding-bottom: var(--nba-space-sm);
+	border-bottom: 1px solid var(--nba-border);
+	font-size: var(--nba-font-size-h4);
+	font-weight: var(--nba-font-weight-bold);
+	color: var(--nba-text);
+}
+
+/*
+|--------------------------------------------------------------------------
+| Form Groups
+|--------------------------------------------------------------------------
+*/
+
+.nba-form-group {
+	margin-bottom: 20px;
+}
+
+.nba-form-group label {
+	display: block;
+	margin-bottom: var(--nba-space-sm);
+	font-weight: var(--nba-font-weight-semibold);
+	font-size: var(--nba-font-size-small);
+	color: var(--nba-text);
+}
+
+.nba-form-group input,
+.nba-form-group textarea,
+.nba-form-group select {
+	width: 100%;
+	height: 40px;
+	padding: 10px 12px;
+	border: 1px solid var(--nba-neutral-200);
+	border-radius: var(--nba-radius-md);
+	box-sizing: border-box;
+	font-size: var(--nba-font-size-body);
+	font-family: var(--nba-font-family);
+	background: var(--nba-white);
+	color: var(--nba-text);
+	transition:
+		border-color var(--nba-transition-fast),
+		box-shadow   var(--nba-transition-fast);
+}
+
+.nba-form-group textarea {
+	height: auto;
+	min-height: 120px;
+	resize: vertical;
+}
+
+.nba-form-group input:focus,
+.nba-form-group textarea:focus,
+.nba-form-group select:focus {
+	outline: none;
+	border-color: var(--nba-primary);
+	box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.nba-form-group input[readonly],
+.nba-form-group input:disabled,
+.nba-form-group textarea:disabled,
+.nba-form-group select:disabled {
+	background: var(--nba-neutral-50);
+	color: var(--nba-text-disabled);
+	cursor: not-allowed;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Form Row (2 columns)
+|--------------------------------------------------------------------------
+*/
+
+.nba-form-row {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: var(--nba-space-md);
+}
+
+/*
+|--------------------------------------------------------------------------
+| Avatar
+|--------------------------------------------------------------------------
+*/
+
+.nba-avatar-wrapper {
+	text-align: center;
+	margin-bottom: var(--nba-space-lg);
+}
+
+.nba-avatar-preview {
+	width: 100px;
+	height: 100px;
+	border-radius: var(--nba-radius-full);
+	object-fit: cover;
+	border: 3px solid var(--nba-border);
+	display: block;
+	margin: 0 auto var(--nba-space-md);
+}
+
+.nba-avatar-actions {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: var(--nba-space-sm);
+}
+
+/*
+|--------------------------------------------------------------------------
+| Validation
+|--------------------------------------------------------------------------
+*/
+
+.nba-invalid {
+	border-color: var(--nba-error) !important;
+	box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12) !important;
+}
+
+.nba-valid {
+	border-color: var(--nba-success) !important;
+	box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.12) !important;
+}
+
+.nba-field-help {
+	display: block;
+	margin-top: var(--nba-space-xs);
+	font-size: var(--nba-font-size-caption);
+	color: var(--nba-text-muted);
+}
+
+/*
+|--------------------------------------------------------------------------
+| Profile Notices
+|--------------------------------------------------------------------------
+*/
+
+.nba-profile-success {
+	padding: var(--nba-space-md);
+	background: var(--nba-success-light);
+	border: 1px solid rgba(16, 185, 129, 0.3);
+	border-radius: var(--nba-radius-md);
+	color: var(--nba-success-dark);
+	margin-bottom: var(--nba-space-lg);
+	font-size: var(--nba-font-size-small);
+}
+
+.nba-profile-error {
+	padding: var(--nba-space-md);
+	background: var(--nba-error-light);
+	border: 1px solid rgba(239, 68, 68, 0.3);
+	border-radius: var(--nba-radius-md);
+	color: var(--nba-error-dark);
+	margin-bottom: var(--nba-space-lg);
+	font-size: var(--nba-font-size-small);
+}
+
+/*
+|--------------------------------------------------------------------------
+| Profile Actions
+|--------------------------------------------------------------------------
+*/
+
+.nba-profile-actions {
+	display: flex;
+	gap: var(--nba-space-sm);
+	margin-top: var(--nba-space-lg);
+	flex-wrap: wrap;
+}
+
+.nba-profile-actions .button,
+.nba-profile-actions .nba-btn {
+	min-width: 160px;
+}
+
+.nba-profile-form .button {
+	min-width: 160px;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Responsive
+|--------------------------------------------------------------------------
+*/
+
+@media (max-width: 768px) {
+
+	.nba-profile-page {
+		margin: var(--nba-space-md) auto;
+	}
+
+	.nba-profile-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.nba-profile-sidebar {
+		position: static;
+	}
+
+	.nba-form-row {
+		grid-template-columns: 1fr;
+	}
+
+	.nba-avatar-actions {
+		flex-direction: column;
+	}
+
+	.nba-profile-actions {
+		flex-direction: column;
+	}
+
+	.nba-profile-actions .button,
+	.nba-profile-actions .nba-btn {
+		width: 100%;
+	}
+
+	.nba-profile-form {
+		padding: var(--nba-space-md);
+	}
+
+	.nba-profile-form .button {
+		width: 100%;
+	}
+
+}
+
 
 .nba-profile-header{
 	margin-bottom:30px;

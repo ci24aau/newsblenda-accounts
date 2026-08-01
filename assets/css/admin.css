@@ -1,11 +1,600 @@
 /**
  * Newsblenda Accounts Admin Styles
+ * Requires design-system.css (loaded via wp_enqueue_style dependency)
  */
 
-.nba-admin-wrap{
-	max-width:1200px;
-	margin:20px 0;
+/*
+|--------------------------------------------------------------------------
+| Admin Wrapper
+|--------------------------------------------------------------------------
+*/
+
+.nba-admin-wrap {
+	max-width: 1100px;
+	margin: 20px 0;
 }
+
+/*
+|--------------------------------------------------------------------------
+| Admin Cards
+|--------------------------------------------------------------------------
+*/
+
+.nba-admin-card {
+	background: var(--nba-white);
+	border: 1px solid #dcdcde;
+	border-radius: var(--nba-radius-md);
+	padding: 24px;
+	margin-bottom: 24px;
+	box-shadow: var(--nba-shadow-subtle);
+}
+
+.nba-admin-card h2 {
+	margin: 0 0 20px;
+	font-size: var(--nba-font-size-h4);
+	font-weight: var(--nba-font-weight-bold);
+	line-height: var(--nba-line-height-heading);
+	color: #1d2327;
+}
+
+.nba-admin-card p.description {
+	color: #646970;
+	margin-bottom: 20px;
+	font-size: var(--nba-font-size-small);
+}
+
+.nba-admin-card-footer {
+	margin-top: 20px;
+	padding-top: 20px;
+	border-top: 1px solid #dcdcde;
+	display: flex;
+	justify-content: flex-end;
+	gap: var(--nba-space-sm);
+	flex-wrap: wrap;
+}
+
+.nba-admin-card-footer .button {
+	min-width: 140px;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Admin Grid
+|--------------------------------------------------------------------------
+*/
+
+.nba-admin-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+	gap: 20px;
+	margin-bottom: 24px;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Admin Stats
+|--------------------------------------------------------------------------
+*/
+
+.nba-admin-stat {
+	background: #f6f7f7;
+	border: 1px solid #dcdcde;
+	border-radius: var(--nba-radius-sm);
+	padding: 18px;
+}
+
+.nba-admin-stat h3 {
+	margin: 0 0 10px;
+	font-size: var(--nba-font-size-caption);
+	font-weight: var(--nba-font-weight-semibold);
+	color: #50575e;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+.nba-admin-stat-number {
+	font-size: 1.75rem;
+	font-weight: var(--nba-font-weight-bold);
+	color: #1d2327;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Admin Table
+|--------------------------------------------------------------------------
+*/
+
+.nba-admin-table {
+	width: 100%;
+	border-collapse: collapse;
+	background: var(--nba-white);
+	font-size: var(--nba-font-size-small);
+}
+
+.nba-admin-table th,
+.nba-admin-table td {
+	padding: 12px var(--nba-space-md);
+	text-align: left;
+	border-bottom: 1px solid #dcdcde;
+}
+
+.nba-admin-table th {
+	background: #f6f7f7;
+	font-weight: var(--nba-font-weight-semibold);
+	font-size: var(--nba-font-size-caption);
+	color: #50575e;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+.nba-admin-table tbody tr:hover {
+	background: #f9f9f9;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Admin Form
+|--------------------------------------------------------------------------
+*/
+
+.nba-admin-form .form-table {
+	margin-top: 20px;
+}
+
+.nba-admin-form input[type="text"],
+.nba-admin-form input[type="email"],
+.nba-admin-form input[type="number"],
+.nba-admin-form input[type="url"],
+.nba-admin-form textarea,
+.nba-admin-form select {
+	width: 100%;
+	max-width: 500px;
+}
+
+.nba-admin-actions {
+	margin-top: 24px;
+	display: flex;
+	gap: var(--nba-space-sm);
+	flex-wrap: wrap;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Badges (Admin)
+|--------------------------------------------------------------------------
+*/
+
+.nba-badge {
+	display: inline-flex;
+	align-items: center;
+	padding: 4px 8px;
+	border-radius: var(--nba-radius-sm);
+	font-size: var(--nba-font-size-caption);
+	font-weight: var(--nba-font-weight-semibold);
+	line-height: 1;
+	white-space: nowrap;
+}
+
+.nba-badge-pill {
+	border-radius: var(--nba-radius-full);
+	padding: 3px 10px;
+}
+
+.nba-badge-success  { background: var(--nba-success-light);  color: var(--nba-success-dark); }
+.nba-badge-warning  { background: var(--nba-warning-light);  color: var(--nba-warning-dark); }
+.nba-badge-danger   { background: var(--nba-error-light);    color: var(--nba-error-dark); }
+.nba-badge-info     { background: var(--nba-info-light);     color: var(--nba-info-dark); }
+.nba-badge-primary  { background: var(--nba-primary-light);  color: var(--nba-primary-dark); }
+.nba-badge-neutral  { background: var(--nba-neutral-100);    color: var(--nba-neutral-700); }
+
+/* Small variant */
+.nba-badge-sm {
+	padding: 2px 6px;
+	font-size: 10px;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Settings Page Layout
+|--------------------------------------------------------------------------
+*/
+
+.nba-settings-wrap {
+	max-width: 1100px;
+	margin: 20px 0;
+}
+
+.nba-settings-header {
+	margin-bottom: 24px;
+	padding-bottom: 16px;
+	border-bottom: 1px solid #dcdcde;
+}
+
+.nba-settings-title {
+	margin: 0 0 6px;
+	font-size: var(--nba-font-size-h4);
+	font-weight: var(--nba-font-weight-bold);
+	display: flex;
+	align-items: center;
+	gap: var(--nba-space-sm);
+	color: #1d2327;
+}
+
+.nba-settings-title .dashicons {
+	font-size: 22px;
+	color: #2271b1;
+}
+
+.nba-settings-subtitle {
+	margin: 0;
+	color: #646970;
+	font-size: var(--nba-font-size-small);
+}
+
+.nba-settings-layout {
+	display: flex;
+	gap: 0;
+	align-items: flex-start;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Settings Tab Navigation
+|--------------------------------------------------------------------------
+*/
+
+.nba-settings-tabs {
+	flex: 0 0 180px;
+	min-width: 180px;
+	margin: 0 20px 0 0;
+	padding: 0;
+	list-style: none;
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
+	position: sticky;
+	top: 60px;
+}
+
+.nba-settings-tab {
+	display: block;
+	padding: 10px 14px;
+	background: transparent;
+	border: 1px solid transparent;
+	border-radius: var(--nba-radius-sm);
+	color: #1d2327;
+	text-decoration: none;
+	font-size: var(--nba-font-size-small);
+	font-weight: var(--nba-font-weight-medium);
+	transition:
+		background var(--nba-transition-fast),
+		color var(--nba-transition-fast),
+		border-color var(--nba-transition-fast);
+	white-space: nowrap;
+	min-height: 44px;
+	display: flex;
+	align-items: center;
+}
+
+.nba-settings-tab:hover {
+	background: #f0f0f1;
+	border-color: #c3c4c7;
+	color: #1d2327;
+}
+
+.nba-settings-tab.active {
+	background: #2271b1;
+	border-color: #2271b1;
+	color: #fff;
+	font-weight: var(--nba-font-weight-semibold);
+}
+
+/*
+|--------------------------------------------------------------------------
+| Settings Content Area
+|--------------------------------------------------------------------------
+*/
+
+.nba-settings-content {
+	flex: 1;
+	min-width: 0;
+}
+
+.nba-settings-panel {
+	display: none;
+}
+
+.nba-settings-panel.active {
+	display: block;
+}
+
+.nba-settings-form .form-table th {
+	width: 240px;
+	vertical-align: top;
+	padding-top: 12px;
+}
+
+.nba-settings-form .form-table td {
+	vertical-align: top;
+}
+
+.nba-settings-form .form-table td .description {
+	margin-top: 6px;
+	color: #646970;
+	font-size: var(--nba-font-size-caption);
+	line-height: 1.5;
+}
+
+.nba-settings-form h2 {
+	margin: 24px 0 8px;
+	font-size: var(--nba-font-size-small);
+	font-weight: var(--nba-font-weight-semibold);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: #50575e;
+	padding-bottom: 6px;
+	border-bottom: 1px solid #f0f0f1;
+}
+
+.nba-settings-footer {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-top: 28px;
+	padding-top: 20px;
+	border-top: 1px solid #dcdcde;
+}
+
+.nba-save-notice {
+	margin-bottom: 20px;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Info / Summary Cards
+|--------------------------------------------------------------------------
+*/
+
+.nba-info-card {
+	background: #f6f7f7;
+	border: 1px solid #dcdcde;
+	border-radius: var(--nba-radius-md);
+	padding: 18px 20px;
+	margin-bottom: 24px;
+}
+
+.nba-info-card-title {
+	margin: 0 0 14px;
+	font-size: var(--nba-font-size-caption);
+	font-weight: var(--nba-font-weight-bold);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: #1d2327;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.nba-info-card-title .dashicons {
+	font-size: 16px;
+	color: #2271b1;
+}
+
+.nba-info-card table.widefat {
+	background: var(--nba-white);
+	border-radius: var(--nba-radius-sm);
+	border: 1px solid #dcdcde;
+}
+
+.nba-info-card table.widefat th {
+	width: 200px;
+	font-weight: var(--nba-font-weight-semibold);
+	font-size: var(--nba-font-size-small);
+}
+
+.nba-info-card table.widefat td {
+	font-size: var(--nba-font-size-small);
+}
+
+/*
+|--------------------------------------------------------------------------
+| Earnings Summary Grid
+|--------------------------------------------------------------------------
+*/
+
+.nba-summary-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+	gap: 14px;
+}
+
+.nba-summary-stat {
+	background: var(--nba-white);
+	border: 1px solid #dcdcde;
+	border-radius: var(--nba-radius-sm);
+	padding: 14px 16px;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.nba-summary-label {
+	font-size: 11px;
+	font-weight: var(--nba-font-weight-semibold);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: #50575e;
+}
+
+.nba-summary-value {
+	font-size: var(--nba-font-size-h5);
+	font-weight: var(--nba-font-weight-bold);
+	color: #1d2327;
+}
+
+/*
+|--------------------------------------------------------------------------
+| SMTP / Test Email
+|--------------------------------------------------------------------------
+*/
+
+.nba-smtp-test-row {
+	display: flex;
+	align-items: center;
+	gap: var(--nba-space-sm);
+	margin-top: var(--nba-space-md);
+	padding-top: var(--nba-space-md);
+	border-top: 1px solid #f0f0f1;
+}
+
+#nba-smtp-test-result {
+	font-size: var(--nba-font-size-small);
+	font-weight: var(--nba-font-weight-semibold);
+}
+
+.nba-send-test-email {
+	margin-left: var(--nba-space-sm);
+}
+
+.nba-test-email-result {
+	font-size: var(--nba-font-size-caption);
+	font-weight: var(--nba-font-weight-semibold);
+}
+
+/*
+|--------------------------------------------------------------------------
+| Password field
+|--------------------------------------------------------------------------
+*/
+
+input[type="password"].regular-text {
+	font-family: monospace;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Notices
+|--------------------------------------------------------------------------
+*/
+
+.nba-notice {
+	padding: 14px 18px;
+	margin-bottom: 20px;
+	border-left: 4px solid #2271b1;
+	background: var(--nba-white);
+	box-shadow: var(--nba-shadow-subtle);
+	font-size: var(--nba-font-size-small);
+}
+
+.nba-notice-success { border-color: #46b450; }
+.nba-notice-warning { border-color: #dba617; }
+.nba-notice-error   { border-color: #d63638; }
+.nba-notice-info    { border-color: #2271b1; }
+
+/*
+|--------------------------------------------------------------------------
+| Loading
+|--------------------------------------------------------------------------
+*/
+
+.nba-loading {
+	position: relative;
+	pointer-events: none;
+	opacity: 0.7;
+}
+
+.nba-loading::after {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 18px;
+	height: 18px;
+	margin: -9px 0 0 -9px;
+	border: 2px solid #dcdcde;
+	border-top-color: #2271b1;
+	border-radius: var(--nba-radius-full);
+	animation: nba-spin 0.8s linear infinite;
+}
+
+@keyframes nba-spin {
+	from { transform: rotate(0deg); }
+	to   { transform: rotate(360deg); }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Status Indicators
+|--------------------------------------------------------------------------
+*/
+
+.nba-status-active    { color: #46b450; font-weight: var(--nba-font-weight-semibold); }
+.nba-status-pending   { color: #dba617; font-weight: var(--nba-font-weight-semibold); }
+.nba-status-disabled  { color: #d63638; font-weight: var(--nba-font-weight-semibold); }
+
+/*
+|--------------------------------------------------------------------------
+| Responsive
+|--------------------------------------------------------------------------
+*/
+
+@media (max-width: 960px) {
+
+	.nba-settings-layout {
+		flex-direction: column;
+	}
+
+	.nba-settings-tabs {
+		flex-direction: row;
+		flex-wrap: wrap;
+		position: static;
+		min-width: 0;
+		flex: none;
+		margin: 0 0 20px;
+	}
+
+	.nba-settings-tab {
+		flex: 0 0 auto;
+		min-height: 40px;
+	}
+
+}
+
+@media (max-width: 782px) {
+
+	.nba-admin-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.nba-admin-actions {
+		flex-direction: column;
+	}
+
+	.nba-admin-actions .button {
+		width: 100%;
+		text-align: center;
+	}
+
+	.nba-admin-table {
+		display: block;
+		overflow-x: auto;
+		white-space: nowrap;
+	}
+
+}
+
+@media (max-width: 600px) {
+
+	.nba-settings-form .form-table th {
+		width: auto;
+	}
+
+	.nba-summary-grid {
+		grid-template-columns: 1fr;
+	}
+
+}
+
 
 .nba-admin-card{
 	background:#fff;
