@@ -1,11 +1,301 @@
 /**
  * Newsblenda Accounts Notifications Styles
+ * Requires design-system.css and components.css
  */
 
-.nba-notifications-page{
-	max-width:1000px;
-	margin:30px auto;
+/*
+|--------------------------------------------------------------------------
+| Page Container
+|--------------------------------------------------------------------------
+*/
+
+.nba-notifications-page {
+	max-width: 900px;
+	margin: var(--nba-space-xl) auto;
+	padding: 0 var(--nba-space-md) var(--nba-space-xl);
 }
+
+/*
+|--------------------------------------------------------------------------
+| Page Header
+|--------------------------------------------------------------------------
+*/
+
+.nba-page-header {
+	margin-bottom: var(--nba-space-lg);
+}
+
+.nba-page-header h1 {
+	margin: 0;
+	font-size: clamp(1.375rem, 3vw, var(--nba-font-size-h3));
+	font-weight: var(--nba-font-weight-bold);
+	color: var(--nba-text);
+	line-height: var(--nba-line-height-heading);
+	letter-spacing: var(--nba-letter-spacing-heading);
+}
+
+/*
+|--------------------------------------------------------------------------
+| Notifications Header
+|--------------------------------------------------------------------------
+*/
+
+.nba-notifications-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: var(--nba-space-lg);
+	gap: var(--nba-space-md);
+	flex-wrap: wrap;
+}
+
+.nba-notifications-actions {
+	display: flex;
+	gap: var(--nba-space-sm);
+	flex-wrap: wrap;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Notification Filters
+|--------------------------------------------------------------------------
+*/
+
+.nba-notification-filters {
+	display: flex;
+	gap: var(--nba-space-sm);
+	margin-bottom: var(--nba-space-md);
+	flex-wrap: wrap;
+}
+
+.nba-notification-filters input,
+.nba-notification-filters select {
+	height: 38px;
+	min-width: 160px;
+	padding: 8px 12px;
+	border: 1px solid var(--nba-border);
+	border-radius: var(--nba-radius-md);
+	font-size: var(--nba-font-size-small);
+	color: var(--nba-text);
+	background: var(--nba-white);
+	transition:
+		border-color var(--nba-transition-fast),
+		box-shadow   var(--nba-transition-fast);
+}
+
+.nba-notification-filters input:focus,
+.nba-notification-filters select:focus {
+	outline: none;
+	border-color: var(--nba-primary);
+	box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/*
+|--------------------------------------------------------------------------
+| Individual Notification Card
+|--------------------------------------------------------------------------
+*/
+
+.nba-notification {
+	padding: var(--nba-space-md);
+	border: 1px solid var(--nba-border);
+	border-radius: var(--nba-radius-md);
+	margin-bottom: var(--nba-space-sm);
+	background: var(--nba-white);
+	transition: box-shadow var(--nba-transition-fast);
+}
+
+.nba-notification:hover {
+	box-shadow: var(--nba-shadow-sm);
+}
+
+.nba-notification.nba-unread {
+	border-left: 4px solid var(--nba-primary);
+	background: var(--nba-primary-light);
+}
+
+.nba-notification.nba-unread .nba-notification-status::before {
+	background: var(--nba-primary);
+}
+
+.nba-notification.nba-read {
+	opacity: 0.85;
+}
+
+.nba-notification-message {
+	margin-bottom: var(--nba-space-sm);
+	line-height: var(--nba-line-height-body);
+	font-size: var(--nba-font-size-small);
+	color: var(--nba-text);
+}
+
+.nba-notification-date {
+	font-size: var(--nba-font-size-caption);
+	color: var(--nba-text-muted);
+}
+
+.nba-notification-actions {
+	margin-top: var(--nba-space-sm);
+}
+
+.nba-notification-actions a {
+	font-size: var(--nba-font-size-small);
+	color: var(--nba-primary);
+	text-decoration: none;
+	font-weight: var(--nba-font-weight-medium);
+}
+
+.nba-notification-actions a:hover { text-decoration: underline; }
+
+/*
+|--------------------------------------------------------------------------
+| Notification Status Indicator
+|--------------------------------------------------------------------------
+*/
+
+.nba-notification-status {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	font-size: var(--nba-font-size-caption);
+	font-weight: var(--nba-font-weight-semibold);
+	color: var(--nba-text-muted);
+}
+
+.nba-notification-status::before {
+	content: "";
+	width: 8px;
+	height: 8px;
+	border-radius: var(--nba-radius-full);
+	background: var(--nba-neutral-300);
+}
+
+.nba-notification.nba-read .nba-notification-status::before {
+	background: var(--nba-success);
+}
+
+/*
+|--------------------------------------------------------------------------
+| Priority Borders
+|--------------------------------------------------------------------------
+*/
+
+.nba-priority-high   { border-left: 4px solid var(--nba-error); }
+.nba-priority-medium { border-left: 4px solid var(--nba-warning); }
+.nba-priority-low    { border-left: 4px solid var(--nba-success); }
+
+/*
+|--------------------------------------------------------------------------
+| Notification Footer
+|--------------------------------------------------------------------------
+*/
+
+.nba-notification-footer {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: var(--nba-space-md);
+	margin-top: var(--nba-space-sm);
+	padding-top: var(--nba-space-sm);
+	border-top: 1px solid var(--nba-neutral-100);
+	flex-wrap: wrap;
+}
+
+.nba-notification-meta {
+	font-size: var(--nba-font-size-caption);
+	color: var(--nba-text-muted);
+}
+
+/*
+|--------------------------------------------------------------------------
+| Pagination
+|--------------------------------------------------------------------------
+*/
+
+.nba-pagination {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: var(--nba-space-xs);
+	margin-top: var(--nba-space-xl);
+	flex-wrap: wrap;
+}
+
+.nba-pagination a,
+.nba-pagination span {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 36px;
+	height: 36px;
+	border: 1px solid var(--nba-border);
+	border-radius: var(--nba-radius-sm);
+	text-decoration: none;
+	background: var(--nba-white);
+	color: var(--nba-neutral-600);
+	font-size: var(--nba-font-size-small);
+	font-weight: var(--nba-font-weight-medium);
+	transition:
+		background-color var(--nba-transition-fast),
+		border-color     var(--nba-transition-fast);
+}
+
+.nba-pagination a:hover {
+	background: var(--nba-neutral-50);
+	border-color: var(--nba-neutral-300);
+}
+
+.nba-pagination .current,
+.nba-pagination .current:hover {
+	background: var(--nba-primary);
+	color: var(--nba-white);
+	border-color: var(--nba-primary);
+}
+
+/*
+|--------------------------------------------------------------------------
+| Empty State
+|--------------------------------------------------------------------------
+*/
+
+.nba-empty-state {
+	padding: var(--nba-space-2xl) var(--nba-space-md);
+	text-align: center;
+	background: var(--nba-white);
+	border: 1px solid var(--nba-border);
+	border-radius: var(--nba-radius-md);
+	color: var(--nba-text-muted);
+}
+
+/*
+|--------------------------------------------------------------------------
+| Responsive
+|--------------------------------------------------------------------------
+*/
+
+@media (max-width: 640px) {
+
+	.nba-notifications-page {
+		margin: var(--nba-space-md) auto;
+	}
+
+	.nba-notifications-header,
+	.nba-notification-footer {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.nba-notifications-actions {
+		width: 100%;
+	}
+
+	.nba-notifications-actions .button,
+	.nba-notifications-actions .nba-btn {
+		flex: 1;
+	}
+
+}
+
 
 .nba-page-header{
 	margin-bottom:25px;

@@ -1,151 +1,248 @@
-:root {
-	--nba-bg: #f4f7fb;
-	--nba-surface: #ffffff;
-	--nba-surface-alt: #f8fafc;
-	--nba-border: #dce3ec;
-	--nba-text: #172033;
-	--nba-muted: #64748b;
-	--nba-primary: #2563eb;
-	--nba-primary-dark: #1d4ed8;
-	--nba-success: #0f766e;
-	--nba-error: #dc2626;
-	--nba-warning: #d97706;
-	--nba-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
-}
+/**
+ * Frontend page layout and base styles.
+ * Requires design-system.css and components.css.
+ */
 
-body { background: var(--nba-bg); color: var(--nba-text); }
+/*
+|--------------------------------------------------------------------------
+| Page Wrappers
+|--------------------------------------------------------------------------
+*/
 
 .nba-auth-wrapper,
 .nba-dashboard,
 .nba-profile-page,
+.nba-notifications-page,
 .nba-notifications,
-.nba-earnings-page {
-	max-width: 1100px;
-	margin: 32px auto;
-	padding: 0 20px 32px;
+.nba-earnings-page,
+.nba-submit-page {
+	max-width: var(--nba-container-max);
+	margin: var(--nba-space-xl) auto;
+	padding: 0 var(--nba-space-md) var(--nba-space-xl);
 }
 
-.nba-auth-card,
-.nba-card,
-.nba-dashboard-header,
-.nba-dashboard-actions,
-.nba-profile-form,
-.nba-notifications,
-.nba-earnings-page {
-	background: var(--nba-surface);
-	border: 1px solid var(--nba-border);
-	border-radius: 24px;
-	box-shadow: var(--nba-shadow);
+/*
+|--------------------------------------------------------------------------
+| Page Header
+|--------------------------------------------------------------------------
+*/
+
+.nba-page-header {
+	margin-bottom: var(--nba-space-lg);
 }
 
-.nba-auth-card { max-width: 650px; margin: 0 auto; padding: 36px; }
-.nba-auth-card h1,
-.nba-dashboard h1,
-.nba-profile-page h1,
-.nba-notifications h2 { font-size: clamp(1.5rem, 3vw, 2rem); margin: 0 0 16px; line-height: 1.25; }
+.nba-page-header h1 {
+	margin: 0 0 var(--nba-space-sm);
+	font-size: clamp(1.375rem, 3vw, var(--nba-font-size-h2));
+	font-weight: var(--nba-font-weight-bold);
+	color: var(--nba-text);
+	line-height: var(--nba-line-height-heading);
+	letter-spacing: var(--nba-letter-spacing-heading);
+}
 
-.nba-page-header h1 { font-size: clamp(1.5rem, 3vw, 2rem); margin: 0 0 16px; line-height: 1.25; }
+.nba-page-header p {
+	margin: 0;
+	color: var(--nba-text-muted);
+	font-size: var(--nba-font-size-small);
+}
 
-.nba-auth-card p,
-.nba-dashboard p,
-.nba-profile-page p,
-.nba-notifications p { color: var(--nba-muted); line-height: 1.6; }
+/*
+|--------------------------------------------------------------------------
+| Form Page Container (max-width 600px centered)
+|--------------------------------------------------------------------------
+*/
 
-.nba-dashboard-header,
-.nba-dashboard-actions,
-.nba-profile-form { padding: 24px; }
+.nba-form-page {
+	max-width: var(--nba-form-max-width);
+	margin: 0 auto;
+}
 
-.nba-dashboard-header { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 24px; }
+.nba-form-actions {
+	display: flex;
+	gap: var(--nba-space-sm);
+	align-items: center;
+	margin-top: var(--nba-space-md);
+	flex-wrap: wrap;
+}
 
-.nba-dashboard-grid,
-.nba-dashboard-columns,
-.nba-action-buttons { display: grid; gap: 16px; }
+.nba-form-response { margin-top: 12px; }
 
-.nba-dashboard-grid { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); margin-bottom: 24px; }
-.nba-dashboard-columns { grid-template-columns: 1.2fr 0.8fr; margin-bottom: 24px; }
-.nba-action-buttons { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
-
-.nba-card { padding: 22px; }
-.nba-dashboard-card { padding: 22px; border-radius: 20px; background: linear-gradient(135deg, var(--nba-surface-alt), var(--nba-surface)); border: 1px solid var(--nba-border); }
-.nba-card-number,
-.nba-dashboard-value { font-size: 1.8rem; font-weight: 700; color: var(--nba-primary); margin-top: 8px; }
-
-input, textarea, select { width: 100%; padding: 12px 14px; border: 1px solid var(--nba-border); border-radius: 14px; background: var(--nba-surface-alt); color: var(--nba-text); font-size: 1rem; box-sizing: border-box; transition: border-color .2s, box-shadow .2s, background-color .2s; }
-
-input:focus, textarea:focus, select:focus { outline: none; border-color: var(--nba-primary); box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12); background: var(--nba-surface); }
-
-label { display: block; margin: 0 0 8px; font-weight: 600; color: var(--nba-text); }
-
-button, .button, .button-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 16px; border-radius: 999px; border: 1px solid var(--nba-primary); background: var(--nba-primary); color: #fff; text-decoration: none; font-weight: 600; transition: transform .2s, box-shadow .2s, background-color .2s; }
-
-button:hover, .button:hover, .button-primary:hover { background: var(--nba-primary-dark); transform: translateY(-1px); box-shadow: 0 10px 24px rgba(37, 99, 235, 0.18); }
-
-.nba-form-group { margin-bottom: 18px; }
-.nba-form-actions { display: flex; justify-content: flex-end; margin-top: 20px; }
-
-.nba-message { padding: 14px 16px; border-radius: 16px; margin-bottom: 18px; border: 1px solid transparent; }
-.nba-message-success { background: rgba(15, 118, 110, 0.12); color: var(--nba-success); border-color: rgba(15, 118, 110, 0.2); }
-.nba-message-error { background: rgba(220, 38, 38, 0.1); color: var(--nba-error); border-color: rgba(220, 38, 38, 0.18); }
-.nba-message-info { background: rgba(37, 99, 235, 0.1); color: var(--nba-primary); border-color: rgba(37, 99, 235, 0.16); }
+/*
+|--------------------------------------------------------------------------
+| Error list
+|--------------------------------------------------------------------------
+*/
 
 .nba-error-list { margin: 0; padding-left: 20px; }
 .nba-error-list li { margin: 0 0 6px; }
 
-.nba-invalid { border-color: var(--nba-error) !important; box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12) !important; }
-.nba-field-error { display: block; margin-top: 6px; color: var(--nba-error); font-size: .9rem; }
+/*
+|--------------------------------------------------------------------------
+| Password Field with Toggle
+|--------------------------------------------------------------------------
+*/
 
-.nba-submit-button { position: relative; }
-.nba-submit-spinner { display: none; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.35); border-top-color: #fff; border-radius: 50%; animation: nba-spin .7s linear infinite; }
-.nba-loading .nba-submit-spinner { display: inline-block; }
-.nba-loading .nba-submit-button-label { opacity: .8; }
-.nba-submit-button:disabled { opacity: .75; cursor: not-allowed; }
-
-.nba-password-field { position: relative; display: block; }
-.nba-password-field input { padding-right: 44px; width: 100%; }
-.nba-password-toggle { position: absolute; right: 0; top: 0; bottom: 0; width: 44px; background: none; border: none; border-left: 1px solid var(--nba-border); border-radius: 0 14px 14px 0; cursor: pointer; color: var(--nba-muted); font-size: 16px; display: flex; align-items: center; justify-content: center; padding: 0; transition: color .2s; }
-.nba-password-toggle:hover { background: none; color: var(--nba-primary); transform: none; box-shadow: none; }
-.nba-password-match { display: block; margin-top: 6px; font-size: 0.9rem; font-weight: 600; }
-.nba-password-match.success { color: var(--nba-success); }
-.nba-password-match.error   { color: var(--nba-error); }
-
-.nba-resend-verification-card { margin-top: 20px; padding: 18px; border-radius: 16px; }
-.nba-resend-verification-form { display: grid; gap: 12px; }
-
-.nba-password-strength { margin-top: 6px; font-size: 0.92rem; font-weight: 600; }
-.nba-password-requirements { margin: 0 0 16px 18px; color: var(--nba-muted); }
-.nba-password-requirements li { margin-bottom: 4px; }
-.nba-password-strength.weak { color: var(--nba-error); }
-.nba-password-strength.medium { color: var(--nba-warning); }
-.nba-password-strength.strong, .nba-password-strength.very-strong { color: var(--nba-success); }
-.nba-honeypot { position: absolute !important; left: -9999px !important; width: 1px !important; height: 1px !important; opacity: 0 !important; }
-.nba-form-response { margin-top: 12px; }
-
-.nba-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
-.nba-table th, .nba-table td { padding: 12px; border-bottom: 1px solid var(--nba-border); text-align: left; }
-.nba-table th { background: var(--nba-surface-alt); font-weight: 700; }
-.nba-table tbody tr:hover { background: rgba(37, 99, 235, 0.04); }
-
-.nba-notification-item { padding: 12px 0; border-bottom: 1px solid var(--nba-border); }
-.nba-notification-item:last-child { border-bottom: 0; }
-
-.nba-loading { position: relative; opacity: .7; pointer-events: none; }
-.nba-loading::after { content: ""; position: absolute; inset: 50% auto auto 50%; width: 18px; height: 18px; margin: -9px 0 0 -9px; border: 2px solid rgba(37, 99, 235, 0.2); border-top-color: var(--nba-primary); border-radius: 50%; animation: nba-spin .8s linear infinite; }
-
-@keyframes nba-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-@media (max-width: 1024px) {
-	.nba-auth-card h1,
-	.nba-dashboard h1,
-	.nba-page-header h1 { font-size: 1.75rem; }
+.nba-password-field {
+	position: relative;
+	display: block;
 }
 
-@media (max-width: 768px) {
-	.nba-auth-wrapper, .nba-dashboard, .nba-profile-page, .nba-notifications, .nba-earnings-page { margin: 20px auto; padding: 0 14px 20px; }
-	.nba-auth-card, .nba-card, .nba-dashboard-header, .nba-dashboard-actions, .nba-profile-form { padding: 18px; border-radius: 18px; }
-	.nba-dashboard-header { flex-direction: column; align-items: flex-start; }
-	.nba-dashboard-columns { grid-template-columns: 1fr; }
-	.nba-action-buttons { grid-template-columns: 1fr; }
-	.nba-auth-card h1,
-	.nba-dashboard h1,
-	.nba-page-header h1 { font-size: 1.5rem; margin-bottom: 12px; }
+.nba-password-field input {
+	padding-right: 46px;
+}
+
+.nba-password-toggle {
+	position: absolute;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	width: 44px;
+	background: none;
+	border: none;
+	border-left: 1px solid var(--nba-border);
+	border-radius: 0 var(--nba-radius-md) var(--nba-radius-md) 0;
+	cursor: pointer;
+	color: var(--nba-text-muted);
+	font-size: 16px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+	transition: color var(--nba-transition-fast);
+}
+
+.nba-password-toggle:hover,
+.nba-password-toggle:focus-visible {
+	background: none;
+	color: var(--nba-primary);
+	transform: none;
+	box-shadow: none;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Password Strength Meter
+|--------------------------------------------------------------------------
+*/
+
+.nba-password-strength {
+	margin-top: 6px;
+	font-size: var(--nba-font-size-small);
+	font-weight: var(--nba-font-weight-semibold);
+}
+
+.nba-password-strength.weak      { color: var(--nba-error); }
+.nba-password-strength.medium    { color: var(--nba-warning); }
+.nba-password-strength.strong    { color: var(--nba-success); }
+.nba-password-strength.very-strong { color: var(--nba-success-dark); }
+
+.nba-password-match {
+	display: block;
+	margin-top: 6px;
+	font-size: var(--nba-font-size-small);
+	font-weight: var(--nba-font-weight-semibold);
+}
+
+.nba-password-match.success { color: var(--nba-success-dark); }
+.nba-password-match.error   { color: var(--nba-error); }
+
+.nba-password-requirements {
+	margin: 0 0 16px 18px;
+	color: var(--nba-text-muted);
+	font-size: var(--nba-font-size-small);
+}
+
+.nba-password-requirements li { margin-bottom: 4px; }
+
+/*
+|--------------------------------------------------------------------------
+| Submit Button with Spinner
+|--------------------------------------------------------------------------
+*/
+
+.nba-submit-button { position: relative; }
+
+.nba-submit-spinner {
+	display: none;
+	width: 15px;
+	height: 15px;
+	border: 2px solid rgba(255, 255, 255, 0.35);
+	border-top-color: #fff;
+	border-radius: var(--nba-radius-full);
+	animation: nba-spin 0.7s linear infinite;
+}
+
+.nba-loading .nba-submit-spinner { display: inline-block; }
+.nba-loading .nba-submit-button-label { opacity: 0.8; }
+.nba-submit-button:disabled { opacity: 0.75; cursor: not-allowed; }
+
+/*
+|--------------------------------------------------------------------------
+| Resend Verification Card
+|--------------------------------------------------------------------------
+*/
+
+.nba-resend-verification-card {
+	margin-top: var(--nba-space-md);
+	padding: var(--nba-space-md);
+	border-radius: var(--nba-radius-md);
+}
+
+.nba-resend-verification-form {
+	display: grid;
+	gap: 12px;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Honeypot (spam protection)
+|--------------------------------------------------------------------------
+*/
+
+.nba-honeypot {
+	position: absolute !important;
+	left: -9999px !important;
+	width: 1px !important;
+	height: 1px !important;
+	opacity: 0 !important;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Notification Item (inline)
+|--------------------------------------------------------------------------
+*/
+
+.nba-notification-item {
+	padding: 12px 0;
+	border-bottom: 1px solid var(--nba-border);
+}
+
+.nba-notification-item:last-child { border-bottom: 0; }
+
+/*
+|--------------------------------------------------------------------------
+| Responsive
+|--------------------------------------------------------------------------
+*/
+
+@media (max-width: 1024px) {
+	.nba-page-header h1 { font-size: 1.625rem; }
+}
+
+@media (max-width: 640px) {
+
+	.nba-auth-wrapper,
+	.nba-dashboard,
+	.nba-profile-page,
+	.nba-notifications-page,
+	.nba-notifications,
+	.nba-earnings-page,
+	.nba-submit-page {
+		margin: var(--nba-space-md) auto;
+		padding: 0 12px var(--nba-space-md);
+	}
+
+	.nba-page-header h1 { font-size: 1.375rem; margin-bottom: 10px; }
+
 }

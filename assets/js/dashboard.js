@@ -486,6 +486,8 @@
 			this.tableSearch();
 			this.loadingButtons();
 			this.sidebarToggle();
+			this.ensureToastContainer();
+			this.dismissAlerts();
 
 		},
 
@@ -648,6 +650,88 @@
 
 				}
 			);
+
+		},
+
+		/**
+		 * Ensure the toast container exists in the DOM.
+		 */
+		ensureToastContainer: function () {
+
+			if (!$('#nba-toast-container').length) {
+				$('body').append('<div id="nba-toast-container" class="nba-toast-container" role="region" aria-live="polite" aria-label="Notifications"></div>');
+			}
+
+		},
+
+		/**
+		 * Dismiss inline alerts with a close button.
+		 */
+		dismissAlerts: function () {
+
+			$(document).on('click', '.nba-alert-dismiss', function () {
+
+				$(this).closest('.nba-alert, .nba-notice').fadeOut(200, function () {
+					$(this).remove();
+				});
+
+			});
+
+		}
+
+	};
+
+	/*
+	|--------------------------------------------------------------------------
+	| Toast Notification API
+	| Usage: NBAToast.show('Message', 'success' | 'error' | 'warning' | 'info')
+	|--------------------------------------------------------------------------
+	*/
+
+	window.NBAToast = {
+
+		defaultDuration: 5000,
+
+		show: function (message, type, duration) {
+
+			type     = type     || 'info';
+			duration = duration || this.defaultDuration;
+
+			const container = $('#nba-toast-container');
+
+			if (!container.length) {
+				return;
+			}
+
+			const $toast = $(
+				'<div class="nba-toast nba-toast-' + type + '" role="alert">' +
+				'<span class="nba-toast-message">' + $('<span>').text(message).html() + '</span>' +
+				'<button type="button" class="nba-toast-close" aria-label="Dismiss">&times;</button>' +
+				'</div>'
+			);
+
+			container.append($toast);
+
+			// Auto-dismiss
+			let timer = setTimeout(function () {
+				NBAToast.dismiss($toast);
+			}, duration);
+
+			// Manual dismiss
+			$toast.on('click', '.nba-toast-close', function () {
+				clearTimeout(timer);
+				NBAToast.dismiss($toast);
+			});
+
+		},
+
+		dismiss: function ($toast) {
+
+			$toast.addClass('is-leaving');
+
+			setTimeout(function () {
+				$toast.remove();
+			}, 300);
 
 		}
 
