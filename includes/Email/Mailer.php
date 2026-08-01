@@ -270,6 +270,57 @@ class Mailer
     }
 
     /**
+     * Send revision requested email.
+     */
+    public static function send_revision_requested(
+        int $user_id,
+        string $title,
+        string $feedback = ''
+    ): bool {
+
+        $user = get_userdata($user_id);
+
+        if (! $user) {
+            return false;
+        }
+
+        return self::send(
+
+            $user->user_email,
+
+            __('Revision Requested for Your Article', 'newsblenda-accounts'),
+
+            '
+
+            <h2>' . esc_html__('Revision Requested', 'newsblenda-accounts') . '</h2>
+
+            <p>' . esc_html__('Your article requires revision before it can be published.', 'newsblenda-accounts') . '</p>
+
+            <p><strong>' . esc_html($title) . '</strong></p>
+
+            ' . (
+                $feedback !== ''
+                    ? '<p><strong>' . esc_html__('Editor Feedback:', 'newsblenda-accounts') . '</strong></p><p>' . esc_html($feedback) . '</p>'
+                    : ''
+            ) . '
+
+            <p>
+
+                <a href="' . esc_url(home_url('/dashboard/')) . '" style="display:inline-block;padding:12px 22px;background:#f59e0b;color:#fff;text-decoration:none;border-radius:5px;">
+
+                    ' . esc_html__('View Dashboard', 'newsblenda-accounts') . '
+
+                </a>
+
+            </p>
+
+            '
+
+        );
+
+    }
+
+    /**
      * Send article approved email.
      */
     public static function send_article_approved(

@@ -156,6 +156,14 @@ class Plugin
 
         /*
         |--------------------------------------------------------------------------
+        | Workflow
+        |--------------------------------------------------------------------------
+        */
+
+        new \Newsblenda\Accounts\Workflow\WorkflowManager();
+
+        /*
+        |--------------------------------------------------------------------------
         | Profile
         |--------------------------------------------------------------------------
         */
@@ -387,6 +395,8 @@ class Plugin
                 'nonce' => wp_create_nonce(
                     'nb_accounts'
                 ),
+                'editor_nonce' => wp_create_nonce('nb_editor_action'),
+                'author_nonce' => wp_create_nonce('nb_author_action'),
                 'logged_in' => is_user_logged_in(),
                 'i18n'      => [
                     'showPassword'     => __('Show password', 'newsblenda-accounts'),
@@ -397,6 +407,10 @@ class Plugin
                     'strengthVStrong'  => __('Very Strong', 'newsblenda-accounts'),
                     'passwordsMatch'   => __('Passwords match', 'newsblenda-accounts'),
                     'passwordsNoMatch' => __('Passwords do not match', 'newsblenda-accounts'),
+                    'confirmApprove'   => __('Approve this article?', 'newsblenda-accounts'),
+                    'confirmPublish'   => __('Publish this article now?', 'newsblenda-accounts'),
+                    'confirmResubmit'  => __('Resubmit this article for review?', 'newsblenda-accounts'),
+                    'confirmDelete'    => __('Permanently delete this draft? This cannot be undone.', 'newsblenda-accounts'),
                 ],
             ]
         );
