@@ -9,6 +9,11 @@ defined('ABSPATH') || exit;
 class Earnings
 {
     /**
+     * Cron batch size.
+     */
+    private const SYNC_BATCH_SIZE = 200;
+
+    /**
      * Constructor.
      */
     public function __construct()
@@ -109,9 +114,9 @@ class Earnings
      */
     public function sync(): void
     {
-        $page = 1;
+        $offset = 0;
 
-        do {
+        while (true) {
             $users = get_users(
                 [
                     'role__in' => [
@@ -119,17 +124,35 @@ class Earnings
                         'nb_author_restricted',
                     ],
                     'fields' => 'ID',
-                    'number' => 500,
-                    'paged'  => $page,
+                    'number' => self::SYNC_BATCH_SIZE,
+                    'offset' => $offset,
+                    'orderby' => 'ID',
+                    'order' => 'ASC',
                 ]
             );
 
-            foreach ($users as $user_id) {
-                $this->calculate((int) $user_id);
+            if (empty($users)) {
+                break;
             }
 
-            $page++;
-        } while (! empty($users));
+            foreach ($users as $user_id) {
+                try {
+                    $this->calculate((int) $user_id);
+                } catch (\Throwable $error) {
+                    do_action(
+                        'nb_accounts_earnings_sync_error',
+                        (int) $user_id,
+                        $error
+                    );
+                }
+            }
+
+            $offset += count($users);
+
+            if (count($users) < self::SYNC_BATCH_SIZE) {
+                break;
+            }
+        }
     }
 
     /**
