@@ -19,6 +19,11 @@ $cache_version = (string) get_option('nb_dashboard_cache_version', '1');
 $cache_key     = 'nb_dashboard_author_' . $user->ID . '_' . md5($cache_version);
 $cached_data   = get_transient($cache_key);
 
+\Newsblenda\Accounts\Dashboard\Dashboard::track_cache_event(
+	'author_dashboard',
+	$cached_data !== false
+);
+
 if ($cached_data === false) {
 	global $wpdb;
 
@@ -179,6 +184,35 @@ if ($cached_data === false) {
 		'notifications',
 		'unread_count'
 	);
+
+	$post_sets = array_merge(
+		$recent_posts,
+		$pending_posts,
+		$revision_posts,
+		$rejected_posts,
+		$draft_posts
+	);
+
+	$post_ids = array_values(array_unique(array_map(
+		static fn($post) => (int) $post->ID,
+		$post_sets
+	)));
+
+	if (! empty($post_ids)) {
+		update_meta_cache('post', $post_ids);
+		if (function_exists('update_post_author_caches')) {
+			update_post_author_caches($post_sets);
+		}
+	}
+
+	$author_ids = array_values(array_unique(array_map(
+		static fn($post) => (int) $post->post_author,
+		$post_sets
+	)));
+
+	if (! empty($author_ids)) {
+		cache_users($author_ids);
+	}
 
 	set_transient($cache_key, $cached_data, HOUR_IN_SECONDS);
 }
