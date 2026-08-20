@@ -9,6 +9,18 @@ defined('ABSPATH') || exit;
 class Dashboard
 {
     /**
+     * Buffered cache metric deltas.
+     *
+     * @var array<string, array{hits:int, misses:int}>
+     */
+    private static array $cache_metric_buffer = [];
+
+    /**
+     * Whether shutdown flush has been registered.
+     */
+    private static bool $cache_metric_flush_hooked = false;
+
+    /**
      * Constructor.
      */
     public function __construct()
@@ -163,7 +175,7 @@ class Dashboard
      * @param mixed $meta_value
      */
     public function invalidate_cache_on_user_meta_change(
-        int $meta_id,
+        $meta_id,
         int $user_id,
         string $meta_key,
         $meta_value
@@ -179,28 +191,68 @@ class Dashboard
         string $segment,
         bool $hit
     ): void {
+        $enabled = (bool) apply_filters(
+            'nb_accounts_enable_cache_metrics',
+            defined('WP_DEBUG') && WP_DEBUG
+        );
+
+        if (! $enabled) {
+            return;
+        }
+
+        if (! isset(self::$cache_metric_buffer[$segment])) {
+            self::$cache_metric_buffer[$segment] = [
+                'hits' => 0,
+                'misses' => 0,
+            ];
+        }
+
+        if ($hit) {
+            self::$cache_metric_buffer[$segment]['hits']++;
+        } else {
+            self::$cache_metric_buffer[$segment]['misses']++;
+        }
+
+        if (! self::$cache_metric_flush_hooked) {
+            add_action(
+                'shutdown',
+                [self::class, 'flush_cache_metrics'],
+                99
+            );
+            self::$cache_metric_flush_hooked = true;
+        }
+    }
+
+    /**
+     * Flush buffered cache metrics to persistent option storage.
+     */
+    public static function flush_cache_metrics(): void
+    {
+        if (empty(self::$cache_metric_buffer)) {
+            return;
+        }
+
         $metrics = get_option('nb_dashboard_cache_metrics', []);
         if (! is_array($metrics)) {
             $metrics = [];
         }
 
-        if (! isset($metrics[$segment]) || ! is_array($metrics[$segment])) {
-            $metrics[$segment] = [
-                'hits' => 0,
-                'misses' => 0,
-                'updated_at' => '',
-            ];
-        }
+        foreach (self::$cache_metric_buffer as $segment => $delta) {
+            if (! isset($metrics[$segment]) || ! is_array($metrics[$segment])) {
+                $metrics[$segment] = [
+                    'hits' => 0,
+                    'misses' => 0,
+                    'updated_at' => '',
+                ];
+            }
 
-        if ($hit) {
-            $metrics[$segment]['hits'] = (int) $metrics[$segment]['hits'] + 1;
-        } else {
-            $metrics[$segment]['misses'] = (int) $metrics[$segment]['misses'] + 1;
+            $metrics[$segment]['hits'] = (int) $metrics[$segment]['hits'] + (int) $delta['hits'];
+            $metrics[$segment]['misses'] = (int) $metrics[$segment]['misses'] + (int) $delta['misses'];
+            $metrics[$segment]['updated_at'] = current_time('mysql');
         }
-
-        $metrics[$segment]['updated_at'] = current_time('mysql');
 
         update_option('nb_dashboard_cache_metrics', $metrics, false);
+        self::$cache_metric_buffer = [];
     }
 
     /**

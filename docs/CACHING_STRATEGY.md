@@ -38,3 +38,4 @@
 ## Operational Notes
 - Keep TTLs short for admin operational summaries and longer for dashboard aggregates.
 - Use versioned keys where broad invalidation is needed without wildcard delete support.
+- Cache metrics collection is disabled by default in production and enabled when `WP_DEBUG` is true. To override this, use the `nb_accounts_enable_cache_metrics` filter.

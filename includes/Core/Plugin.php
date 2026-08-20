@@ -588,7 +588,7 @@ class Plugin
         }
 
         if ($hook === '') {
-            return true;
+            return false;
         }
 
         $screens = [
@@ -606,8 +606,8 @@ class Plugin
 
         return false;
     }
-    
-        /**
+
+    /**
      * Start the plugin.
      */
     public function run(): void

@@ -486,7 +486,7 @@ class Profile
      * @param mixed $meta_value
      */
     public function invalidate_profile_cache_from_meta(
-        int $meta_id,
+        $meta_id,
         int $user_id,
         string $meta_key,
         $meta_value

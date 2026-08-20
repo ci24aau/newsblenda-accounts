@@ -205,6 +205,15 @@ if ($cached_data === false) {
 		}
 	}
 
+	$author_ids = array_values(array_unique(array_map(
+		static fn($post) => (int) $post->post_author,
+		$post_sets
+	)));
+
+	if (! empty($author_ids)) {
+		cache_users($author_ids);
+	}
+
 	set_transient($cache_key, $cached_data, HOUR_IN_SECONDS);
 }
 
