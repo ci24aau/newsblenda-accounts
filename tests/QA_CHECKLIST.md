@@ -3,62 +3,65 @@
 ## Pre-Release Validation
 
 ### Authentication (Phase 1)
-- [ ] Registration flow complete
-- [ ] Email verification works
-- [ ] Login restrictions enforced
-- [ ] Password reset works
-- [ ] Rate limiting active
+- [ ] Registration flow completes successfully
+- [ ] Email verification token flow works
+- [ ] Login restrictions and lockout rules enforced
+- [ ] Password reset request and submit flows work
+- [ ] Verification/login/password rate limits active
 
-### Dashboards (Phase 3)
-- [ ] Author dashboard loads
-- [ ] Editor dashboard loads
-- [ ] Statistics accurate
-- [ ] Notifications display
-- [ ] Workflows function
+### Dashboards & Workflow (Phase 3)
+- [ ] Author dashboard loads and stats display correctly
+- [ ] Editor dashboard loads and queue actions work
+- [ ] Submission -> review -> approve/reject/revision workflow validated
+- [ ] Notification counters and latest notifications are accurate
 
 ### Admin Settings (Phase 4)
-- [ ] Settings save correctly
-- [ ] All tabs accessible
-- [ ] SMTP test works
-- [ ] Validation functions
+- [ ] All settings tabs render and save successfully
+- [ ] Field-level validation and error notices work
+- [ ] SMTP connection test and test email actions work
 
 ### UI/UX (Phase 5)
-- [ ] Professional appearance
-- [ ] Responsive on mobile
-- [ ] Responsive on tablet
-- [ ] Responsive on desktop
-- [ ] No oversized headings
+- [ ] Mobile layout verified (<640px)
+- [ ] Tablet layout verified (640px-1024px)
+- [ ] Desktop layout verified (>1024px)
+- [ ] Touch targets and focus states are usable
 
 ### Performance (Phase 6)
-- [ ] Lighthouse >90
-- [ ] Dashboard <2s load
-- [ ] No N+1 queries
-- [ ] Caching active
-- [ ] Assets optimized
+- [ ] Lighthouse Performance score > 90 on dashboard and profile
+- [ ] Dashboard page load < 2.0s baseline
+- [ ] Form pages load < 1.5s baseline
+- [ ] No N+1 query regressions (Query Monitor)
+- [ ] Cache hit/miss metrics observed in `nb_dashboard_cache_metrics`
+- [ ] Assets load only on required frontend/admin screens
+- [ ] Deferred scripts execute without console errors
+
+### Database Integrity
+- [ ] All required tables exist
+- [ ] Indexes exist on key filtered columns
+- [ ] Upgrade path and migrations execute without data loss
 
 ### Security
-- [ ] Nonces validated
-- [ ] Capabilities checked
-- [ ] Input sanitized
-- [ ] Output escaped
-- [ ] SQL prepared
+- [ ] Nonce validation on all state-changing requests
+- [ ] Capability checks protect admin/editor operations
+- [ ] Inputs sanitized and outputs escaped
+- [ ] SQL statements prepared where variables are included
+- [ ] CSRF/XSS/SQL injection spot checks passed
 
 ### Accessibility
-- [ ] Keyboard navigation
-- [ ] Screen reader compatible
-- [ ] Color contrast 4.5:1
-- [ ] Focus indicators visible
-- [ ] Labels properly associated
+- [ ] Keyboard navigation complete
+- [ ] Screen-reader labels and structure verified
+- [ ] Color contrast meets WCAG AA baseline
+- [ ] Focus indicators visible for interactive controls
 
 ### Cross-Browser
-- [ ] Chrome works
-- [ ] Firefox works
-- [ ] Safari works
-- [ ] Edge works
+- [ ] Chrome smoke test passed
+- [ ] Firefox smoke test passed
+- [ ] Safari smoke test passed
+- [ ] Edge smoke test passed
 
-### Final
-- [ ] No PHP errors
-- [ ] No console errors
-- [ ] No broken links
-- [ ] All features working
-- [ ] Documentation complete
+### Final Regression
+- [ ] No PHP errors/warnings in logs
+- [ ] No console JavaScript errors
+- [ ] Prior phase critical flows still working
+- [ ] Performance and caching documentation reviewed
+- [ ] Deployment checklist completed

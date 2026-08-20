@@ -405,6 +405,12 @@ class Plugin
             true
         );
 
+        wp_script_add_data(
+            'nb-accounts-frontend',
+            'defer',
+            true
+        );
+
         wp_localize_script(
             'nb-accounts-frontend',
             'NBAccounts',
@@ -528,8 +534,12 @@ class Plugin
     /**
      * Admin assets.
      */
-    public function admin_assets(): void
+    public function admin_assets(string $hook = ''): void
     {
+        if (! $this->should_load_admin_assets($hook)) {
+            return;
+        }
+
         wp_enqueue_style(
             'nb-accounts-design-system',
             NB_ACCOUNTS_URL . 'assets/css/design-system.css',
@@ -552,6 +562,12 @@ class Plugin
             true
         );
 
+        wp_script_add_data(
+            'nb-accounts-admin',
+            'defer',
+            true
+        );
+
         wp_localize_script(
             'nb-accounts-admin',
             'NBAccountsAdmin',
@@ -560,6 +576,35 @@ class Plugin
                 'nonce'    => wp_create_nonce('nb_accounts_admin'),
             ]
         );
+    }
+
+    /**
+     * Determine whether admin assets should be loaded on current screen.
+     */
+    private function should_load_admin_assets(string $hook): bool
+    {
+        if (! is_admin()) {
+            return false;
+        }
+
+        if ($hook === '') {
+            return true;
+        }
+
+        $screens = [
+            'newsblenda-accounts',
+            'nb-settings',
+            'nb-payouts',
+            'nb-reports',
+        ];
+
+        foreach ($screens as $screen) {
+            if (strpos($hook, $screen) !== false) {
+                return true;
+            }
+        }
+
+        return false;
     }
     
         /**

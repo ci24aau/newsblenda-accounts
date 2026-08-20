@@ -32,6 +32,32 @@ class Profile
             'init',
             [$this, 'save_profile']
         );
+
+        add_action(
+            'profile_update',
+            [$this, 'invalidate_profile_cache']
+        );
+
+        add_action(
+            'added_user_meta',
+            [$this, 'invalidate_profile_cache_from_meta'],
+            10,
+            4
+        );
+
+        add_action(
+            'updated_user_meta',
+            [$this, 'invalidate_profile_cache_from_meta'],
+            10,
+            4
+        );
+
+        add_action(
+            'deleted_user_meta',
+            [$this, 'invalidate_profile_cache_from_meta'],
+            10,
+            4
+        );
     }
 
     /**
@@ -204,6 +230,8 @@ class Profile
             $user_id
         );
 
+        $this->invalidate_profile_cache($user_id);
+
         wp_safe_redirect(
 
             add_query_arg(
@@ -258,6 +286,11 @@ class Profile
     public function completion(
         int $user_id
     ): int {
+        $cache_key = 'nb_profile_completion_' . $user_id;
+        $cached = get_transient($cache_key);
+        if ($cached !== false) {
+            return (int) $cached;
+        }
 
         $fields = [
 
@@ -285,9 +318,17 @@ class Profile
 
         }
 
-        return (int) round(
+        $completion = (int) round(
             ($completed / count($fields)) * 100
         );
+
+        set_transient(
+            $cache_key,
+            $completion,
+            HOUR_IN_SECONDS
+        );
+
+        return $completion;
 
     }
 
@@ -396,8 +437,13 @@ class Profile
     public function profile(
         int $user_id
     ): array {
+        $cache_key = 'nb_profile_data_' . $user_id;
+        $cached = get_transient($cache_key);
+        if (is_array($cached)) {
+            return $cached;
+        }
 
-        return [
+        $profile = [
 
             'user' => get_userdata($user_id),
 
@@ -411,6 +457,42 @@ class Profile
 
         ];
 
+        set_transient($cache_key, $profile, HOUR_IN_SECONDS);
+
+        return $profile;
+
+    }
+
+    /**
+     * Invalidate profile transients for a user.
+     */
+    public function invalidate_profile_cache(
+        int $user_id
+    ): void {
+        if ($user_id <= 0) {
+            return;
+        }
+
+        delete_transient('nb_profile_data_' . $user_id);
+        delete_transient('nb_profile_completion_' . $user_id);
+    }
+
+    /**
+     * Invalidate profile transients when user meta changes.
+     *
+     * @param int $meta_id
+     * @param int $user_id
+     * @param string $meta_key
+     * @param mixed $meta_value
+     */
+    public function invalidate_profile_cache_from_meta(
+        int $meta_id,
+        int $user_id,
+        string $meta_key,
+        $meta_value
+    ): void {
+        unset($meta_id, $meta_key, $meta_value);
+        $this->invalidate_profile_cache($user_id);
     }
 
     /**

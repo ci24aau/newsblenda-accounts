@@ -27,6 +27,16 @@ class Payouts
             'admin_menu',
             [$this, 'menu']
         );
+
+        add_action(
+            'nb_accounts_payout_recorded',
+            [$this, 'invalidate_statistics_cache']
+        );
+
+        add_action(
+            'profile_update',
+            [$this, 'invalidate_statistics_cache']
+        );
     }
 
     /**
@@ -437,30 +447,42 @@ class Payouts
      */
     public function statistics(): array
     {
+        $cache_key = 'nb_payouts_statistics';
+        $cached = get_transient($cache_key);
+        if (is_array($cached)) {
+            return $cached;
+        }
+
         $authors = get_users(
             [
                 'role__in' => [
                     'nb_author',
                     'nb_author_restricted',
                 ],
+                'fields' => 'ID',
             ]
         );
+
+        $author_ids = array_map('intval', $authors);
+        if (! empty($author_ids)) {
+            update_meta_cache('user', $author_ids);
+        }
 
         $total_paid = 0.0;
 
         $total_balance = 0.0;
 
-        foreach ($authors as $author) {
+        foreach ($author_ids as $author_id) {
 
-            $total_paid += $this->paid($author->ID);
+            $total_paid += $this->paid($author_id);
 
-            $total_balance += $this->balance($author->ID);
+            $total_balance += $this->balance($author_id);
 
         }
 
-        return [
+        $stats = [
 
-            'authors' => count($authors),
+            'authors' => count($author_ids),
 
             'total_paid' => $total_paid,
 
@@ -468,6 +490,21 @@ class Payouts
 
         ];
 
+        set_transient($cache_key, $stats, 5 * MINUTE_IN_SECONDS);
+
+        return $stats;
+
+    }
+
+    /**
+     * Invalidate cached payout statistics.
+     *
+     * @param mixed ...$args
+     */
+    public function invalidate_statistics_cache(...$args): void
+    {
+        unset($args);
+        delete_transient('nb_payouts_statistics');
     }
 
     /**

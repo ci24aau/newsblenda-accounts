@@ -46,6 +46,32 @@ class Dashboard
             10,
             3
         );
+
+        add_action(
+            'profile_update',
+            [$this, 'invalidate_cache_on_user_update']
+        );
+
+        add_action(
+            'added_user_meta',
+            [$this, 'invalidate_cache_on_user_meta_change'],
+            10,
+            4
+        );
+
+        add_action(
+            'updated_user_meta',
+            [$this, 'invalidate_cache_on_user_meta_change'],
+            10,
+            4
+        );
+
+        add_action(
+            'deleted_user_meta',
+            [$this, 'invalidate_cache_on_user_meta_change'],
+            10,
+            4
+        );
     }
 
     /**
@@ -117,6 +143,64 @@ class Dashboard
             (string) time(),
             false
         );
+    }
+
+    /**
+     * Invalidate dashboard caches when user profile is updated.
+     */
+    public function invalidate_cache_on_user_update(
+        int $user_id
+    ): void {
+        $this->invalidate_cache_for_author($user_id);
+    }
+
+    /**
+     * Invalidate dashboard caches when user metadata changes.
+     *
+     * @param int $meta_id
+     * @param int $user_id
+     * @param string $meta_key
+     * @param mixed $meta_value
+     */
+    public function invalidate_cache_on_user_meta_change(
+        int $meta_id,
+        int $user_id,
+        string $meta_key,
+        $meta_value
+    ): void {
+        unset($meta_id, $meta_key, $meta_value);
+        $this->invalidate_cache_for_author($user_id);
+    }
+
+    /**
+     * Record transient cache metrics.
+     */
+    public static function track_cache_event(
+        string $segment,
+        bool $hit
+    ): void {
+        $metrics = get_option('nb_dashboard_cache_metrics', []);
+        if (! is_array($metrics)) {
+            $metrics = [];
+        }
+
+        if (! isset($metrics[$segment]) || ! is_array($metrics[$segment])) {
+            $metrics[$segment] = [
+                'hits' => 0,
+                'misses' => 0,
+                'updated_at' => '',
+            ];
+        }
+
+        if ($hit) {
+            $metrics[$segment]['hits'] = (int) $metrics[$segment]['hits'] + 1;
+        } else {
+            $metrics[$segment]['misses'] = (int) $metrics[$segment]['misses'] + 1;
+        }
+
+        $metrics[$segment]['updated_at'] = current_time('mysql');
+
+        update_option('nb_dashboard_cache_metrics', $metrics, false);
     }
 
     /**
