@@ -17,6 +17,8 @@ class Activator
 
         self::create_database();
 
+        self::run_migrations();
+
         self::create_options();
 
         self::create_pages();
@@ -24,6 +26,8 @@ class Activator
         self::create_directories();
 
         self::schedule_events();
+
+        \Newsblenda\Accounts\Performance\CronScheduler::schedule_all();
 
         update_option(
             'nb_accounts_version',
@@ -60,6 +64,20 @@ class Activator
 
             \Newsblenda\Accounts\Roles\Roles::create_roles();
 
+        }
+    }
+
+    /**
+     * Run database migrations.
+     */
+    private static function run_migrations(): void
+    {
+        if (
+            class_exists(
+                '\Newsblenda\Accounts\Database\Migrator'
+            )
+        ) {
+            \Newsblenda\Accounts\Database\Migrator::run_migrations();
         }
     }
 

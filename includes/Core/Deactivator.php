@@ -47,6 +47,10 @@ class Deactivator
 
             'nb_accounts_five_minutes',
 
+            \Newsblenda\Accounts\Performance\CronScheduler::DAILY_EARNINGS_HOOK,
+
+            \Newsblenda\Accounts\Performance\CronScheduler::PAYOUT_PROCESSING_HOOK,
+
         ];
 
         foreach ($events as $event) {

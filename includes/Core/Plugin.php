@@ -247,6 +247,14 @@ class Plugin
         */
 
         new \Newsblenda\Accounts\Reports\Reports();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Performance
+        |--------------------------------------------------------------------------
+        */
+
+        new \Newsblenda\Accounts\Performance\PerformanceHooks();
     }
     
         /**
