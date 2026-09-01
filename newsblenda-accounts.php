@@ -153,7 +153,7 @@ if (! function_exists('newsblenda_invalidate_caches_on_user_update')) {
         $meta_id_or_user_id,
         $user_id = null
     ): void {
-        $resolved_user_id = is_int($user_id) ? $user_id : (int) $meta_id_or_user_id;
+        $resolved_user_id = $user_id !== null ? (int) $user_id : (int) $meta_id_or_user_id;
         \Newsblenda\Accounts\Classes\CacheManager::invalidate_user_cache($resolved_user_id);
     }
 }
