@@ -87,7 +87,7 @@ if (file_exists($autoload)) {
 require_once NB_ACCOUNTS_PATH . 'includes/Core/Loader.php';
 
 \Newsblenda\Accounts\Core\Loader::register(
-    NB_ACCOUNTS_PATH . 'includes'
+	NB_ACCOUNTS_PATH . 'includes'
 );
 }
 
