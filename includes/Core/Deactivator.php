@@ -53,7 +53,7 @@ class Deactivator
 
             'nb_accounts_email_queue',
 
-            'nb_accounts_daily_event',
+            CronScheduler::DAILY_EARNINGS_HOOK,
 
             'nb_accounts_hourly_event',
 
