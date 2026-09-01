@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Newsblenda\Accounts\Dashboard;
 
+use Newsblenda\Accounts\Classes\CacheManager;
+
 defined('ABSPATH') || exit;
 
 class Dashboard
@@ -298,26 +300,7 @@ class Dashboard
         int $user_id
     ): array
     {
-        $published = (int) count_user_posts(
-            $user_id,
-            'post',
-            true
-        );
-
-        $pending = $this->count_posts_by_status(
-            $user_id,
-            'pending'
-        );
-
-        $drafts = $this->count_posts_by_status(
-            $user_id,
-            'draft'
-        );
-
-        $rejected = $this->count_posts_by_status(
-            $user_id,
-            'rejected'
-        );
+        $stats = CacheManager::get_author_stats($user_id);
 
         $status = get_user_meta(
             $user_id,
@@ -339,22 +322,22 @@ class Dashboard
 
             [
                 'title' => __('Published Articles', 'newsblenda-accounts'),
-                'value' => $published,
+                'value' => (int) ($stats->published_count ?? 0),
             ],
 
             [
                 'title' => __('Pending Review', 'newsblenda-accounts'),
-                'value' => $pending,
+                'value' => (int) ($stats->pending_count ?? 0),
             ],
 
             [
                 'title' => __('Drafts', 'newsblenda-accounts'),
-                'value' => $drafts,
+                'value' => (int) ($stats->draft_count ?? 0),
             ],
 
             [
                 'title' => __('Rejected', 'newsblenda-accounts'),
-                'value' => $rejected,
+                'value' => (int) ($stats->rejected_count ?? 0),
             ],
 
             [
@@ -508,7 +491,7 @@ class Dashboard
     ): array
     {
         if (class_exists('\Newsblenda\Accounts\Classes\CacheManager')) {
-            return \Newsblenda\Accounts\Classes\CacheManager::get_author_stats($user_id);
+            return (array) \Newsblenda\Accounts\Classes\CacheManager::get_author_stats($user_id);
         }
 
         return $this->get_dashboard_data($user_id);
@@ -521,15 +504,13 @@ class Dashboard
         int $user_id
     ): array
     {
+        $stats = CacheManager::get_author_stats($user_id);
+
         return [
 
-            'posts' => (int) count_user_posts(
-                $user_id,
-                'post',
-                true
-            ),
+            'posts' => (int) ($stats->published_count ?? 0),
 
-            'views' => $this->total_views($user_id),
+            'views' => (int) ($stats->total_views ?? 0),
 
             'completion' => $this->profile_completion($user_id),
 

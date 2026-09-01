@@ -18,7 +18,7 @@ final class Migrator
         $current = (int) get_option(self::OPTION_NAME, 0);
 
         $migrations = [
-            1 => Migration001AddIndexes::class,
+            1 => Migration001::class,
         ];
 
         foreach ($migrations as $version => $migration) {

@@ -1,4 +1,3 @@
-
 # Deployment Checklist
 
 ## Pre-deployment Validation
@@ -14,6 +13,8 @@
 - [ ] Confirm cache invalidation hooks are present for post, workflow, and user updates.
 - [ ] Review PERFORMANCE.md targets with the release owner.
 - [ ] Confirm the QA checklist has been completed for the release candidate.
+- [ ] Confirm SMTP and email templates are validated in the target environment.
+- [ ] Confirm all security validations are complete.
 
 ## Staging Deployment
 - [ ] Deploy the plugin build to staging.
@@ -28,6 +29,9 @@
 - [ ] Verify admin settings screens load admin assets and settings scripts correctly.
 - [ ] Confirm daily earnings and payout cron events are scheduled.
 - [ ] Confirm cache invalidation occurs after post saves, deletes, and workflow changes.
+- [ ] Verify full email delivery on staging.
+- [ ] Run Lighthouse audit (>90).
+- [ ] Run a representative concurrent-user load test.
 
 ## Production Deployment
 - [ ] Put the site into the agreed maintenance or low-traffic deployment window.
@@ -38,6 +42,7 @@
 - [ ] Warm critical frontend caches by loading login, registration, dashboard, profile, and notifications pages.
 - [ ] Confirm cron hooks are present in WP-Cron after deployment.
 - [ ] Run a post-deploy smoke test for author and editor flows.
+- [ ] Verify email delivery.
 - [ ] Record the deployed plugin version, timestamp, and operator.
 
 ## Post-deployment Monitoring

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Newsblenda\Accounts\Notifications;
 
+use Newsblenda\Accounts\Classes\CacheManager;
+
 defined('ABSPATH') || exit;
 
 class Notifications
@@ -313,9 +315,8 @@ class Notifications
             );
 
             if ($updated) {
-                \Newsblenda\Accounts\Classes\CacheManager::invalidate_user_cache(get_current_user_id());
+                CacheManager::invalidate_user_cache(get_current_user_id());
             }
-
         }
 
         if ($action === 'delete') {
@@ -337,9 +338,8 @@ class Notifications
             );
 
             if ($deleted) {
-                \Newsblenda\Accounts\Classes\CacheManager::invalidate_user_cache(get_current_user_id());
+                CacheManager::invalidate_user_cache(get_current_user_id());
             }
-
         }
 
         wp_safe_redirect(
@@ -387,7 +387,7 @@ class Notifications
     public function unread_count(
         int $user_id
     ): int {
-        return \Newsblenda\Accounts\Classes\CacheManager::get_unread_notifications($user_id);
+        return CacheManager::get_unread_notifications($user_id);
     }
 
     /**
@@ -426,8 +426,7 @@ class Notifications
         );
 
         if ($result) {
-            \Newsblenda\Accounts\Classes\CacheManager::invalidate_user_cache($user_id);
- 
+            CacheManager::invalidate_user_cache($user_id);
             do_action(
                 'nb_accounts_notification_created',
                 $user_id,
@@ -468,7 +467,7 @@ class Notifications
         );
 
         if ($updated) {
-            \Newsblenda\Accounts\Classes\CacheManager::invalidate_user_cache($user_id);
+            CacheManager::invalidate_user_cache($user_id);
         }
 
         return $updated;
@@ -494,7 +493,7 @@ class Notifications
         );
 
         if ($updated) {
-            \Newsblenda\Accounts\Classes\CacheManager::invalidate_user_cache($user_id);
+            CacheManager::invalidate_user_cache($user_id);
         }
 
         return $updated;
@@ -522,7 +521,7 @@ class Notifications
         );
 
         if ($deleted) {
-            \Newsblenda\Accounts\Classes\CacheManager::invalidate_user_cache($user_id);
+            CacheManager::invalidate_user_cache($user_id);
         }
 
         return $deleted;
@@ -651,6 +650,6 @@ class Notifications
     public static function get_unread_count(
         int $user_id
     ): int {
-        return \Newsblenda\Accounts\Classes\CacheManager::get_unread_notifications($user_id);
+        return CacheManager::get_unread_notifications($user_id);
     }
 }

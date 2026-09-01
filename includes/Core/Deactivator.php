@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Newsblenda\Accounts\Core;
 
+use Newsblenda\Accounts\Classes\CronScheduler;
+
 defined('ABSPATH') || exit;
 
 class Deactivator
@@ -51,11 +53,13 @@ class Deactivator
 
             'nb_accounts_email_queue',
 
-            'nb_accounts_daily_event',
+            CronScheduler::DAILY_EARNINGS_HOOK,
 
             'nb_accounts_hourly_event',
 
             'nb_accounts_five_minutes',
+
+            CronScheduler::PAYOUT_PROCESSING_HOOK,
 
         ];
 
@@ -73,6 +77,7 @@ class Deactivator
             wp_clear_scheduled_hook($event);
 
         }
+
     }
 
     /**
