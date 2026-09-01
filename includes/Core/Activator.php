@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Newsblenda\Accounts\Core;
 
+use Newsblenda\Accounts\Classes\CronScheduler;
+
 defined('ABSPATH') || exit;
 
 class Activator
@@ -304,6 +306,8 @@ class Activator
             );
 
         }
+
+        CronScheduler::schedule_all();
     }
     
         /**

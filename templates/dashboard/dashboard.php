@@ -25,9 +25,8 @@ $cached_data   = get_transient($cache_key);
 );
 
 if ($cached_data === false) {
-	$stats = \Newsblenda\Accounts\Classes\CacheManager::get_author_stats((int) $user->ID);
-	$earnings_data = \Newsblenda\Accounts\Classes\QueryOptimizer::get_earnings_data((int) $user->ID);
-	$profile_data = \Newsblenda\Accounts\Classes\CacheManager::get_user_profile((int) $user->ID);
+	$stats = (array) \Newsblenda\Accounts\Classes\CacheManager::get_author_stats((int) $user->ID);
+	$earnings_data = (array) \Newsblenda\Accounts\Classes\QueryOptimizer::get_earnings_data((int) $user->ID);
 
 	$published_count = (int) ($stats['published_count'] ?? 0);
 	$pending_count   = (int) ($stats['pending_count'] ?? 0);
@@ -93,7 +92,41 @@ if ($cached_data === false) {
 		'order'       => 'DESC',
 	]));
 
-	$profile_percent = (int) ($profile_data['completion'] ?? 0);
+	$profile_percent = get_transient('nb_profile_completion_' . $user->ID);
+
+	if ($profile_percent === false) {
+		$profile_fields = [
+			'first_name',
+			'last_name',
+			'description',
+			'nb_phone',
+			'nb_country',
+			'nb_state',
+			'nb_city',
+			'nb_niche',
+			'nb_payment_method',
+		];
+
+		$profile_completed = 0;
+
+		foreach ($profile_fields as $field) {
+			if (! empty(get_user_meta($user->ID, $field, true))) {
+				$profile_completed++;
+			}
+		}
+
+		$profile_percent = (int) round(
+			($profile_completed / count($profile_fields)) * 100
+		);
+
+		set_transient(
+			'nb_profile_completion_' . $user->ID,
+			$profile_percent,
+			HOUR_IN_SECONDS
+		);
+	}
+
+	$profile_percent = (int) $profile_percent;
 
 	$notifications = \Newsblenda\Accounts\Notifications\Notifications::get_latest($user->ID, 4);
 	$unread_count  = \Newsblenda\Accounts\Classes\CacheManager::get_unread_notifications((int) $user->ID);
