@@ -147,6 +147,8 @@ final class CacheManager
             'nb_city',
             'nb_niche',
             'nb_payment_method',
+            'nb_whatsapp',
+            'nb_gender',
         ];
 
         $completed = 0;

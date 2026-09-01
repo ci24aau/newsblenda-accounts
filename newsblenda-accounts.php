@@ -276,7 +276,7 @@ if (! function_exists('newsblenda_process_pending_payouts')) {
                     'user_id'        => $user_id,
                     'amount'         => $amount,
                     'payment_method' => sanitize_text_field((string) $author->payment_method),
-                    'reference'      => 'cron-' . gmdate('YmdHis'),
+                    'reference'      => 'cron-' . $user_id . '-' . gmdate('YmdHis'),
                     'status'         => 'paid',
                     'paid_at'        => current_time('mysql'),
                     'created_at'     => current_time('mysql'),
