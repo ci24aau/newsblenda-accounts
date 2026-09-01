@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Newsblenda\Accounts\Payouts;
 
+use Newsblenda\Accounts\Classes\CacheManager;
+use Newsblenda\Accounts\Database\Database;
+
 defined('ABSPATH') || exit;
 
 class Payouts
@@ -95,6 +98,8 @@ class Payouts
      */
     public function process(): void
     {
+        global $wpdb;
+
         if (! current_user_can('nb_manage_payouts')) {
             wp_die(
                 esc_html__(
@@ -148,6 +153,44 @@ class Payouts
 
         );
 
+        update_user_meta(
+            $user_id,
+            'nb_unpaid_balance',
+            round(
+                max(
+                    0,
+                    $this->balance($user_id) - $amount
+                ),
+                2
+            )
+        );
+
+        update_user_meta(
+            $user_id,
+            'nb_last_payment_date',
+            current_time('mysql')
+        );
+
+        update_user_meta(
+            $user_id,
+            'nb_payout_status',
+            'paid'
+        );
+
+        $wpdb->insert(
+            Database::table('payouts'),
+            [
+                'user_id' => $user_id,
+                'amount' => $amount,
+                'payment_method' => (string) get_user_meta($user_id, 'nb_payment_method', true),
+                'reference' => '',
+                'status' => 'paid',
+                'paid_at' => current_time('mysql'),
+                'created_at' => current_time('mysql'),
+            ],
+            ['%d', '%f', '%s', '%s', '%s', '%s', '%s']
+        );
+
         do_action(
 
             'nb_accounts_payout_recorded',
@@ -157,6 +200,8 @@ class Payouts
             $amount
 
         );
+
+        CacheManager::invalidate_user_cache($user_id);
 
         wp_safe_redirect(
 
@@ -198,6 +243,28 @@ class Payouts
         $user_id = isset($_POST['user_id'])
             ? (int) $_POST['user_id']
             : 0;
+
+        if ($user_id > 0) {
+            global $wpdb;
+
+            $wpdb->query(
+                $wpdb->prepare(
+                    "UPDATE " . Database::table('payouts') . "
+                    SET status = 'rejected'
+                    WHERE user_id = %d
+                        AND status = 'pending'",
+                    $user_id
+                )
+            );
+
+            update_user_meta(
+                $user_id,
+                'nb_payout_status',
+                'rejected'
+            );
+
+            CacheManager::invalidate_user_cache($user_id);
+        }
 
         do_action(
 

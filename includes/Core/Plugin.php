@@ -273,24 +273,6 @@ class Plugin
         );
 
         $this->loader->add_action(
-            'init',
-            $this,
-            'register_assets'
-        );
-
-        $this->loader->add_action(
-            'wp_enqueue_scripts',
-            $this,
-            'frontend_assets'
-        );
-
-        $this->loader->add_action(
-            'admin_enqueue_scripts',
-            $this,
-            'admin_assets'
-        );
-
-        $this->loader->add_action(
             'admin_init',
             $this,
             'activation_redirect'
@@ -330,12 +312,12 @@ class Plugin
      */
     public function check_upgrade(): void
     {
-        if (class_exists('\Newsblenda\Accounts\Migrations\Migrator')) {
-            \Newsblenda\Accounts\Migrations\Migrator::run_migrations();
-        }
-
         if (! Activator::needs_upgrade()) {
             return;
+        }
+
+        if (class_exists('\Newsblenda\Accounts\Migrations\Migrator')) {
+            \Newsblenda\Accounts\Migrations\Migrator::run_migrations();
         }
 
         update_option(

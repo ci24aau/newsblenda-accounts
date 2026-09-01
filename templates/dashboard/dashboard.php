@@ -25,19 +25,25 @@ $cached_data   = get_transient($cache_key);
 );
 
 if ($cached_data === false) {
-	$stats = \Newsblenda\Accounts\Classes\CacheManager::get_author_stats((int) $user->ID);
+	$stats = (array) \Newsblenda\Accounts\Classes\CacheManager::get_author_stats($user->ID);
 	$earnings_data = \Newsblenda\Accounts\Classes\QueryOptimizer::get_earnings_data((int) $user->ID);
-	$profile_data = \Newsblenda\Accounts\Classes\CacheManager::get_user_profile((int) $user->ID);
 
 	$published_count = (int) ($stats['published_count'] ?? 0);
 	$pending_count   = (int) ($stats['pending_count'] ?? 0);
 	$draft_count     = (int) ($stats['draft_count'] ?? 0);
 	$rejected_count  = (int) ($stats['rejected_count'] ?? 0);
 	$revision_count  = (int) ($stats['revision_count'] ?? 0);
-	$total_submissions = (int) ($stats['total_submissions'] ?? 0);
-	$total_views = (int) ($earnings_data['total_views'] ?? 0);
-	$total_earnings = (float) ($earnings_data['total_earnings'] ?? 0);
-	$unpaid_balance = (float) ($earnings_data['unpaid_balance'] ?? 0);
+
+	$total_submissions = (int) ($stats['total_submissions'] ?? (
+		$published_count
+		+ $pending_count
+		+ $draft_count
+		+ $rejected_count
+		+ $revision_count
+	));
+	$total_views = (int) ($stats['total_views'] ?? 0);
+	$total_earnings = (float) (is_array($earnings_data) ? ($earnings_data['total_earnings'] ?? 0) : ($earnings_data->total_earnings ?? 0));
+	$unpaid_balance = (float) (is_array($earnings_data) ? ($earnings_data['unpaid_balance'] ?? 0) : ($earnings_data->unpaid_balance ?? 0));
 
 	$base_post_args = [
 		'post_type'              => 'post',
@@ -93,7 +99,30 @@ if ($cached_data === false) {
 		'order'       => 'DESC',
 	]));
 
-	$profile_percent = (int) ($profile_data['completion'] ?? 0);
+	$profile_fields = [
+		'first_name',
+		'last_name',
+		'description',
+		'nb_phone',
+		'nb_country',
+		'nb_state',
+		'nb_city',
+		'nb_niche',
+		'nb_payment_method',
+		'nb_whatsapp',
+		'nb_gender',
+	];
+
+	$profile_completed = 0;
+	foreach ($profile_fields as $field) {
+		if (! empty(get_user_meta($user->ID, $field, true))) {
+			$profile_completed++;
+		}
+	}
+
+	$profile_percent = (int) round(
+		($profile_completed / count($profile_fields)) * 100
+	);
 
 	$notifications = \Newsblenda\Accounts\Notifications\Notifications::get_latest($user->ID, 4);
 	$unread_count  = \Newsblenda\Accounts\Classes\CacheManager::get_unread_notifications((int) $user->ID);
