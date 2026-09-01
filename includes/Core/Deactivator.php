@@ -68,7 +68,6 @@ class Deactivator
 
         }
 
-        CronScheduler::unschedule_all();
     }
 
     /**

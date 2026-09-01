@@ -48,7 +48,13 @@ class Migration001
 
         $exists = $wpdb->get_var(
             $wpdb->prepare(
-                "SHOW INDEX FROM {$table} WHERE Key_name = %s",
+                'SELECT INDEX_NAME
+                FROM information_schema.STATISTICS
+                WHERE TABLE_SCHEMA = DATABASE()
+                    AND TABLE_NAME = %s
+                    AND INDEX_NAME = %s
+                LIMIT 1',
+                $table,
                 $index
             )
         );
