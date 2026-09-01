@@ -46,7 +46,10 @@ class CacheManager
 
         if ($profile === false) {
             $profile = get_userdata($user_id);
-            set_transient($cache_key, $profile, self::CACHE_DURATION);
+
+            if ($profile !== false) {
+                set_transient($cache_key, $profile, self::CACHE_DURATION);
+            }
         }
 
         return $profile;
