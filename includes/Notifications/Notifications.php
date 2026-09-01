@@ -290,7 +290,7 @@ class Notifications
 
         if ($action === 'mark_read') {
 
-            $wpdb->update(
+            $updated = $wpdb->update(
 
                 $this->table,
 
@@ -314,12 +314,14 @@ class Notifications
 
             );
 
-            CacheManager::invalidate_user_cache(get_current_user_id());
+            if ($updated) {
+                CacheManager::invalidate_user_cache(get_current_user_id());
+            }
         }
 
         if ($action === 'delete') {
 
-            $wpdb->delete(
+            $deleted = $wpdb->delete(
 
                 $this->table,
 
@@ -335,7 +337,9 @@ class Notifications
 
             );
 
-            CacheManager::invalidate_user_cache(get_current_user_id());
+            if ($deleted) {
+                CacheManager::invalidate_user_cache(get_current_user_id());
+            }
         }
 
         wp_safe_redirect(
@@ -423,7 +427,6 @@ class Notifications
 
         if ($result) {
             CacheManager::invalidate_user_cache($user_id);
-
             do_action(
                 'nb_accounts_notification_created',
                 $user_id,
@@ -443,7 +446,6 @@ class Notifications
         int $notification_id,
         int $user_id
     ): bool {
-
         global $wpdb;
 
         $updated = (bool) $wpdb->update(
@@ -469,7 +471,6 @@ class Notifications
         }
 
         return $updated;
-
     }
 
     /**
@@ -478,7 +479,6 @@ class Notifications
     public function mark_all_read(
         int $user_id
     ): bool {
-
         global $wpdb;
 
         $updated = (bool) $wpdb->query(
@@ -497,7 +497,6 @@ class Notifications
         }
 
         return $updated;
-
     }
 
     /**
@@ -507,7 +506,6 @@ class Notifications
         int $notification_id,
         int $user_id
     ): bool {
-
         global $wpdb;
 
         $deleted = (bool) $wpdb->delete(
@@ -527,7 +525,6 @@ class Notifications
         }
 
         return $deleted;
-
     }
 
     /**

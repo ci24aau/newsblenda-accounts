@@ -135,65 +135,9 @@ class Admin
      */
     public function enqueue_assets(string $hook): void
     {
-        if (strpos($hook, self::MENU_SLUG) === false) {
-            return;
+        if (class_exists('\Newsblenda\Accounts\Classes\AssetManager')) {
+            \Newsblenda\Accounts\Classes\AssetManager::enqueue_admin_assets($hook);
         }
-
-        wp_enqueue_style(
-            'nb-accounts-admin',
-            NB_ACCOUNTS_URL . 'assets/css/admin.css',
-            [],
-            NB_ACCOUNTS_VERSION
-        );
-
-        // Colour picker.
-        if ($this->is_settings_page($hook)) {
-            wp_enqueue_style('wp-color-picker');
-            wp_enqueue_script('wp-color-picker');
-        }
-
-        wp_enqueue_script(
-            'nb-accounts-settings',
-            NB_ACCOUNTS_URL . 'assets/js/settings.js',
-            ['jquery', 'wp-color-picker'],
-            NB_ACCOUNTS_VERSION,
-            true
-        );
-
-        wp_localize_script(
-            'nb-accounts-settings',
-            'nbaSettings',
-            [
-                'ajaxUrl'       => admin_url('admin-ajax.php'),
-                'nonce'         => wp_create_nonce('nba_admin'),
-                'testEmailNonce' => wp_create_nonce('nba_send_test_email'),
-                'smtpTestNonce' => wp_create_nonce('nba_smtp_test'),
-                'resetNonce'    => wp_create_nonce('nba_reset_settings'),
-                'i18n'          => [
-                    'sending'       => __('Sending…', 'newsblenda-accounts'),
-                    'testing'       => __('Testing…', 'newsblenda-accounts'),
-                    'confirmReset'  => __('Reset all settings in this tab to their default values? This cannot be undone.', 'newsblenda-accounts'),
-                    'saved'         => __('Settings saved.', 'newsblenda-accounts'),
-                ],
-            ]
-        );
-
-        wp_enqueue_script(
-            'nb-accounts-admin',
-            NB_ACCOUNTS_URL . 'assets/js/admin.js',
-            ['jquery'],
-            NB_ACCOUNTS_VERSION,
-            true
-        );
-
-        wp_localize_script(
-            'nb-accounts-admin',
-            'nbaAdmin',
-            [
-                'ajaxUrl' => admin_url('admin-ajax.php'),
-                'nonce'   => wp_create_nonce('nba_admin'),
-            ]
-        );
     }
 
     /**

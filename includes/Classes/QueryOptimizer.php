@@ -166,6 +166,18 @@ class QueryOptimizer
     }
 
     /**
+     * Backward-compatible alias for the editor pending queue.
+     *
+     * @return array<int, object>
+     */
+    public static function get_editor_pending_articles(
+        int $limit = 20,
+        int $offset = 0
+    ): array {
+        return self::get_pending_articles($limit, $offset);
+    }
+
+    /**
      * Count unread notifications for a user.
      */
     public static function count_unread_notifications(int $user_id): int

@@ -1,4 +1,6 @@
-# Newsblenda Accounts QA Checklist
+# QA Checklist
+
+This checklist covers 209 test cases across 17 validation phases for the Newsblenda Accounts release candidate.
 
 ## Authentication (15 tests)
 - [ ] Auth 01: Register with valid author details and receive success state

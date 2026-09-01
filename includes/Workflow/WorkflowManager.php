@@ -686,6 +686,14 @@ class WorkflowManager
             $actor_id
         );
 
+        do_action(
+            'newsblenda_workflow_status_changed',
+            $post_id,
+            $current,
+            $new_status,
+            $actor_id
+        );
+
         return true;
     }
 

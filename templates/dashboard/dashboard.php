@@ -25,9 +25,8 @@ $cached_data   = get_transient($cache_key);
 );
 
 if ($cached_data === false) {
-	global $wpdb;
-
 	$stats = (array) \Newsblenda\Accounts\Classes\CacheManager::get_author_stats($user->ID);
+	$earnings_data = \Newsblenda\Accounts\Classes\QueryOptimizer::get_earnings_data((int) $user->ID);
 
 	$published_count = (int) ($stats['published_count'] ?? 0);
 	$pending_count   = (int) ($stats['pending_count'] ?? 0);
@@ -35,24 +34,16 @@ if ($cached_data === false) {
 	$rejected_count  = (int) ($stats['rejected_count'] ?? 0);
 	$revision_count  = (int) ($stats['revision_count'] ?? 0);
 
-	$total_submissions = $published_count
+	$total_submissions = (int) ($stats['total_submissions'] ?? (
+		$published_count
 		+ $pending_count
 		+ $draft_count
 		+ $rejected_count
-		+ $revision_count;
-
+		+ $revision_count
+	));
 	$total_views = (int) ($stats['total_views'] ?? 0);
-
-	$total_earnings = (float) get_user_meta($user->ID, 'nb_total_earnings', true);
-
-	$unpaid_balance = (float) $wpdb->get_var(
-		$wpdb->prepare(
-			"SELECT COALESCE(SUM(amount), 0)
-			FROM {$wpdb->prefix}nb_earnings
-			WHERE user_id = %d AND status = 'unpaid'",
-			$user->ID
-		)
-	);
+	$total_earnings = (float) ($earnings_data->total_earnings ?? 0);
+	$unpaid_balance = (float) ($earnings_data->unpaid_balance ?? 0);
 
 	$base_post_args = [
 		'post_type'              => 'post',
@@ -134,7 +125,7 @@ if ($cached_data === false) {
 	);
 
 	$notifications = \Newsblenda\Accounts\Notifications\Notifications::get_latest($user->ID, 4);
-	$unread_count  = \Newsblenda\Accounts\Notifications\Notifications::get_unread_count($user->ID);
+	$unread_count  = \Newsblenda\Accounts\Classes\CacheManager::get_unread_notifications((int) $user->ID);
 
 	$cached_data = compact(
 		'total_submissions',

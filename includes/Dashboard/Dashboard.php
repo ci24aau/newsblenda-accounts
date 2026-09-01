@@ -490,6 +490,10 @@ class Dashboard
         int $user_id
     ): array
     {
+        if (class_exists('\Newsblenda\Accounts\Classes\CacheManager')) {
+            return \Newsblenda\Accounts\Classes\CacheManager::get_author_stats($user_id);
+        }
+
         return $this->get_dashboard_data($user_id);
     }
 

@@ -439,30 +439,13 @@ class Profile
     public function profile(
         int $user_id
     ): array {
-        $cache_key = 'nb_profile_data_' . $user_id;
-        $cached = get_transient($cache_key);
-        if (is_array($cached)) {
-            return $cached;
-        }
-
-        $profile = [
-
+        return [
             'user' => CacheManager::get_user_profile($user_id),
-
             'completion' => $this->completion($user_id),
-
             'payment' => $this->payment($user_id),
-
             'socials' => $this->socials($user_id),
-
             'updated' => $this->updated($user_id),
-
         ];
-
-        set_transient($cache_key, $profile, HOUR_IN_SECONDS);
-
-        return $profile;
-
     }
 
     /**
