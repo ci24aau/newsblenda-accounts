@@ -37,20 +37,37 @@ class CacheManager
     }
 
     /**
-     * @return \WP_User|false
+     * @return array{user:\WP_User|false,completion:int,payment:array<string,string>,socials:array<string,string>,updated:string}
      */
-    public static function get_user_profile(int $user_id)
+    public static function get_user_profile(int $user_id): array
     {
         $cache_key = 'nb_accounts_user_profile_' . $user_id;
         $profile   = get_transient($cache_key);
 
-        if ($profile === false) {
-            $profile = get_userdata($user_id);
-
-            if ($profile !== false) {
-                set_transient($cache_key, $profile, self::CACHE_DURATION);
-            }
+        if (is_array($profile)) {
+            return $profile;
         }
+
+        $profile = [
+            'user' => get_userdata($user_id),
+            'completion' => self::calculate_profile_completion($user_id),
+            'payment' => [
+                'method' => (string) get_user_meta($user_id, 'nb_payment_method', true),
+                'bank_name' => (string) get_user_meta($user_id, 'nb_bank_name', true),
+                'account_name' => (string) get_user_meta($user_id, 'nb_account_name', true),
+                'account_number' => (string) get_user_meta($user_id, 'nb_account_number', true),
+            ],
+            'socials' => [
+                'facebook' => (string) get_user_meta($user_id, 'nb_facebook', true),
+                'twitter' => (string) get_user_meta($user_id, 'nb_twitter', true),
+                'instagram' => (string) get_user_meta($user_id, 'nb_instagram', true),
+                'linkedin' => (string) get_user_meta($user_id, 'nb_linkedin', true),
+                'website' => (string) get_user_meta($user_id, 'nb_website', true),
+            ],
+            'updated' => (string) get_user_meta($user_id, 'nb_profile_updated', true),
+        ];
+
+        set_transient($cache_key, $profile, self::CACHE_DURATION);
 
         return $profile;
     }
@@ -99,5 +116,32 @@ class CacheManager
         unset($meta_id, $meta_key, $meta_value);
 
         self::invalidate_user_cache($user_id);
+    }
+
+    private static function calculate_profile_completion(int $user_id): int
+    {
+        $fields = [
+            'first_name',
+            'last_name',
+            'description',
+            'nb_phone',
+            'nb_country',
+            'nb_state',
+            'nb_city',
+            'nb_niche',
+            'nb_payment_method',
+            'nb_whatsapp',
+            'nb_gender',
+        ];
+
+        $completed = 0;
+
+        foreach ($fields as $field) {
+            if (! empty(get_user_meta($user_id, $field, true))) {
+                $completed++;
+            }
+        }
+
+        return (int) round(($completed / count($fields)) * 100);
     }
 }

@@ -439,13 +439,7 @@ class Profile
     public function profile(
         int $user_id
     ): array {
-        return [
-            'user' => CacheManager::get_user_profile($user_id),
-            'completion' => $this->completion($user_id),
-            'payment' => $this->payment($user_id),
-            'socials' => $this->socials($user_id),
-            'updated' => $this->updated($user_id),
-        ];
+        return CacheManager::get_user_profile($user_id);
     }
 
     /**

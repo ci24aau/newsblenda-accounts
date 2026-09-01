@@ -42,8 +42,8 @@ if ($cached_data === false) {
 		+ $revision_count
 	));
 	$total_views = (int) ($stats['total_views'] ?? 0);
-	$total_earnings = (float) ($earnings_data->total_earnings ?? 0);
-	$unpaid_balance = (float) ($earnings_data->unpaid_balance ?? 0);
+	$total_earnings = (float) (is_array($earnings_data) ? ($earnings_data['total_earnings'] ?? 0) : ($earnings_data->total_earnings ?? 0));
+	$unpaid_balance = (float) (is_array($earnings_data) ? ($earnings_data['unpaid_balance'] ?? 0) : ($earnings_data->unpaid_balance ?? 0));
 
 	$base_post_args = [
 		'post_type'              => 'post',
