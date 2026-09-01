@@ -60,15 +60,8 @@ class QueryOptimizer
         $stats = $wpdb->get_row(
             $wpdb->prepare(
                 "SELECT
-                    COUNT(DISTINCT CASE WHEN p.post_status = 'publish' THEN p.ID END) AS published,
                     COUNT(DISTINCT CASE WHEN p.post_status = 'publish' THEN p.ID END) AS published_count,
-                    COUNT(DISTINCT CASE WHEN p.post_status = 'pending' THEN p.ID END) AS pending,
                     COUNT(DISTINCT CASE WHEN p.post_status = 'pending' THEN p.ID END) AS pending_count,
-                    COUNT(DISTINCT CASE
-                        WHEN p.post_status = 'draft'
-                            AND (ws.meta_value IS NULL OR ws.meta_value = %s)
-                        THEN p.ID
-                    END) AS drafts,
                     COUNT(DISTINCT CASE
                         WHEN p.post_status = 'draft'
                             AND (ws.meta_value IS NULL OR ws.meta_value = %s)
@@ -78,17 +71,7 @@ class QueryOptimizer
                         WHEN p.post_status = 'draft'
                             AND ws.meta_value = %s
                         THEN p.ID
-                    END) AS rejected,
-                    COUNT(DISTINCT CASE
-                        WHEN p.post_status = 'draft'
-                            AND ws.meta_value = %s
-                        THEN p.ID
                     END) AS rejected_count,
-                    COUNT(DISTINCT CASE
-                        WHEN p.post_status = 'draft'
-                            AND ws.meta_value = %s
-                        THEN p.ID
-                    END) AS revision_requested,
                     COUNT(DISTINCT CASE
                         WHEN p.post_status = 'draft'
                             AND ws.meta_value = %s
@@ -105,10 +88,7 @@ class QueryOptimizer
                 WHERE p.post_author = %d
                     AND p.post_type = 'post'",
                 WorkflowManager::STATUS_DRAFT,
-                WorkflowManager::STATUS_DRAFT,
                 WorkflowManager::STATUS_REJECTED,
-                WorkflowManager::STATUS_REJECTED,
-                WorkflowManager::STATUS_REVISION_REQUESTED,
                 WorkflowManager::STATUS_REVISION_REQUESTED,
                 $user_id
             )
@@ -125,15 +105,10 @@ class QueryOptimizer
         }
 
         return (object) [
-            'published' => 0,
             'published_count' => 0,
-            'pending' => 0,
             'pending_count' => 0,
-            'drafts' => 0,
             'draft_count' => 0,
-            'rejected' => 0,
             'rejected_count' => 0,
-            'revision_requested' => 0,
             'revision_count' => 0,
             'total_views' => 0,
             'total_submissions' => 0,
