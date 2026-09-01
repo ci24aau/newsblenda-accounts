@@ -27,27 +27,7 @@ $cached_data   = get_transient($cache_key);
 if ($cached_data === false) {
 	global $wpdb;
 
-	$stats = (array) $wpdb->get_row(
-		$wpdb->prepare(
-			"SELECT
-				COUNT(CASE WHEN p.post_status = 'publish' THEN 1 END) AS published_count,
-				COUNT(CASE WHEN p.post_status = 'pending' THEN 1 END) AS pending_count,
-				COUNT(CASE WHEN p.post_status = 'draft' AND (pm.meta_value IS NULL OR pm.meta_value = %s) THEN 1 END) AS draft_count,
-				COUNT(CASE WHEN p.post_status = 'draft' AND pm.meta_value = %s THEN 1 END) AS rejected_count,
-				COUNT(CASE WHEN p.post_status = 'draft' AND pm.meta_value = %s THEN 1 END) AS revision_count
-			FROM {$wpdb->posts} p
-			LEFT JOIN {$wpdb->postmeta} pm
-				ON pm.post_id = p.ID
-				AND pm.meta_key = 'nb_workflow_status'
-			WHERE p.post_type = 'post'
-				AND p.post_author = %d",
-			WorkflowManager::STATUS_DRAFT,
-			WorkflowManager::STATUS_REJECTED,
-			WorkflowManager::STATUS_REVISION_REQUESTED,
-			$user->ID
-		),
-		ARRAY_A
-	);
+	$stats = (array) \Newsblenda\Accounts\Classes\CacheManager::get_author_stats($user->ID);
 
 	$published_count = (int) ($stats['published_count'] ?? 0);
 	$pending_count   = (int) ($stats['pending_count'] ?? 0);
@@ -61,16 +41,7 @@ if ($cached_data === false) {
 		+ $rejected_count
 		+ $revision_count;
 
-	$total_views = (int) $wpdb->get_var(
-		$wpdb->prepare(
-			"SELECT COALESCE(SUM(pm.meta_value), 0)
-			FROM {$wpdb->postmeta} pm
-			INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
-			WHERE p.post_author = %d
-				AND pm.meta_key = 'nb_post_views'",
-			$user->ID
-		)
-	);
+	$total_views = (int) ($stats['total_views'] ?? 0);
 
 	$total_earnings = (float) get_user_meta($user->ID, 'nb_total_earnings', true);
 

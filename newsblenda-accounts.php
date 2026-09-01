@@ -91,6 +91,62 @@ require_once NB_ACCOUNTS_PATH . 'includes/Core/Loader.php';
 );
 }
 
+add_action(
+'init',
+[\Newsblenda\Accounts\Classes\AssetManager::class, 'register_assets']
+);
+
+add_action(
+'wp_enqueue_scripts',
+[\Newsblenda\Accounts\Classes\AssetManager::class, 'enqueue_frontend_assets']
+);
+
+add_action(
+'admin_enqueue_scripts',
+[\Newsblenda\Accounts\Classes\AssetManager::class, 'enqueue_admin_assets']
+);
+
+add_action(
+'save_post',
+[\Newsblenda\Accounts\Classes\CacheManager::class, 'invalidate_post_caches']
+);
+
+add_action(
+'delete_post',
+[\Newsblenda\Accounts\Classes\CacheManager::class, 'invalidate_post_caches']
+);
+
+add_action(
+'added_user_meta',
+[\Newsblenda\Accounts\Classes\CacheManager::class, 'invalidate_user_cache_from_meta'],
+10,
+4
+);
+
+add_action(
+'updated_user_meta',
+[\Newsblenda\Accounts\Classes\CacheManager::class, 'invalidate_user_cache_from_meta'],
+10,
+4
+);
+
+add_action(
+'deleted_user_meta',
+[\Newsblenda\Accounts\Classes\CacheManager::class, 'invalidate_user_cache_from_meta'],
+10,
+4
+);
+
+add_action(
+\Newsblenda\Accounts\Classes\CronScheduler::DAILY_EARNINGS_HOOK,
+[\Newsblenda\Accounts\Classes\CronScheduler::class, 'calculate_daily_earnings']
+);
+
+add_action(
+\Newsblenda\Accounts\Classes\CronScheduler::PAYOUT_PROCESSING_HOOK,
+[\Newsblenda\Accounts\Classes\CronScheduler::class, 'process_pending_payouts']
+);
+
 /*
 |--------------------------------------------------------------------------
 | Plugin Activation

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Newsblenda\Accounts\Database;
 
+use Newsblenda\Accounts\Migrations\Migration001;
+
 defined('ABSPATH') || exit;
 
 class Database
@@ -11,7 +13,7 @@ class Database
     /**
      * Database version.
      */
-    public const VERSION = '1.3.0';
+    public const VERSION = '1.4.0';
 
     /**
      * Constructor.
@@ -373,6 +375,8 @@ class Database
             'nb_accounts_db_version',
             self::VERSION
         );
+
+        Migration001::run();
 
         do_action(
             'nb_accounts_database_installed'

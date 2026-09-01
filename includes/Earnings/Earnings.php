@@ -34,11 +34,6 @@ class Earnings
         );
 
         add_action(
-            'nb_accounts_daily_event',
-            [$this, 'sync']
-        );
-
-        add_action(
             'save_post',
             [$this, 'invalidate_cache_on_save'],
             10,

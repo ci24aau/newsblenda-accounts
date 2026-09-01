@@ -535,7 +535,7 @@ class Admin
             $year = gmdate('Y');
 
             $total_ytd = (float) $wpdb->get_var($wpdb->prepare(
-                "SELECT COALESCE(SUM(amount),0) FROM {$table} WHERE YEAR(created_at) = %d",
+                "SELECT COALESCE(SUM(amount),0) FROM {$table} WHERE YEAR(calculated_at) = %d",
                 $year
             ));
 

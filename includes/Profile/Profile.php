@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Newsblenda\Accounts\Profile;
 
+use Newsblenda\Accounts\Classes\CacheManager;
+
 defined('ABSPATH') || exit;
 
 class Profile
@@ -445,7 +447,7 @@ class Profile
 
         $profile = [
 
-            'user' => get_userdata($user_id),
+            'user' => CacheManager::get_user_profile($user_id),
 
             'completion' => $this->completion($user_id),
 

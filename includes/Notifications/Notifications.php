@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Newsblenda\Accounts\Notifications;
 
+use Newsblenda\Accounts\Classes\CacheManager;
+
 defined('ABSPATH') || exit;
 
 class Notifications
@@ -312,6 +314,7 @@ class Notifications
 
             );
 
+            CacheManager::invalidate_user_cache(get_current_user_id());
         }
 
         if ($action === 'delete') {
@@ -332,6 +335,7 @@ class Notifications
 
             );
 
+            CacheManager::invalidate_user_cache(get_current_user_id());
         }
 
         wp_safe_redirect(
@@ -379,21 +383,7 @@ class Notifications
     public function unread_count(
         int $user_id
     ): int {
-
-        global $wpdb;
-
-        return (int) $wpdb->get_var(
-            $wpdb->prepare(
-                "
-                SELECT COUNT(*)
-                FROM {$this->table}
-                WHERE user_id=%d
-                AND is_read=0
-                ",
-                $user_id
-            )
-        );
-
+        return CacheManager::get_unread_notifications($user_id);
     }
 
     /**
@@ -432,6 +422,7 @@ class Notifications
         );
 
         if ($result) {
+            CacheManager::invalidate_user_cache($user_id);
 
             do_action(
                 'nb_accounts_notification_created',
@@ -455,7 +446,7 @@ class Notifications
 
         global $wpdb;
 
-        return (bool) $wpdb->update(
+        $updated = (bool) $wpdb->update(
             $this->table,
             [
                 'is_read' => 1,
@@ -473,6 +464,12 @@ class Notifications
             ]
         );
 
+        if ($updated) {
+            CacheManager::invalidate_user_cache($user_id);
+        }
+
+        return $updated;
+
     }
 
     /**
@@ -484,7 +481,7 @@ class Notifications
 
         global $wpdb;
 
-        return (bool) $wpdb->query(
+        $updated = (bool) $wpdb->query(
             $wpdb->prepare(
                 "
                 UPDATE {$this->table}
@@ -494,6 +491,12 @@ class Notifications
                 $user_id
             )
         );
+
+        if ($updated) {
+            CacheManager::invalidate_user_cache($user_id);
+        }
+
+        return $updated;
 
     }
 
@@ -507,7 +510,7 @@ class Notifications
 
         global $wpdb;
 
-        return (bool) $wpdb->delete(
+        $deleted = (bool) $wpdb->delete(
             $this->table,
             [
                 'id'      => $notification_id,
@@ -518,6 +521,12 @@ class Notifications
                 '%d',
             ]
         );
+
+        if ($deleted) {
+            CacheManager::invalidate_user_cache($user_id);
+        }
+
+        return $deleted;
 
     }
 
@@ -644,18 +653,6 @@ class Notifications
     public static function get_unread_count(
         int $user_id
     ): int {
-
-        global $wpdb;
-
-        $table = $wpdb->prefix . 'nb_notifications';
-
-        return (int) $wpdb->get_var(
-            $wpdb->prepare(
-                "SELECT COUNT(*) FROM {$table}
-                 WHERE user_id = %d AND is_read = 0",
-                $user_id
-            )
-        );
-
+        return CacheManager::get_unread_notifications($user_id);
     }
 }
