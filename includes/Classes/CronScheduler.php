@@ -13,8 +13,6 @@ class CronScheduler
 {
     public const DAILY_EARNINGS_HOOK = 'nb_accounts_daily_event';
     public const PAYOUT_PROCESSING_HOOK = 'nb_accounts_payout_processing_event';
-    public const HOOK_DAILY_EARNINGS = self::DAILY_EARNINGS_HOOK;
-    public const HOOK_DAILY_PAYOUTS = self::PAYOUT_PROCESSING_HOOK;
 
     public static function schedule_all(): void
     {

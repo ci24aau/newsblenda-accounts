@@ -312,12 +312,12 @@ class Plugin
      */
     public function check_upgrade(): void
     {
-        if (class_exists('\Newsblenda\Accounts\Migrations\Migrator')) {
-            \Newsblenda\Accounts\Migrations\Migrator::run_migrations();
-        }
-
         if (! Activator::needs_upgrade()) {
             return;
+        }
+
+        if (class_exists('\Newsblenda\Accounts\Migrations\Migrator')) {
+            \Newsblenda\Accounts\Migrations\Migrator::run_migrations();
         }
 
         update_option(
