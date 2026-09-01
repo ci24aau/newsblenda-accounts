@@ -273,6 +273,12 @@ class Plugin
         );
 
         $this->loader->add_action(
+            'init',
+            $this,
+            'register_assets'
+        );
+
+        $this->loader->add_action(
             'wp_enqueue_scripts',
             $this,
             'frontend_assets'
@@ -324,6 +330,10 @@ class Plugin
      */
     public function check_upgrade(): void
     {
+        if (class_exists('\Newsblenda\Accounts\Migrations\Migrator')) {
+            \Newsblenda\Accounts\Migrations\Migrator::run_migrations();
+        }
+
         if (! Activator::needs_upgrade()) {
             return;
         }
@@ -336,6 +346,16 @@ class Plugin
         do_action(
             'nb_accounts_upgraded'
         );
+    }
+
+    /**
+     * Register assets.
+     */
+    public function register_assets(): void
+    {
+        if (class_exists('\Newsblenda\Accounts\Classes\AssetManager')) {
+            \Newsblenda\Accounts\Classes\AssetManager::register_assets();
+        }
     }
 
     /**
@@ -363,85 +383,9 @@ class Plugin
      */
     public function frontend_assets(): void
     {
-        if (! $this->should_load_frontend_assets()) {
-            return;
+        if (class_exists('\Newsblenda\Accounts\Classes\AssetManager')) {
+            \Newsblenda\Accounts\Classes\AssetManager::enqueue_frontend_assets();
         }
-
-        wp_enqueue_style(
-            'nb-accounts-design-system',
-            NB_ACCOUNTS_URL . 'assets/css/design-system.css',
-            [],
-            NB_ACCOUNTS_VERSION
-        );
-
-        wp_enqueue_style(
-            'nb-accounts-components',
-            NB_ACCOUNTS_URL . 'assets/css/components.css',
-            ['nb-accounts-design-system'],
-            NB_ACCOUNTS_VERSION
-        );
-
-        wp_enqueue_style(
-            'nb-accounts-frontend',
-            NB_ACCOUNTS_URL . 'assets/css/frontend.css',
-            ['nb-accounts-design-system', 'nb-accounts-components'],
-            NB_ACCOUNTS_VERSION
-        );
-
-        if ($this->is_dashboard_context()) {
-            wp_enqueue_style(
-                'nb-accounts-dashboard',
-                NB_ACCOUNTS_URL . 'assets/css/dashboard.css',
-                ['nb-accounts-design-system', 'nb-accounts-components'],
-                NB_ACCOUNTS_VERSION
-            );
-        }
-
-        wp_enqueue_script(
-            'nb-accounts-frontend',
-            NB_ACCOUNTS_URL . 'assets/js/frontend.js',
-            ['jquery'],
-            NB_ACCOUNTS_VERSION,
-            true
-        );
-
-        wp_script_add_data(
-            'nb-accounts-frontend',
-            'defer',
-            true
-        );
-
-        wp_localize_script(
-            'nb-accounts-frontend',
-            'NBAccounts',
-            [
-                'ajax_url' => admin_url('admin-ajax.php'),
-                'home_url' => home_url(),
-                'rest_url' => esc_url_raw(
-                    rest_url()
-                ),
-                'nonce' => wp_create_nonce(
-                    'nb_accounts'
-                ),
-                'editor_nonce' => wp_create_nonce('nb_editor_action'),
-                'author_nonce' => wp_create_nonce('nb_author_action'),
-                'logged_in' => is_user_logged_in(),
-                'i18n'      => [
-                    'showPassword'     => __('Show password', 'newsblenda-accounts'),
-                    'hidePassword'     => __('Hide password', 'newsblenda-accounts'),
-                    'strengthWeak'     => __('Weak', 'newsblenda-accounts'),
-                    'strengthMedium'   => __('Medium', 'newsblenda-accounts'),
-                    'strengthStrong'   => __('Strong', 'newsblenda-accounts'),
-                    'strengthVStrong'  => __('Very Strong', 'newsblenda-accounts'),
-                    'passwordsMatch'   => __('Passwords match', 'newsblenda-accounts'),
-                    'passwordsNoMatch' => __('Passwords do not match', 'newsblenda-accounts'),
-                    'confirmApprove'   => __('Approve this article?', 'newsblenda-accounts'),
-                    'confirmPublish'   => __('Publish this article now?', 'newsblenda-accounts'),
-                    'confirmResubmit'  => __('Resubmit this article for review?', 'newsblenda-accounts'),
-                    'confirmDelete'    => __('Permanently delete this draft? This cannot be undone.', 'newsblenda-accounts'),
-                ],
-            ]
-        );
     }
 
     /**
@@ -536,46 +480,9 @@ class Plugin
      */
     public function admin_assets(string $hook = ''): void
     {
-        if (! $this->should_load_admin_assets($hook)) {
-            return;
+        if (class_exists('\Newsblenda\Accounts\Classes\AssetManager')) {
+            \Newsblenda\Accounts\Classes\AssetManager::enqueue_admin_assets($hook);
         }
-
-        wp_enqueue_style(
-            'nb-accounts-design-system',
-            NB_ACCOUNTS_URL . 'assets/css/design-system.css',
-            [],
-            NB_ACCOUNTS_VERSION
-        );
-
-        wp_enqueue_style(
-            'nb-accounts-admin',
-            NB_ACCOUNTS_URL . 'assets/css/admin.css',
-            ['nb-accounts-design-system'],
-            NB_ACCOUNTS_VERSION
-        );
-
-        wp_enqueue_script(
-            'nb-accounts-admin',
-            NB_ACCOUNTS_URL . 'assets/js/admin.js',
-            ['jquery'],
-            NB_ACCOUNTS_VERSION,
-            true
-        );
-
-        wp_script_add_data(
-            'nb-accounts-admin',
-            'defer',
-            true
-        );
-
-        wp_localize_script(
-            'nb-accounts-admin',
-            'NBAccountsAdmin',
-            [
-                'ajax_url' => admin_url('admin-ajax.php'),
-                'nonce'    => wp_create_nonce('nb_accounts_admin'),
-            ]
-        );
     }
 
     /**

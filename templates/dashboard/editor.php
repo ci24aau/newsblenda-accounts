@@ -54,7 +54,9 @@ if ($cached_data === false) {
 		$queue_args['author'] = $filter_author;
 	}
 
-	$queue_posts = get_posts($queue_args);
+	$queue_posts = $search === '' && $filter_author === 0
+		? \Newsblenda\Accounts\Classes\QueryOptimizer::get_editor_pending_articles(20, 0)
+		: get_posts($queue_args);
 
 	$revision_args = array_merge($base_args, [
 		'post_status'    => 'draft',
@@ -102,7 +104,7 @@ if ($cached_data === false) {
 	]);
 
 	$editor_notifs = \Newsblenda\Accounts\Notifications\Notifications::get_latest($editor->ID, 5);
-	$unread_count  = \Newsblenda\Accounts\Notifications\Notifications::get_unread_count($editor->ID);
+	$unread_count  = \Newsblenda\Accounts\Classes\CacheManager::get_unread_notifications((int) $editor->ID);
 
 	$cached_data = compact(
 		'queue_posts',
@@ -303,7 +305,7 @@ $badge = static function (string $status): string {
 									<td><?php echo esc_html(
 										$submitted_at
 											? mysql2date(get_option('date_format'), $submitted_at)
-											: get_the_date(get_option('date_format'), $post)
+											: get_the_date(get_option('date_format'), $post->ID)
 									); ?></td>
 									<td><?php echo esc_html(number_format($word_count)); ?></td>
 									<td class="nba-col-actions nba-review-actions">

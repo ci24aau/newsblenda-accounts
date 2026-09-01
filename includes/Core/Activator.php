@@ -77,6 +77,16 @@ class Activator
             \Newsblenda\Accounts\Database\Database::install();
 
         }
+
+        if (
+            class_exists(
+                '\Newsblenda\Accounts\Migrations\Migrator'
+            )
+        ) {
+
+            \Newsblenda\Accounts\Migrations\Migrator::run_migrations();
+
+        }
     }
 
     /**
@@ -243,6 +253,16 @@ class Activator
      */
     private static function schedule_events(): void
     {
+        if (
+            class_exists(
+                '\Newsblenda\Accounts\Classes\CronScheduler'
+            )
+        ) {
+
+            \Newsblenda\Accounts\Classes\CronScheduler::schedule_all();
+
+        }
+
         if (
             ! wp_next_scheduled(
                 'nb_accounts_daily_event'

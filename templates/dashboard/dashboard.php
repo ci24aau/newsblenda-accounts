@@ -25,63 +25,19 @@ $cached_data   = get_transient($cache_key);
 );
 
 if ($cached_data === false) {
-	global $wpdb;
-
-	$stats = (array) $wpdb->get_row(
-		$wpdb->prepare(
-			"SELECT
-				COUNT(CASE WHEN p.post_status = 'publish' THEN 1 END) AS published_count,
-				COUNT(CASE WHEN p.post_status = 'pending' THEN 1 END) AS pending_count,
-				COUNT(CASE WHEN p.post_status = 'draft' AND (pm.meta_value IS NULL OR pm.meta_value = %s) THEN 1 END) AS draft_count,
-				COUNT(CASE WHEN p.post_status = 'draft' AND pm.meta_value = %s THEN 1 END) AS rejected_count,
-				COUNT(CASE WHEN p.post_status = 'draft' AND pm.meta_value = %s THEN 1 END) AS revision_count
-			FROM {$wpdb->posts} p
-			LEFT JOIN {$wpdb->postmeta} pm
-				ON pm.post_id = p.ID
-				AND pm.meta_key = 'nb_workflow_status'
-			WHERE p.post_type = 'post'
-				AND p.post_author = %d",
-			WorkflowManager::STATUS_DRAFT,
-			WorkflowManager::STATUS_REJECTED,
-			WorkflowManager::STATUS_REVISION_REQUESTED,
-			$user->ID
-		),
-		ARRAY_A
-	);
+	$stats = \Newsblenda\Accounts\Classes\CacheManager::get_author_stats((int) $user->ID);
+	$earnings_data = \Newsblenda\Accounts\Classes\QueryOptimizer::get_earnings_data((int) $user->ID);
+	$profile_data = \Newsblenda\Accounts\Classes\CacheManager::get_user_profile((int) $user->ID);
 
 	$published_count = (int) ($stats['published_count'] ?? 0);
 	$pending_count   = (int) ($stats['pending_count'] ?? 0);
 	$draft_count     = (int) ($stats['draft_count'] ?? 0);
 	$rejected_count  = (int) ($stats['rejected_count'] ?? 0);
 	$revision_count  = (int) ($stats['revision_count'] ?? 0);
-
-	$total_submissions = $published_count
-		+ $pending_count
-		+ $draft_count
-		+ $rejected_count
-		+ $revision_count;
-
-	$total_views = (int) $wpdb->get_var(
-		$wpdb->prepare(
-			"SELECT COALESCE(SUM(pm.meta_value), 0)
-			FROM {$wpdb->postmeta} pm
-			INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
-			WHERE p.post_author = %d
-				AND pm.meta_key = 'nb_post_views'",
-			$user->ID
-		)
-	);
-
-	$total_earnings = (float) get_user_meta($user->ID, 'nb_total_earnings', true);
-
-	$unpaid_balance = (float) $wpdb->get_var(
-		$wpdb->prepare(
-			"SELECT COALESCE(SUM(amount), 0)
-			FROM {$wpdb->prefix}nb_earnings
-			WHERE user_id = %d AND status = 'unpaid'",
-			$user->ID
-		)
-	);
+	$total_submissions = (int) ($stats['total_submissions'] ?? 0);
+	$total_views = (int) ($earnings_data['total_views'] ?? 0);
+	$total_earnings = (float) ($earnings_data['total_earnings'] ?? 0);
+	$unpaid_balance = (float) ($earnings_data['unpaid_balance'] ?? 0);
 
 	$base_post_args = [
 		'post_type'              => 'post',
@@ -137,33 +93,10 @@ if ($cached_data === false) {
 		'order'       => 'DESC',
 	]));
 
-	$profile_fields = [
-		'first_name',
-		'last_name',
-		'description',
-		'nb_phone',
-		'nb_country',
-		'nb_state',
-		'nb_city',
-		'nb_niche',
-		'nb_payment_method',
-		'nb_whatsapp',
-		'nb_gender',
-	];
-
-	$profile_completed = 0;
-	foreach ($profile_fields as $field) {
-		if (! empty(get_user_meta($user->ID, $field, true))) {
-			$profile_completed++;
-		}
-	}
-
-	$profile_percent = (int) round(
-		($profile_completed / count($profile_fields)) * 100
-	);
+	$profile_percent = (int) ($profile_data['completion'] ?? 0);
 
 	$notifications = \Newsblenda\Accounts\Notifications\Notifications::get_latest($user->ID, 4);
-	$unread_count  = \Newsblenda\Accounts\Notifications\Notifications::get_unread_count($user->ID);
+	$unread_count  = \Newsblenda\Accounts\Classes\CacheManager::get_unread_notifications((int) $user->ID);
 
 	$cached_data = compact(
 		'total_submissions',

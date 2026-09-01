@@ -31,6 +31,16 @@ class Deactivator
      */
     private static function clear_scheduled_events(): void
     {
+        if (
+            class_exists(
+                '\Newsblenda\Accounts\Classes\CronScheduler'
+            )
+        ) {
+
+            \Newsblenda\Accounts\Classes\CronScheduler::unschedule_all();
+
+        }
+
         $events = [
 
             'nb_accounts_daily',
